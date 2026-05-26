@@ -51,6 +51,10 @@
         <h1>Crogo</h1>
       </div>
       <div class="tagline">CRO 文档智能平台</div>
+      <button type="button" class="sidebar-cta" id="newProjectBtn" data-action="new-project">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span>新建项目</span>
+      </button>
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section">核心</div>
@@ -102,10 +106,6 @@
           <button class="btn-icon" title="通知" aria-label="通知">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
           </button>
-          <button class="btn btn-primary btn-sm" id="newProjectBtn">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            新项目
-          </button>
         </div>
       </div>
     </header>
@@ -137,18 +137,26 @@
           </div>
         </div>
 
-        <div class="upload-zone" id="dashboardUpload">
-          <div class="uz-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <div class="empty-state-banner" id="dashboardEmptyState" hidden>
+          <div class="esb-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
           </div>
-          <h3>拖入方案 PDF</h3>
-          <p>或点击上传 · 支持 .pdf .docx</p>
-          <input type="file" accept=".pdf,.docx" multiple>
+          <div class="esb-body">
+            <h3>开始你的第一个项目</h3>
+            <p>上传方案 PDF，一次性生成 DMC / DMP / SAP 等文档。也可以先把历史 PDF 入库构建知识检索。</p>
+            <div class="esb-actions">
+              <button class="btn btn-primary btn-sm" data-action="new-project">＋ 新建项目</button>
+              <button class="btn btn-outline btn-sm" data-page-nav="knowledge">导入历史 PDF 到知识库</button>
+            </div>
+          </div>
         </div>
 
         <div class="section-hdr">
           <h3>最近项目</h3>
-          <button class="btn btn-outline btn-xs" onclick="App.navigate('projects')">查看全部</button>
+          <div class="section-hdr-actions">
+            <button class="btn btn-primary btn-sm" data-action="new-project">＋ 新建项目</button>
+            <button class="btn btn-outline btn-xs" data-page-nav="projects">查看全部</button>
+          </div>
         </div>
         <div class="project-list"></div>
       </div>
@@ -199,7 +207,7 @@
       <div class="page" id="page-projects">
         <div class="section-hdr">
           <h3>所有项目</h3>
-          <button class="btn btn-primary btn-sm" id="newProjectBtn2">＋ 新建项目</button>
+          <button class="btn btn-primary btn-sm" data-action="new-project">＋ 新建项目</button>
         </div>
         <div class="project-list" id="projectsFullList"></div>
       </div>

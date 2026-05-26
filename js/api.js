@@ -84,13 +84,20 @@ const API = {
     return this.request(`/api/projects/${id}`);
   },
 
-  createProject(name, sponsor, templateId, file) {
+  createProject(name, sponsor, templateIds, file) {
     const fd = new FormData();
     fd.append('name', name);
     fd.append('sponsor', sponsor);
-    if (templateId) fd.append('template_id', String(templateId));
+    const ids = Array.isArray(templateIds)
+      ? templateIds
+      : (templateIds ? [templateIds] : []);
+    if (ids.length) fd.append('template_ids', ids.join(','));
     fd.append('file', file);
     return this.request('/api/projects', { method: 'POST', body: fd });
+  },
+
+  deleteTemplate(id) {
+    return this.request(`/api/templates/${id}`, { method: 'DELETE' });
   },
 
   extractProject(id) {
@@ -109,8 +116,9 @@ const API = {
     return this.request(`/api/projects/${id}/generate`, { method: 'POST' });
   },
 
-  downloadUrl(id) {
-    return `${this.base}/api/projects/${id}/download`;
+  downloadUrl(id, templateId) {
+    const base = `${this.base}/api/projects/${id}/download`;
+    return templateId ? `${base}?template_id=${templateId}` : base;
   },
 
   fieldSchema() {

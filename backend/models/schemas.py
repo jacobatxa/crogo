@@ -45,14 +45,25 @@ class ProjectOut(BaseModel):
     name: str
     sponsor: str = ""
     template_id: Optional[int] = None
+    template_ids: List[int] = Field(default_factory=list)
     status: str
     updated_at: str
     has_output: bool = False
 
 
+class ProjectGenerationOut(BaseModel):
+    template_id: int
+    template_name: str = ""
+    template_type: str = ""
+    status: str = "pending"
+    message: str = ""
+    download_url: str = ""
+
+
 class ProjectDetail(ProjectOut):
     fields: List[FieldValue] = Field(default_factory=list)
     pdf_filename: str = ""
+    generations: List[ProjectGenerationOut] = Field(default_factory=list)
 
 
 class TemplateOut(BaseModel):
@@ -97,3 +108,4 @@ class GenerateResponse(BaseModel):
     success: bool
     message: str = ""
     download_url: str = ""
+    generations: List[ProjectGenerationOut] = Field(default_factory=list)

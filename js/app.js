@@ -202,27 +202,25 @@ const App = {
       }
     };
 
-    ['dashboardUpload', 'kbUpload'].forEach(id => {
-      const zone = document.getElementById(id);
-      if (!zone) return;
-      const input = zone.querySelector('input[type="file"]');
-      ['dragenter', 'dragover'].forEach(evt => {
-        zone.addEventListener(evt, e => { e.preventDefault(); zone.classList.add('dragover'); });
+    const zone = document.getElementById('kbUpload');
+    if (!zone) return;
+    const input = zone.querySelector('input[type="file"]');
+    ['dragenter', 'dragover'].forEach(evt => {
+      zone.addEventListener(evt, e => { e.preventDefault(); zone.classList.add('dragover'); });
+    });
+    ['dragleave', 'drop'].forEach(evt => {
+      zone.addEventListener(evt, e => {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        if (evt === 'drop' && e.dataTransfer?.files?.length) {
+          ingest(e.dataTransfer.files, 'kbUpload');
+        }
       });
-      ['dragleave', 'drop'].forEach(evt => {
-        zone.addEventListener(evt, e => {
-          e.preventDefault();
-          zone.classList.remove('dragover');
-          if (evt === 'drop' && e.dataTransfer?.files?.length) {
-            ingest(e.dataTransfer.files, id);
-          }
-        });
-      });
-      zone.addEventListener('click', () => input?.click());
-      input?.addEventListener('change', function () {
-        if (this.files.length) ingest(this.files, id);
-        this.value = '';
-      });
+    });
+    zone.addEventListener('click', () => input?.click());
+    input?.addEventListener('change', function () {
+      if (this.files.length) ingest(this.files, 'kbUpload');
+      this.value = '';
     });
   },
 
@@ -257,11 +255,28 @@ const App = {
   },
 
   bindActions() {
-    document.getElementById('newProjectBtn')?.addEventListener('click', () => this.openModal('newProject'));
-    document.getElementById('newProjectBtn2')?.addEventListener('click', () => this.openModal('newProject'));
     document.getElementById('uploadTemplateBtn')?.addEventListener('click', () => this.openModal('uploadTemplate'));
     document.getElementById('modalOverlay')?.addEventListener('click', (e) => {
       if (e.target === e.currentTarget) this.closeModal();
+    });
+
+    document.addEventListener('click', (e) => {
+      const navTarget = e.target.closest('[data-page-nav]');
+      if (navTarget) {
+        e.preventDefault();
+        this.navigate(navTarget.dataset.pageNav);
+        return;
+      }
+      const actionEl = e.target.closest('[data-action]');
+      if (!actionEl) return;
+      const action = actionEl.dataset.action;
+      if (action === 'new-project') {
+        e.preventDefault();
+        this.openModal('newProject');
+      } else if (action === 'upload-template') {
+        e.preventDefault();
+        this.openModal('uploadTemplate');
+      }
     });
   },
 
@@ -274,17 +289,39 @@ const App = {
 
     if (type === 'newProject') {
       title.textContent = '新建项目';
-      desc.textContent = '选择模板并上传方案 PDF，随后进行字段提取与校验';
-      const tplOpts = this.state.templates.length
-        ? this.state.templates.map(t => `<option value="${t.id}">${t.type} — ${t.name}</option>`).join('')
-        : '<option value="">（请先上传模板）</option>';
+      desc.textContent = '选择一个或多个模板，上传方案 PDF，一次性生成全部文档';
+      let tplListHtml = '';
+      if (!this.state.templates.length) {
+        tplListHtml = `<div class="tpl-checkbox-empty">尚未上传模板，请先到<a href="#" data-page-nav="templates">模板库</a>上传并完成映射。</div>`;
+      } else {
+        tplListHtml = '<ul class="tpl-checkbox-list">' + this.state.templates.map(t => {
+          const ready = !!t.mappings_complete;
+          const tag = ready
+            ? '<span class="tpl-pill tpl-pill-ok">已映射</span>'
+            : '<span class="tpl-pill tpl-pill-warn">待映射</span>';
+          const dis = ready ? '' : 'disabled';
+          const hint = ready ? '' : '<small class="tpl-hint">需在模板库完成占位符映射后才可勾选</small>';
+          return `
+            <li class="tpl-checkbox-item${ready ? '' : ' disabled'}">
+              <label>
+                <input type="checkbox" class="tpl-check" value="${t.id}" ${dis}>
+                <span class="tpl-type-pill">${this.escapeHtml(t.type)}</span>
+                <span class="tpl-name">${this.escapeHtml(t.name)}</span>
+                ${tag}
+              </label>
+              ${hint}
+            </li>`;
+        }).join('') + '</ul>';
+      }
       form.innerHTML = `
         <div class="form-group"><label>项目名称</label>
           <input type="text" id="projName" placeholder="例：RWS-2024-012" style="width:100%"></div>
         <div class="form-group"><label>申办方</label>
           <input type="text" id="projSponsor" placeholder="例：恒瑞医药" style="width:100%"></div>
-        <div class="form-group"><label>选择模板</label>
-          <select id="projTemplate" style="width:100%;padding:9px 12px;border-radius:6px;border:1px solid var(--border);font-size:13px">${tplOpts}</select></div>
+        <div class="form-group"><label>选择模板（可多选）</label>
+          ${tplListHtml}
+          <small class="form-hint">已勾选模板将按顺序为同一份 PDF 各生成一份文档</small>
+        </div>
         <div class="form-group"><label>方案 PDF</label>
           <input type="file" id="projPdf" accept=".pdf" style="font-size:12px"></div>`;
       actions.innerHTML = `
@@ -319,15 +356,25 @@ const App = {
       if (type === 'newProject') {
         const name = document.getElementById('projName')?.value.trim();
         const sponsor = document.getElementById('projSponsor')?.value.trim();
-        const templateId = document.getElementById('projTemplate')?.value;
+        const templateIds = Array.from(document.querySelectorAll('.tpl-check:checked'))
+          .map(el => parseInt(el.value, 10))
+          .filter(Boolean);
         const file = document.getElementById('projPdf')?.files?.[0];
-        if (!name || !file) {
-          this.showToast('请填写项目名称并上传 PDF', true);
+        if (!name) {
+          this.showToast('请填写项目名称', true);
+          return;
+        }
+        if (!file) {
+          this.showToast('请上传方案 PDF', true);
+          return;
+        }
+        if (!templateIds.length) {
+          this.showToast('请至少勾选一个已映射的模板', true);
           return;
         }
         this.closeModal();
         this.showToast('正在创建项目...');
-        const proj = await API.createProject(name, sponsor, templateId, file);
+        const proj = await API.createProject(name, sponsor, templateIds, file);
         this.showToast('正在提取字段...');
         await API.extractProject(proj.id);
         await this.refreshAll();
@@ -335,18 +382,20 @@ const App = {
         this.openProjectDetail(proj.id);
       } else if (type === 'uploadTemplate') {
         const typeVal = document.getElementById('tplType')?.value;
-        const name = document.getElementById('tplName')?.value.trim();
         const file = document.getElementById('tplFile')?.files?.[0];
+        let name = document.getElementById('tplName')?.value.trim();
         if (!file) {
           this.showToast('请选择 .docx 文件', true);
           return;
         }
+        if (!name) name = file.name.replace(/\.docx$/i, '');
         this.closeModal();
         this.showToast('正在解析模板...');
         const tpl = await API.uploadTemplate(typeVal, name, file);
         await this.refreshAll();
         history.replaceState({}, '', `${location.pathname}?template=${tpl.id}`);
         this.openTemplateDetail(tpl.id);
+        this.showToast('模板已上传，请确认占位符映射');
       }
     } catch (e) {
       this.showToast(e.message, true);
@@ -380,41 +429,85 @@ const App = {
       extracting: '提取中',
       validating: '待校验',
       generating: '生成中',
+      partial: '部分完成',
       done: '已完成',
     };
     const fields = proj.fields || [];
     const fieldsHtml = fields.length
       ? fields.map(f => `
-        <div class="field-row" data-key="${f.key}">
+        <div class="field-row" data-key="${this.escapeHtml(f.key)}">
           <div class="field-label">
-            ${f.label}${f.required ? '<span class="req">*</span>' : ''}
+            ${this.escapeHtml(f.label || f.key)}${f.required ? '<span class="req">*</span>' : ''}
             <small>置信度 ${Math.round((f.confidence || 0) * 100)}%</small>
           </div>
-          <textarea class="field-input" rows="2">${this.escapeHtml(f.value || '')}</textarea>
+          <textarea class="field-input" rows="2"></textarea>
           ${f.source_snippet ? `<div class="field-source">依据: ${this.escapeHtml(f.source_snippet)}</div>` : ''}
         </div>`).join('')
-      : '<p>暂无字段，请点击下方按钮提取。</p>';
+      : '<p class="empty-text">暂无字段，点击「重新提取」从 PDF 中识别。</p>';
 
-    const downloadBtn = proj.has_output
-      ? `<a class="btn btn-primary btn-sm" href="${API.downloadUrl(proj.id)}" download>下载 DOCX</a>`
-      : '';
+    const generations = proj.generations || [];
+    const genCount = generations.length;
+    const generateLabel = genCount > 1
+      ? `生成全部文档（${genCount} 份）`
+      : (genCount === 1 ? `生成 ${this.escapeHtml(generations[0].template_type || 'DMC')}` : '生成文档');
+    const generateDisabled = genCount === 0 ? 'disabled' : '';
+
+    const genStatusLabel = {
+      pending: '待生成',
+      done: '已生成',
+      error: '失败',
+    };
+    const genStatusClass = {
+      pending: 'gen-pending',
+      done: 'gen-done',
+      error: 'gen-error',
+    };
+
+    const generationsHtml = genCount
+      ? `<div class="generations-grid">${generations.map(g => {
+          const cls = genStatusClass[g.status] || 'gen-pending';
+          const label = genStatusLabel[g.status] || g.status;
+          const action = g.status === 'done'
+            ? `<a class="btn btn-primary btn-xs" href="${API.downloadUrl(proj.id, g.template_id)}" download>下载 .docx</a>`
+            : (g.status === 'error'
+                ? `<span class="gen-msg">${this.escapeHtml(g.message || '生成失败')}</span>`
+                : '<span class="gen-msg">等待生成</span>');
+          return `
+            <div class="generation-card ${cls}">
+              <div class="gc-head">
+                <span class="tpl-type-pill">${this.escapeHtml(g.template_type || '')}</span>
+                <span class="gc-name">${this.escapeHtml(g.template_name || '')}</span>
+                <span class="gc-status">${label}</span>
+              </div>
+              <div class="gc-action">${action}</div>
+            </div>`;
+        }).join('')}</div>`
+      : '<p class="empty-text">未选择模板，请重建项目并勾选模板。</p>';
 
     return `
       <div class="detail-meta">
-        <span>状态: ${statusMap[proj.status] || proj.status}</span>
-        <span>方案: ${this.escapeHtml(proj.pdf_filename || '')}</span>
-        <span>模板 ID: ${proj.template_id || '未选择'}</span>
+        <span>状态：${statusMap[proj.status] || proj.status}</span>
+        <span>方案：${this.escapeHtml(proj.pdf_filename || '')}</span>
+        <span>模板数：${genCount}</span>
       </div>
       <div class="detail-actions">
-        ${proj.status === 'draft' ? '<button class="btn btn-primary btn-sm" id="btnExtract">提取字段</button>' : ''}
+        <button class="btn btn-outline btn-sm" id="btnExtract">重新提取字段</button>
         <button class="btn btn-outline btn-sm" id="btnSaveFields">保存校验</button>
-        <button class="btn btn-primary btn-sm" id="btnGenerate" style="background:var(--teal)">一键生成 DMC</button>
-        ${downloadBtn}
+        <button class="btn btn-primary btn-sm" id="btnGenerate" style="background:var(--teal)" ${generateDisabled}>${generateLabel}</button>
+      </div>
+      <div class="generations-panel">
+        <h4>生成进度</h4>
+        ${generationsHtml}
       </div>
       <div class="fields-panel"><h4>字段校验</h4>${fieldsHtml}</div>`;
   },
 
   bindProjectDetailActions(proj) {
+    (proj.fields || []).forEach(f => {
+      const ta = document.querySelector(`.field-row[data-key="${f.key}"] .field-input`);
+      if (ta) ta.value = f.value || '';
+    });
+
     document.getElementById('btnExtract')?.addEventListener('click', async () => {
       try {
         this.showToast('正在提取...');
@@ -502,10 +595,25 @@ const App = {
         `<li>${this.escapeHtml(s.number || '')} ${this.escapeHtml(s.title || '')}</li>`
       ).join('');
 
+      const phCount = (tpl.placeholders_list || []).length;
+      const mappedCount = Object.keys(tpl.mappings || {}).length;
+      const ready = tpl.mappings_complete;
+      const bannerClass = ready ? 'banner-ok' : 'banner-warn';
+      const bannerTitle = ready ? '模板已可用于项目生成' : '模板已上传，请确认占位符映射';
+      const bannerDesc = `已识别 ${tpl.sections} 章节 / ${phCount} 占位符 · 已映射 ${mappedCount} / ${phCount}`;
+
       body.innerHTML = `
-        <p class="detail-meta">${tpl.desc}</p>
+        <div class="confirm-banner ${bannerClass}">
+          <div class="cb-text">
+            <h4>${bannerTitle}</h4>
+            <p>${bannerDesc}</p>
+          </div>
+        </div>
+        <p class="detail-meta">${this.escapeHtml(tpl.desc || '')}</p>
         <div class="detail-actions">
-          <button class="btn btn-primary btn-sm" id="btnSaveMappings">保存映射</button>
+          <button class="btn btn-primary btn-sm" id="btnSaveMappings" style="background:var(--teal)">保存映射并启用</button>
+          <button class="btn btn-outline btn-sm" id="btnReupload">重新上传</button>
+          <button class="btn btn-danger btn-sm" id="btnDeleteTpl">删除模板</button>
         </div>
         <div class="mapping-grid">
           <div class="sections-preview"><h4>章节预览</h4><ul>${sectionsHtml || '<li>无章节</li>'}</ul></div>
@@ -530,31 +638,53 @@ const App = {
         });
         try {
           await API.saveMappings(id, mappings);
-          this.showToast('映射已保存');
+          this.showToast('模板已保存，可在新建项目时勾选');
           await this.refreshAll();
+          await this.openTemplateDetail(id);
+        } catch (e) {
+          this.showToast(e.message, true);
+        }
+      });
+
+      document.getElementById('btnReupload')?.addEventListener('click', () => {
+        this.openModal('uploadTemplate');
+      });
+
+      document.getElementById('btnDeleteTpl')?.addEventListener('click', async () => {
+        if (!confirm(`确认删除模板「${tpl.name}」？此操作不可恢复。`)) return;
+        try {
+          await API.deleteTemplate(id);
+          this.showToast('模板已删除');
+          history.replaceState({}, '', location.pathname);
+          await this.refreshAll();
+          this.navigate('templates');
         } catch (e) {
           this.showToast(e.message, true);
         }
       });
     } catch (e) {
-      body.innerHTML = `<p class="error-text">${e.message}</p>`;
+      body.innerHTML = `<p class="error-text">${this.escapeHtml(e.message)}</p>`;
     }
   },
 
   renderTemplates() {
     const grid = document.getElementById('templateGrid');
     if (!grid) return;
-    const cards = this.state.templates.map(t => `
-      <div class="template-card clickable" data-tpl-id="${t.id}">
-        <div class="tc-type">${t.type}</div>
-        <h4>${this.escapeHtml(t.name)}</h4>
-        <p>${this.escapeHtml(t.desc || '')}</p>
-        <div class="tc-meta">
-          <span>${t.sections} 章节</span><span class="dot"></span>
-          <span>${t.placeholders} 占位符</span><span class="dot"></span>
-          <span>${t.mappings_complete ? '已映射' : '待映射'}</span>
-        </div>
-      </div>`).join('');
+    const cards = this.state.templates.map(t => {
+      const pillClass = t.mappings_complete ? 'tpl-pill tpl-pill-ok' : 'tpl-pill tpl-pill-warn';
+      const pillText = t.mappings_complete ? '已映射' : '待映射';
+      return `
+        <div class="template-card clickable" data-tpl-id="${t.id}">
+          <div class="tc-type">${this.escapeHtml(t.type)}</div>
+          <h4>${this.escapeHtml(t.name)}</h4>
+          <p>${this.escapeHtml(t.desc || '')}</p>
+          <div class="tc-meta">
+            <span>${t.sections} 章节</span><span class="dot"></span>
+            <span>${t.placeholders} 占位符</span><span class="dot"></span>
+            <span class="${pillClass}">${pillText}</span>
+          </div>
+        </div>`;
+    }).join('');
     grid.innerHTML = cards + `
       <div class="template-card add-card" id="uploadTemplateBtn2">
         <div class="add-icon">+</div>
@@ -572,6 +702,7 @@ const App = {
   renderProjects() {
     const statusMap = {
       done: '已完成',
+      partial: '部分完成',
       generating: '生成中',
       validating: '待校验',
       extracting: '提取中',
@@ -580,6 +711,7 @@ const App = {
     };
     const statusClass = {
       done: 'status-done',
+      partial: 'status-progress',
       generating: 'status-progress',
       validating: 'status-draft',
       extracting: 'status-progress',
@@ -588,7 +720,9 @@ const App = {
     };
     const colors = ['#0891b2', '#7c3aed', '#d97706', '#2563eb', '#dc2626'];
 
-    const html = this.state.projects.map((p, i) => {
+    const hasProjects = this.state.projects.length > 0;
+
+    const projectItem = (p, i) => {
       const initials = (p.name || 'P')[0].toUpperCase();
       const color = colors[i % colors.length];
       return `
@@ -604,10 +738,25 @@ const App = {
           </div>
           <span class="pi-status ${statusClass[p.status] || 'status-draft'}">${statusMap[p.status] || p.status}</span>
         </div>`;
-    }).join('') || '<p class="empty-text">暂无项目，点击「新建项目」开始</p>';
+    };
+
+    const itemsHtml = this.state.projects.map(projectItem).join('');
+
+    const dashboardListHtml = hasProjects
+      ? itemsHtml
+      : '<p class="empty-text">暂无项目，点击左侧「新建项目」或下方按钮开始</p>';
+
+    const projectsPageHtml = hasProjects
+      ? itemsHtml
+      : `<div class="empty-state-card">
+           <h4>还没有项目</h4>
+           <p>新建一个项目，上传方案 PDF，一次性生成多份文档。</p>
+           <button class="btn btn-primary btn-sm" data-action="new-project">＋ 新建项目</button>
+         </div>`;
 
     document.querySelectorAll('.project-list').forEach(list => {
-      list.innerHTML = html;
+      const isProjectsPage = list.id === 'projectsFullList';
+      list.innerHTML = isProjectsPage ? projectsPageHtml : dashboardListHtml;
       list.querySelectorAll('.project-item.clickable').forEach(item => {
         item.addEventListener('click', () => {
           const id = parseInt(item.dataset.projId, 10);
@@ -616,6 +765,9 @@ const App = {
         });
       });
     });
+
+    const emptyBanner = document.getElementById('dashboardEmptyState');
+    if (emptyBanner) emptyBanner.hidden = hasProjects;
   },
 
   renderQueries() {

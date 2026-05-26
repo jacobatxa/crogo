@@ -51,6 +51,7 @@ def init_db() -> None:
                 name TEXT NOT NULL,
                 sponsor TEXT DEFAULT '',
                 template_id INTEGER,
+                template_ids TEXT DEFAULT '[]',
                 pdf_path TEXT NOT NULL,
                 pdf_filename TEXT NOT NULL,
                 status TEXT NOT NULL DEFAULT 'draft',
@@ -60,8 +61,43 @@ def init_db() -> None:
                 updated_at TEXT NOT NULL,
                 FOREIGN KEY (template_id) REFERENCES templates(id)
             );
+
+            CREATE TABLE IF NOT EXISTS project_generations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                project_id INTEGER NOT NULL,
+                template_id INTEGER NOT NULL,
+                output_path TEXT DEFAULT '',
+                status TEXT NOT NULL DEFAULT 'pending',
+                message TEXT DEFAULT '',
+                created_at TEXT NOT NULL,
+                FOREIGN KEY (project_id) REFERENCES projects(id),
+                FOREIGN KEY (template_id) REFERENCES templates(id)
+            );
             """
         )
+        # Migrate older DBs that miss template_ids column.
+        cols = {row["name"] for row in conn.execute("PRAGMA table_info(projects)").fetchall()}
+        if "template_ids" not in cols:
+            conn.execute("ALTER TABLE projects ADD COLUMN template_ids TEXT DEFAULT '[]'")
+        conn.execute(
+            "UPDATE projects SET template_ids = json_array(template_id) "
+            "WHERE (template_ids IS NULL OR template_ids = '' OR template_ids = '[]') "
+            "AND template_id IS NOT NULL"
+        )
+        # Backfill project_generations for legacy single-template projects that already produced output.
+        legacy = conn.execute(
+            """SELECT id, template_id, output_path, updated_at FROM projects
+               WHERE template_id IS NOT NULL
+                 AND output_path IS NOT NULL AND output_path != ''
+                 AND id NOT IN (SELECT DISTINCT project_id FROM project_generations)"""
+        ).fetchall()
+        for row in legacy:
+            conn.execute(
+                """INSERT INTO project_generations
+                   (project_id, template_id, output_path, status, created_at)
+                   VALUES (?, ?, ?, 'done', ?)""",
+                (row["id"], row["template_id"], row["output_path"], row["updated_at"] or _now()),
+            )
 
 
 @contextmanager
@@ -168,22 +204,63 @@ def update_template_mappings(tpl_id: int, mappings: dict) -> None:
         )
 
 
+def delete_template(tpl_id: int) -> None:
+    with get_conn() as conn:
+        conn.execute("DELETE FROM templates WHERE id=?", (tpl_id,))
+
+
+def count_projects_using_template(tpl_id: int) -> int:
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT template_id, template_ids FROM projects"
+        ).fetchall()
+    n = 0
+    for r in rows:
+        ids = []
+        try:
+            ids = json.loads(r["template_ids"] or "[]")
+        except Exception:
+            ids = []
+        if r["template_id"] == tpl_id or tpl_id in ids:
+            n += 1
+    return n
+
+
 def create_project(
     name: str,
     sponsor: str,
-    template_id: int | None,
+    template_ids: list[int],
     pdf_path: str,
     pdf_filename: str,
 ) -> int:
     now = _now()
+    primary = template_ids[0] if template_ids else None
     with get_conn() as conn:
         cur = conn.execute(
             """INSERT INTO projects
-               (name, sponsor, template_id, pdf_path, pdf_filename, status, created_at, updated_at)
-               VALUES (?, ?, ?, ?, ?, 'draft', ?, ?)""",
-            (name, sponsor, template_id, pdf_path, pdf_filename, now, now),
+               (name, sponsor, template_id, template_ids, pdf_path, pdf_filename, status, created_at, updated_at)
+               VALUES (?, ?, ?, ?, ?, ?, 'draft', ?, ?)""",
+            (
+                name,
+                sponsor,
+                primary,
+                json.dumps(template_ids),
+                pdf_path,
+                pdf_filename,
+                now,
+                now,
+            ),
         )
         return cur.lastrowid
+
+
+def update_project_templates(proj_id: int, template_ids: list[int]) -> None:
+    primary = template_ids[0] if template_ids else None
+    with get_conn() as conn:
+        conn.execute(
+            "UPDATE projects SET template_id=?, template_ids=?, updated_at=? WHERE id=?",
+            (primary, json.dumps(template_ids), _now(), proj_id),
+        )
 
 
 def list_projects() -> list[dict]:
@@ -223,3 +300,54 @@ def update_project(
     vals.append(proj_id)
     with get_conn() as conn:
         conn.execute(f"UPDATE projects SET {', '.join(parts)} WHERE id=?", vals)
+
+
+# ── Project generations ──────────────────────────────────────────
+
+
+def reset_project_generations(proj_id: int, template_ids: list[int]) -> None:
+    now = _now()
+    with get_conn() as conn:
+        conn.execute("DELETE FROM project_generations WHERE project_id=?", (proj_id,))
+        for tid in template_ids:
+            conn.execute(
+                """INSERT INTO project_generations
+                   (project_id, template_id, status, created_at)
+                   VALUES (?, ?, 'pending', ?)""",
+                (proj_id, tid, now),
+            )
+
+
+def update_generation(
+    proj_id: int,
+    template_id: int,
+    *,
+    status: str,
+    output_path: str = "",
+    message: str = "",
+) -> None:
+    with get_conn() as conn:
+        conn.execute(
+            """UPDATE project_generations
+               SET status=?, output_path=?, message=?
+               WHERE project_id=? AND template_id=?""",
+            (status, output_path, message, proj_id, template_id),
+        )
+
+
+def list_project_generations(proj_id: int) -> list[dict]:
+    with get_conn() as conn:
+        rows = conn.execute(
+            "SELECT * FROM project_generations WHERE project_id=? ORDER BY id ASC",
+            (proj_id,),
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def get_generation(proj_id: int, template_id: int) -> dict | None:
+    with get_conn() as conn:
+        row = conn.execute(
+            "SELECT * FROM project_generations WHERE project_id=? AND template_id=?",
+            (proj_id, template_id),
+        ).fetchone()
+    return dict(row) if row else None
