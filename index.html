@@ -2,1086 +2,269 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Crogo — CRO文档智能平台</title>
-<style>
-  :root {
-    --nav-w: 240px;
-    --blue-50: #eff6ff;
-    --blue-100: #dbeafe;
-    --blue-200: #bfdbfe;
-    --blue-500: #3b82f6;
-    --blue-600: #2563eb;
-    --blue-700: #1d4ed8;
-    --blue-900: #1e3a5f;
-    --slate-50: #f8fafc;
-    --slate-100: #f1f5f9;
-    --slate-200: #e2e8f0;
-    --slate-300: #cbd5e1;
-    --slate-400: #94a3b8;
-    --slate-500: #64748b;
-    --slate-600: #475569;
-    --slate-700: #334155;
-    --slate-800: #1e293b;
-    --slate-900: #0f172a;
-    --accent: #0891b2;
-    --accent-light: #ecfeff;
-    --accent-dark: #0e7490;
-    --green-50: #f0fdf4;
-    --green-500: #22c55e;
-    --amber-50: #fffbeb;
-    --amber-500: #f59e0b;
-    --red-50: #fef2f2;
-    --red-500: #ef4444;
-    --radius: 10px;
-    --shadow: 0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
-    --shadow-md: 0 4px 6px -1px rgba(0,0,0,.07),0 2px 4px -2px rgba(0,0,0,.05);
-    --transition: .2s ease;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-    background: var(--slate-50);
-    color: var(--slate-800);
-    height: 100vh;
-    overflow: hidden;
-    display: flex;
-  }
-
-  /* ── Sidebar ── */
-  .sidebar {
-    width: var(--nav-w);
-    height: 100vh;
-    background: var(--slate-900);
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-    position: relative;
-    z-index: 10;
-  }
-  .sidebar-brand {
-    padding: 24px 20px 20px;
-    border-bottom: 1px solid rgba(255,255,255,.06);
-  }
-  .sidebar-brand h1 {
-    font-size: 20px;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: -.3px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .sidebar-brand h1 .logo-pill {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    background: linear-gradient(135deg, var(--accent), var(--blue-500));
-    font-size: 14px;
-    font-weight: 800;
-    color: #fff;
-  }
-  .sidebar-brand .tagline {
-    font-size: 11px;
-    color: var(--slate-400);
-    margin-top: 4px;
-    padding-left: 42px;
-    letter-spacing: .3px;
-  }
-
-  .sidebar-nav {
-    padding: 12px 12px;
-    flex: 1;
-    overflow-y: auto;
-  }
-  .sidebar-nav .nav-section {
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: .8px;
-    color: var(--slate-500);
-    padding: 16px 12px 6px;
-  }
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 9px 12px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--slate-300);
-    cursor: pointer;
-    transition: var(--transition);
-    margin-bottom: 2px;
-    position: relative;
-  }
-  .nav-item:hover { background: rgba(255,255,255,.07); color: #fff; }
-  .nav-item.active {
-    background: rgba(8,145,178,.15);
-    color: #67e8f9;
-  }
-  .nav-item .icon { width: 18px; text-align: center; font-size: 15px; opacity: .85; }
-  .nav-item .badge {
-    margin-left: auto;
-    background: rgba(255,255,255,.1);
-    padding: 1px 7px;
-    border-radius: 10px;
-    font-size: 10px;
-    font-weight: 600;
-    color: var(--slate-400);
-  }
-  .nav-item.active .badge { background: rgba(8,145,178,.25); color: #67e8f9; }
-
-  .sidebar-footer {
-    padding: 12px;
-    border-top: 1px solid rgba(255,255,255,.06);
-  }
-  .sidebar-footer .user-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: var(--transition);
-  }
-  .sidebar-footer .user-info:hover { background: rgba(255,255,255,.06); }
-  .sidebar-footer .avatar {
-    width: 28px; height: 28px;
-    border-radius: 6px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-    display: flex; align-items: center; justify-content: center;
-    color: #fff; font-size: 12px; font-weight: 700;
-  }
-  .sidebar-footer .user-name { font-size: 13px; color: var(--slate-300); font-weight: 500; }
-
-  /* ── Main ── */
-  .main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    min-width: 0;
-  }
-  .topbar {
-    height: 56px;
-    background: #fff;
-    border-bottom: 1px solid var(--slate-200);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 28px;
-    flex-shrink: 0;
-  }
-  .topbar-left { display: flex; align-items: center; gap: 16px; }
-  .topbar-left h2 {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--slate-800);
-  }
-  .topbar-left .breadcrumb {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: var(--slate-400);
-  }
-  .topbar-left .breadcrumb span { color: var(--slate-600); }
-  .topbar-right { display: flex; align-items: center; gap: 12px; }
-
-  .search-box {
-    display: flex;
-    align-items: center;
-    background: var(--slate-50);
-    border: 1px solid var(--slate-200);
-    border-radius: 8px;
-    padding: 6px 12px;
-    gap: 8px;
-    width: 260px;
-    transition: var(--transition);
-  }
-  .search-box:focus-within {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(8,145,178,.1);
-    background: #fff;
-  }
-  .search-box svg { width: 14px; height: 14px; color: var(--slate-400); flex-shrink: 0; }
-  .search-box input {
-    border: none;
-    background: transparent;
-    outline: none;
-    font-size: 13px;
-    color: var(--slate-700);
-    width: 100%;
-  }
-  .search-box input::placeholder { color: var(--slate-400); }
-
-  .topbar-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .topbar-actions .btn-icon {
-    width: 34px; height: 34px;
-    border-radius: 8px;
-    border: 1px solid var(--slate-200);
-    background: #fff;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer;
-    transition: var(--transition);
-    color: var(--slate-500);
-  }
-  .topbar-actions .btn-icon:hover {
-    background: var(--slate-50);
-    border-color: var(--slate-300);
-  }
-  .btn-primary {
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    padding: 7px 16px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    white-space: nowrap;
-  }
-  .btn-primary:hover { background: var(--accent-dark); }
-  .btn-outline {
-    background: #fff;
-    color: var(--slate-700);
-    border: 1px solid var(--slate-200);
-    padding: 7px 16px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: var(--transition);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .btn-outline:hover { background: var(--slate-50); border-color: var(--slate-300); }
-
-  /* ── Content ── */
-  .content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 24px 28px;
-  }
-
-  /* Page visibility */
-  .page { display: none; }
-  .page.active { display: block; }
-
-  /* Stats grid */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 28px;
-  }
-  .stat-card {
-    background: #fff;
-    border-radius: var(--radius);
-    padding: 18px 20px;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--slate-100);
-    transition: var(--transition);
-  }
-  .stat-card:hover { box-shadow: var(--shadow-md); }
-  .stat-card .stat-label {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--slate-500);
-    margin-bottom: 6px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .stat-card .stat-number {
-    font-size: 26px;
-    font-weight: 700;
-    color: var(--slate-800);
-    line-height: 1.1;
-  }
-  .stat-card .stat-sub {
-    font-size: 12px;
-    color: var(--slate-400);
-    margin-top: 4px;
-  }
-  .stat-card .stat-trend {
-    font-size: 12px;
-    font-weight: 600;
-    margin-top: 6px;
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    padding: 2px 8px;
-    border-radius: 12px;
-  }
-  .stat-trend.up { background: var(--green-50); color: var(--green-500); }
-  .stat-trend.neutral { background: var(--slate-100); color: var(--slate-500); }
-
-  /* ── Upload Zone ── */
-  .upload-zone {
-    background: #fff;
-    border-radius: var(--radius);
-    border: 2px dashed var(--slate-300);
-    padding: 40px;
-    text-align: center;
-    cursor: pointer;
-    transition: var(--transition);
-    margin-bottom: 24px;
-    position: relative;
-  }
-  .upload-zone:hover, .upload-zone.dragover {
-    border-color: var(--accent);
-    background: var(--accent-light);
-  }
-  .upload-zone .upload-icon {
-    width: 48px; height: 48px;
-    border-radius: 50%;
-    background: var(--blue-50);
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 12px;
-    color: var(--blue-500);
-  }
-  .upload-zone h3 {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--slate-700);
-    margin-bottom: 4px;
-  }
-  .upload-zone p {
-    font-size: 13px;
-    color: var(--slate-400);
-  }
-  .upload-zone input[type="file"] {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
-  }
-
-  /* ── Project List ── */
-  .section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-  }
-  .section-header h3 {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--slate-700);
-  }
-
-  .project-list { display: flex; flex-direction: column; gap: 8px; }
-  .project-item {
-    background: #fff;
-    border-radius: var(--radius);
-    padding: 14px 18px;
-    border: 1px solid var(--slate-100);
-    box-shadow: var(--shadow);
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    transition: var(--transition);
-    cursor: default;
-  }
-  .project-item:hover { box-shadow: var(--shadow-md); }
-  .project-item .project-icon {
-    width: 36px; height: 36px;
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px; font-weight: 700; color: #fff;
-    flex-shrink: 0;
-  }
-  .project-item .project-info { flex: 1; min-width: 0; }
-  .project-item .project-info .name {
-    font-size: 14px; font-weight: 600; color: var(--slate-800);
-    margin-bottom: 2px;
-  }
-  .project-item .project-info .meta {
-    font-size: 12px; color: var(--slate-400);
-    display: flex; gap: 12px;
-  }
-  .project-item .project-status {
-    font-size: 11px; font-weight: 600;
-    padding: 3px 10px;
-    border-radius: 12px;
-    white-space: nowrap;
-  }
-  .status-complete { background: var(--green-50); color: var(--green-500); }
-  .status-progress { background: var(--amber-50); color: var(--amber-500); }
-  .status-draft { background: var(--slate-100); color: var(--slate-500); }
-
-  /* ── Template Library ── */
-  .template-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-  .template-card {
-    background: #fff;
-    border-radius: var(--radius);
-    padding: 20px;
-    border: 1px solid var(--slate-100);
-    box-shadow: var(--shadow);
-    transition: var(--transition);
-    cursor: pointer;
-  }
-  .template-card:hover {
-    box-shadow: var(--shadow-md);
-    border-color: var(--accent);
-  }
-  .template-card .template-type {
-    font-size: 11px; font-weight: 600; text-transform: uppercase;
-    letter-spacing: .5px;
-    color: var(--accent);
-    margin-bottom: 6px;
-  }
-  .template-card h4 {
-    font-size: 15px; font-weight: 600; color: var(--slate-800);
-    margin-bottom: 4px;
-  }
-  .template-card p {
-    font-size: 12px; color: var(--slate-400);
-    margin-bottom: 12px;
-    line-height: 1.4;
-  }
-  .template-card .template-meta {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 11px;
-    color: var(--slate-400);
-  }
-  .template-card .template-meta .dot {
-    width: 4px; height: 4px;
-    border-radius: 50%;
-    background: var(--slate-300);
-  }
-
-  /* ── Knowledge Base ── */
-  .kb-stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-  .kb-card {
-    background: #fff;
-    border-radius: var(--radius);
-    padding: 20px;
-    border: 1px solid var(--slate-100);
-    box-shadow: var(--shadow);
-    text-align: center;
-  }
-  .kb-card .kb-number {
-    font-size: 32px; font-weight: 700;
-    background: linear-gradient(135deg, var(--accent), var(--blue-500));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-  .kb-card .kb-label {
-    font-size: 13px; color: var(--slate-500); margin-top: 4px;
-  }
-  .kb-card .kb-sub {
-    font-size: 11px; color: var(--slate-400); margin-top: 2px;
-  }
-
-  .kb-upload-box {
-    background: #fff;
-    border-radius: var(--radius);
-    border: 2px dashed var(--slate-300);
-    padding: 32px;
-    text-align: center;
-    transition: var(--transition);
-    margin-bottom: 20px;
-    position: relative;
-  }
-  .kb-upload-box:hover {
-    border-color: var(--accent);
-    background: var(--accent-light);
-  }
-  .kb-upload-box h4 {
-    font-size: 14px; font-weight: 600; color: var(--slate-700);
-    margin-bottom: 4px;
-  }
-  .kb-upload-box p { font-size: 12px; color: var(--slate-400); }
-  .kb-upload-box input[type="file"] {
-    position: absolute; inset: 0; opacity: 0; cursor: pointer;
-  }
-
-  /* Recent queries */
-  .query-list { }
-  .query-item {
-    display: flex; align-items: flex-start; gap: 12px;
-    padding: 12px 16px;
-    background: #fff;
-    border-radius: 8px;
-    border: 1px solid var(--slate-100);
-    margin-bottom: 6px;
-  }
-  .query-item .q-icon {
-    width: 28px; height: 28px;
-    border-radius: 6px;
-    background: var(--blue-50);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--blue-500);
-    font-size: 12px;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-  .query-item .q-content { flex: 1; }
-  .query-item .q-content .q-text {
-    font-size: 13px; font-weight: 500; color: var(--slate-700);
-  }
-  .query-item .q-content .q-meta {
-    font-size: 11px; color: var(--slate-400); margin-top: 2px;
-  }
-  .query-item .q-status {
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: 10px;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  /* ── Settings ── */
-  .settings-card {
-    background: #fff;
-    border-radius: var(--radius);
-    border: 1px solid var(--slate-100);
-    box-shadow: var(--shadow);
-    padding: 24px;
-    margin-bottom: 16px;
-  }
-  .settings-card h4 {
-    font-size: 14px; font-weight: 600; color: var(--slate-700);
-    margin-bottom: 4px;
-  }
-  .settings-card .desc {
-    font-size: 12px; color: var(--slate-400);
-    margin-bottom: 16px;
-  }
-  .settings-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--slate-100);
-  }
-  .settings-row:last-child { border-bottom: none; }
-  .settings-row .label {
-    font-size: 13px; color: var(--slate-700);
-  }
-  .settings-row .label small {
-    display: block; font-size: 11px; color: var(--slate-400);
-    font-weight: 400;
-  }
-
-  /* Toggle */
-  .toggle {
-    width: 38px; height: 22px;
-    border-radius: 11px;
-    background: var(--slate-300);
-    cursor: pointer;
-    transition: var(--transition);
-    position: relative;
-    flex-shrink: 0;
-  }
-  .toggle.on { background: var(--accent); }
-  .toggle::after {
-    content: '';
-    position: absolute;
-    top: 2px; left: 2px;
-    width: 18px; height: 18px;
-    border-radius: 50%;
-    background: #fff;
-    transition: var(--transition);
-    box-shadow: 0 1px 3px rgba(0,0,0,.15);
-  }
-  .toggle.on::after { left: 18px; }
-
-  /* Scrollbar */
-  .content::-webkit-scrollbar { width: 6px; }
-  .content::-webkit-scrollbar-track { background: transparent; }
-  .content::-webkit-scrollbar-thumb { background: var(--slate-200); border-radius: 3px; }
-  .content::-webkit-scrollbar-thumb:hover { background: var(--slate-300); }
-
-  /* ── Responsive ── */
-  @media (max-width: 900px) {
-    .sidebar { width: 60px; }
-    .sidebar-brand h1 span, .sidebar-brand .tagline,
-    .nav-item span, .nav-item .badge,
-    .sidebar-footer .user-name { display: none; }
-    .sidebar-brand { padding: 18px 14px; }
-    .sidebar-brand h1 .logo-pill { width: 28px; height: 28px; font-size: 12px; }
-    .nav-item { justify-content: center; padding: 10px; }
-    .sidebar-footer .user-info { justify-content: center; }
-    .stats-grid, .template-grid { grid-template-columns: repeat(2, 1fr); }
-    .kb-stats { grid-template-columns: repeat(2, 1fr); }
-  }
-  @media (max-width: 640px) {
-    .stats-grid, .template-grid, .kb-stats { grid-template-columns: 1fr; }
-    .topbar { padding: 0 16px; }
-    .search-box { width: 160px; }
-    .content { padding: 16px; }
-  }
-</style>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Crogo · 医药CRO文档工作台</title>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<!-- ═══ Sidebar ═══ -->
-<aside class="sidebar">
-  <div class="sidebar-brand">
-    <h1>
-      <span class="logo-pill">Cg</span>
-      <span>Crogo</span>
-    </h1>
-    <div class="tagline">CRO 文档智能平台</div>
-  </div>
-  <nav class="sidebar-nav">
-    <div class="nav-section">核心</div>
-    <div class="nav-item active" data-page="dashboard">
-      <span class="icon">◉</span>
-      <span>工作台</span>
-    </div>
-    <div class="nav-item" data-page="templates">
-      <span class="icon">⊞</span>
-      <span>模板库</span>
-      <span class="badge">6</span>
-    </div>
-    <div class="nav-item" data-page="knowledge">
-      <span class="icon">◈</span>
-      <span>知识库</span>
-      <span class="badge">12</span>
-    </div>
-    <div class="nav-section">管理</div>
-    <div class="nav-item" data-page="projects">
-      <span class="icon">◎</span>
-      <span>项目</span>
-      <span class="badge">3</span>
-    </div>
-    <div class="nav-item" data-page="settings">
-      <span class="icon">⚙</span>
-      <span>设置</span>
-    </div>
-  </nav>
-  <div class="sidebar-footer">
-    <div class="user-info">
-      <div class="avatar">J</div>
-      <span class="user-name">Jacob · 管理员</span>
+<!-- ═══ Login Screen ═══ -->
+<div id="login-screen">
+  <div class="login-left">
+    <div class="logo">Crogo</div>
+    <div class="tagline">医药CRO文档工作台</div>
+    <div class="modules">
+      <div class="mod"><span class="mod-icon" style="background:#0891b2;">◈</span> 模板管理 — 上传解析各类模板</div>
+      <div class="mod"><span class="mod-icon" style="background:#2563eb;">⊞</span> 知识库 — 方案PDF批量入库，构建RAG</div>
+      <div class="mod"><span class="mod-icon" style="background:#7c3aed;">◎</span> 文档生成 — 一键生成DMC/DMP/SAP</div>
     </div>
   </div>
-</aside>
+  <div class="login-right">
+    <h2>登录</h2>
+    <form id="loginForm">
+      <div class="login-error" id="loginError"></div>
+      <div class="form-group">
+        <label>邮箱</label>
+        <input type="email" id="loginEmail" placeholder="name@company.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>密码</label>
+        <input type="password" id="loginPassword" placeholder="••••••" autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-primary w-full">登录</button>
+      <div style="text-align:center"><a href="#" class="forgot-link">忘记密码？</a></div>
+    </form>
+    <div class="login-footer">Crogo · 专为医药CRO打造</div>
+  </div>
+</div>
 
-<!-- ═══ Main ═══ -->
-<div class="main">
-  <header class="topbar">
-    <div class="topbar-left">
-      <h2 id="pageTitle">工作台</h2>
-      <div class="breadcrumb">/ <span id="breadcrumb">总览</span></div>
+<!-- ═══ Main App ═══ -->
+<div id="app">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-row">
+        <span class="logo-pill">Cg</span>
+        <h1>Crogo</h1>
+      </div>
+      <div class="tagline">CRO 文档智能平台</div>
     </div>
-    <div class="topbar-right">
-      <div class="search-box">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" placeholder="搜索项目、模板、知识..." id="globalSearch">
+    <nav class="sidebar-nav">
+      <div class="nav-section">核心</div>
+      <div class="nav-item active" data-page="dashboard">
+        <span class="nav-icon">◉</span> <span>工作台</span>
       </div>
-      <div class="topbar-actions">
-        <button class="btn-icon" title="通知">🔔</button>
-        <button class="btn-primary" id="newProjectBtn">＋ 新项目</button>
+      <div class="nav-item" data-page="templates">
+        <span class="nav-icon">⊞</span> <span>模板库</span>
+        <span class="nav-badge">6</span>
       </div>
-    </div>
-  </header>
-
-  <div class="content">
-
-    <!-- ══ PAGE: Dashboard ══ -->
-    <div class="page active" id="page-dashboard">
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-label">◈ 知识库条目</div>
-          <div class="stat-number">1,284</div>
-          <div class="stat-sub">覆盖 47 个项目</div>
-          <div class="stat-trend up">↑ 12% 本月</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">⊞ 可用模板</div>
-          <div class="stat-number">6</div>
-          <div class="stat-sub">DMC / DMP / SAP / CSR</div>
-          <div class="stat-trend neutral">-- 无变化</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">◎ 活跃项目</div>
-          <div class="stat-number">3</div>
-          <div class="stat-sub">2 进行中 · 1 待审核</div>
-          <div class="stat-trend up">↑ 1 本周</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">📄 本月生成</div>
-          <div class="stat-number">18</div>
-          <div class="stat-sub">平均填充率 87%</div>
-          <div class="stat-trend up">↑ 5% 上个月</div>
-        </div>
+      <div class="nav-item" data-page="knowledge">
+        <span class="nav-icon">◈</span> <span>知识库</span>
+        <span class="nav-badge">12</span>
       </div>
-
-      <!-- Quick upload -->
-      <div class="upload-zone" id="dashboardUploadZone">
-        <div class="upload-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        </div>
-        <h3>拖入方案 PDF</h3>
-        <p>或点击上传 · 支持 .pdf .docx</p>
-        <input type="file" accept=".pdf,.docx" multiple>
+      <div class="nav-section">管理</div>
+      <div class="nav-item" data-page="projects">
+        <span class="nav-icon">◎</span> <span>项目</span>
+        <span class="nav-badge">3</span>
       </div>
-
-      <!-- Recent projects -->
-      <div class="section-header">
-        <h3>最近项目</h3>
-        <button class="btn-outline" style="font-size:12px;padding:5px 12px;">查看全部</button>
+      <div class="nav-item" data-page="settings">
+        <span class="nav-icon">⚙</span> <span>设置</span>
       </div>
-      <div class="project-list">
-        <div class="project-item">
-          <div class="project-icon" style="background:#0891b2;">R</div>
-          <div class="project-info">
-            <div class="name">RWS-2024-012 · 胰腺癌真实世界研究</div>
-            <div class="meta">
-              <span>申办方：恒瑞医药</span>
-              <span>方案 v3.2</span>
-              <span>更新于 2h 前</span>
-            </div>
-          </div>
-          <span class="project-status status-progress">生成中</span>
-        </div>
-        <div class="project-item">
-          <div class="project-icon" style="background:#7c3aed;">D</div>
-          <div class="project-info">
-            <div class="name">DMC Charter · 肝癌双盲 III 期</div>
-            <div class="meta">
-              <span>模板：DMC v2.1</span>
-              <span>填充率 92%</span>
-              <span>更新于 1d 前</span>
-            </div>
-          </div>
-          <span class="project-status status-complete">已完成</span>
-        </div>
-        <div class="project-item">
-          <div class="project-icon" style="background:#d97706;">S</div>
-          <div class="project-info">
-            <div class="name">SAP · 非小细胞肺癌二线治疗</div>
-            <div class="meta">
-              <span>模板：SAP v1.0</span>
-              <span>待校验</span>
-              <span>更新于 3d 前</span>
-            </div>
-          </div>
-          <span class="project-status status-draft">待校验</span>
-        </div>
+      <div class="nav-section" style="margin-top:auto;border-top:1px solid rgba(255,255,255,.06);padding-top:12px;margin-bottom:0;">账户</div>
+      <div class="nav-item" data-page="logout">
+        <span class="nav-icon">↩</span> <span>退出登录</span>
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar">J</div>
+        <span class="user-name">管理员</span>
       </div>
     </div>
+  </aside>
 
-    <!-- ══ PAGE: Templates ══ -->
-    <div class="page" id="page-templates">
-      <div class="section-header">
-        <h3>所有模板</h3>
-        <button class="btn-primary">＋ 上传模板</button>
+  <!-- Main Area -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h2 id="pageTitle">工作台</h2>
+        <div class="breadcrumb">/ <span id="breadcrumb">总览</span></div>
       </div>
-      <div class="template-grid">
-        <div class="template-card">
-          <div class="template-type">DMC</div>
-          <h4>DMC Charter v2.1</h4>
-          <p>数据监查委员会章程模板，包含职责定义、会议流程、保密协议等标准章节。</p>
-          <div class="template-meta">
-            <span>36 章节</span>
-            <span class="dot"></span>
-            <span>78 占位符</span>
-            <span class="dot"></span>
-            <span>更新于 12月</span>
-          </div>
+      <div class="topbar-right">
+        <div class="search-box">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" placeholder="搜索项目、模板、知识..." id="globalSearch">
         </div>
-        <div class="template-card">
-          <div class="template-type">DMP</div>
-          <h4>数据管理计划 v2.0</h4>
-          <p>数据管理计划模板，涵盖数据录入、编码、核对及数据库锁定流程。</p>
-          <div class="template-meta">
-            <span>28 章节</span>
-            <span class="dot"></span>
-            <span>54 占位符</span>
-            <span class="dot"></span>
-            <span>更新于 11月</span>
-          </div>
-        </div>
-        <div class="template-card">
-          <div class="template-type">SAP</div>
-          <h4>统计分析计划 v1.0</h4>
-          <p>统计分析计划模板，含统计方法、样本量计算、亚组分析和敏感性分析。</p>
-          <div class="template-meta">
-            <span>31 章节</span>
-            <span class="dot"></span>
-            <span>63 占位符</span>
-            <span class="dot"></span>
-            <span>更新于 11月</span>
-          </div>
-        </div>
-        <div class="template-card">
-          <div class="template-type">CSR</div>
-          <h4>临床研究报告 v1.0</h4>
-          <p>临床研究报告模板，按 ICH E3 标准结构组织，含患者流程、基线、疗效、安全性。</p>
-          <div class="template-meta">
-            <span>42 章节</span>
-            <span class="dot"></span>
-            <span>95 占位符</span>
-            <span class="dot"></span>
-            <span>更新于 10月</span>
-          </div>
-        </div>
-        <div class="template-card">
-          <div class="template-type">ICF</div>
-          <h4>知情同意书 v3.0</h4>
-          <p>知情同意书模板，符合 GCP 要求，含风险说明、数据隐私、自愿退出等条款。</p>
-          <div class="template-meta">
-            <span>18 章节</span>
-            <span class="dot"></span>
-            <span>42 占位符</span>
-            <span class="dot"></span>
-            <span>更新于 9月</span>
-          </div>
-        </div>
-        <div class="template-card" style="border: 2px dashed var(--slate-300); display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:pointer;">
-          <div style="font-size:28px; color:var(--slate-300); margin-bottom:8px;">＋</div>
-          <p style="color:var(--slate-400); margin-bottom:0;">上传新模板</p>
+        <div class="topbar-actions">
+          <button class="btn-icon" title="通知">🔔</button>
+          <button class="btn btn-primary btn-sm" id="newProjectBtn">＋ 新项目</button>
         </div>
       </div>
-    </div>
+    </header>
 
-    <!-- ══ PAGE: Knowledge Base ══ -->
-    <div class="page" id="page-knowledge">
-      <div class="kb-stats">
-        <div class="kb-card">
-          <div class="kb-number">1,284</div>
-          <div class="kb-label">知识条目</div>
-          <div class="kb-sub">向量索引已完成</div>
-        </div>
-        <div class="kb-card">
-          <div class="kb-number">47</div>
-          <div class="kb-label">已入库项目</div>
-          <div class="kb-sub">覆盖 8 个治疗领域</div>
-        </div>
-        <div class="kb-card">
-          <div class="kb-number">96%</div>
-          <div class="kb-label">提取匹配率</div>
-          <div class="kb-sub">较上月 +3%</div>
-        </div>
-      </div>
+    <div class="content">
 
-      <div class="kb-upload-box">
-        <h4>批量导入 PDF</h4>
-        <p>拖入历史方案 PDF（多选）→ 自动构建 RAG 知识库</p>
-        <input type="file" accept=".pdf" multiple>
-      </div>
-
-      <div class="section-header">
-        <h3>最近知识查询</h3>
-        <button class="btn-outline" style="font-size:12px;padding:5px 12px;">查看全部</button>
-      </div>
-      <div class="query-list">
-        <div class="query-item">
-          <div class="q-icon">◈</div>
-          <div class="q-content">
-            <div class="q-text">胰腺癌 RWS 中伊立替康脂质体的安全监测模式</div>
-            <div class="q-meta">RWS-2024-012 · 2条结果 · 置信度 94%</div>
+      <!-- ══ Dashboard ══ -->
+      <div class="page active" id="page-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-lbl">◈ 知识库条目</div>
+            <div class="stat-num">1,284</div>
+            <div class="stat-sub">覆盖 47 个项目</div>
+            <div class="stat-trend up">↑ 12% 本月</div>
           </div>
-          <span class="q-status" style="background:var(--green-50);color:var(--green-500);">已采纳</span>
-        </div>
-        <div class="query-item">
-          <div class="q-icon">◈</div>
-          <div class="q-content">
-            <div class="q-text">肝癌 III 期双盲试验的期中分析停止边界</div>
-            <div class="q-meta">DMC-2024-008 · 3条结果 · 置信度 88%</div>
+          <div class="stat-card">
+            <div class="stat-lbl">⊞ 可用模板</div>
+            <div class="stat-num">6</div>
+            <div class="stat-sub">DMC / DMP / SAP / CSR</div>
+            <div class="stat-trend neutral">-- 无变化</div>
           </div>
-          <span class="q-status" style="background:var(--green-50);color:var(--green-500);">已采纳</span>
-        </div>
-        <div class="query-item">
-          <div class="q-icon">◈</div>
-          <div class="q-content">
-            <div class="q-text">非小细胞肺癌二线治疗 OS 终点定义（RECIST 1.1）</div>
-            <div class="q-meta">SAP-2024-005 · 1条结果 · 置信度 96%</div>
+          <div class="stat-card">
+            <div class="stat-lbl">◎ 活跃项目</div>
+            <div class="stat-num">3</div>
+            <div class="stat-sub">2 进行中 · 1 待审核</div>
+            <div class="stat-trend up">↑ 1 本周</div>
           </div>
-          <span class="q-status" style="background:var(--amber-50);color:var(--amber-500);">待确认</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- ══ PAGE: Projects ══ -->
-    <div class="page" id="page-projects">
-      <div class="section-header">
-        <h3>所有项目</h3>
-        <button class="btn-primary">＋ 新建项目</button>
-      </div>
-      <div class="project-list">
-        <div class="project-item">
-          <div class="project-icon" style="background:#0891b2;">R</div>
-          <div class="project-info">
-            <div class="name">RWS-2024-012 · 胰腺癌真实世界研究</div>
-            <div class="meta"><span>模板：DMC v2.1</span><span>方案 v3.2</span><span>创建 2024-12-10</span></div>
+          <div class="stat-card">
+            <div class="stat-lbl">📄 本月生成</div>
+            <div class="stat-num">18</div>
+            <div class="stat-sub">平均填充率 87%</div>
+            <div class="stat-trend up">↑ 5% 上个月</div>
           </div>
-          <span class="project-status status-progress">生成中</span>
         </div>
-        <div class="project-item">
-          <div class="project-icon" style="background:#7c3aed;">D</div>
-          <div class="project-info">
-            <div class="name">DMC Charter · 肝癌双盲 III 期</div>
-            <div class="meta"><span>模板：DMC v2.1</span><span>方案 v2.0</span><span>创建 2024-12-05</span></div>
+
+        <div class="upload-zone" id="dashboardUpload">
+          <div class="uz-icon">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
           </div>
-          <span class="project-status status-complete">已完成</span>
+          <h3>拖入方案 PDF</h3>
+          <p>或点击上传 · 支持 .pdf .docx</p>
+          <input type="file" accept=".pdf,.docx" multiple>
         </div>
-        <div class="project-item">
-          <div class="project-icon" style="background:#d97706;">S</div>
-          <div class="project-info">
-            <div class="name">SAP · 非小细胞肺癌二线治疗</div>
-            <div class="meta"><span>模板：SAP v1.0</span><span>方案 v1.5</span><span>创建 2024-12-01</span></div>
+
+        <div class="section-hdr">
+          <h3>最近项目</h3>
+          <button class="btn btn-outline btn-xs" onclick="App.navigate('projects')">查看全部</button>
+        </div>
+        <div class="project-list"></div>
+      </div>
+
+      <!-- ══ Templates ══ -->
+      <div class="page" id="page-templates">
+        <div class="section-hdr">
+          <h3>所有模板</h3>
+          <button class="btn btn-primary btn-sm" id="uploadTemplateBtn">＋ 上传模板</button>
+        </div>
+        <div class="template-grid" id="templateGrid"></div>
+      </div>
+
+      <!-- ══ Knowledge Base ══ -->
+      <div class="page" id="page-knowledge">
+        <div class="kb-stats">
+          <div class="kb-card">
+            <div class="kb-num">1,284</div>
+            <div class="kb-lbl">知识条目</div>
+            <div class="kb-sub">向量索引已完成</div>
           </div>
-          <span class="project-status status-draft">待校验</span>
+          <div class="kb-card">
+            <div class="kb-num">47</div>
+            <div class="kb-lbl">已入库项目</div>
+            <div class="kb-sub">覆盖 8 个治疗领域</div>
+          </div>
+          <div class="kb-card">
+            <div class="kb-num">96%</div>
+            <div class="kb-lbl">提取匹配率</div>
+            <div class="kb-sub">较上月 +3%</div>
+          </div>
+        </div>
+
+        <div class="kb-upload" id="kbUpload">
+          <h4>批量导入 PDF</h4>
+          <p>拖入历史方案 PDF（多选）→ 自动构建 RAG 知识库</p>
+          <input type="file" accept=".pdf" multiple>
+        </div>
+
+        <div class="section-hdr">
+          <h3>最近知识查询</h3>
+          <button class="btn btn-outline btn-xs">查看全部</button>
+        </div>
+        <div id="queryList"></div>
+      </div>
+
+      <!-- ══ Projects ══ -->
+      <div class="page" id="page-projects">
+        <div class="section-hdr">
+          <h3>所有项目</h3>
+          <button class="btn btn-primary btn-sm">＋ 新建项目</button>
+        </div>
+        <div class="project-list" id="projectsFullList"></div>
+      </div>
+
+      <!-- ══ Settings ══ -->
+      <div class="page" id="page-settings">
+        <div class="settings-card">
+          <h4>AI 参数</h4>
+          <div class="s-desc">文档生成时 AI 模型的行为控制</div>
+          <div class="settings-row">
+            <div class="s-label">生成温度 <small>数值越高，输出越有创造性</small></div>
+            <input type="range" min="0" max="1" step="0.1" value="0.3">
+          </div>
+          <div class="settings-row">
+            <div class="s-label">知识库检索 Top-K <small>每次查询召回的知识条目数</small></div>
+            <input type="range" min="3" max="20" step="1" value="8">
+          </div>
+          <div class="settings-row">
+            <div class="s-label">自动提炼知识 <small>文档生成后自动分析并推送新知识</small></div>
+            <div class="toggle on"></div>
+          </div>
+        </div>
+        <div class="settings-card">
+          <h4>通知</h4>
+          <div class="s-desc">任务完成和异常提醒</div>
+          <div class="settings-row">
+            <div class="s-label">文档生成完成 <small>通过飞书/邮件通知</small></div>
+            <div class="toggle on"></div>
+          </div>
+          <div class="settings-row">
+            <div class="s-label">知识提炼推送 <small>有新的可入库知识时通知</small></div>
+            <div class="toggle on"></div>
+          </div>
+          <div class="settings-row">
+            <div class="s-label">异常告警 <small>字段提取失败或填充率过低</small></div>
+            <div class="toggle"></div>
+          </div>
+        </div>
+        <div class="settings-card">
+          <h4>团队</h4>
+          <div class="s-desc">团队成员管理和权限控制</div>
+          <div class="settings-row">
+            <div class="s-label">邀请成员 <small>通过邮箱添加团队成员</small></div>
+            <button class="btn btn-outline btn-xs">邀请</button>
+          </div>
+          <div class="settings-row">
+            <div class="s-label">当前成员 <small>管理员 1 · 编辑 2</small></div>
+            <button class="btn btn-outline btn-xs">管理</button>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- ══ PAGE: Settings ══ -->
-    <div class="page" id="page-settings">
-      <div class="settings-card">
-        <h4>AI 参数</h4>
-        <div class="desc">文档生成时 AI 模型的行为控制</div>
-        <div class="settings-row">
-          <div class="label">生成温度 <small>数值越高，输出越有创造性</small></div>
-          <input type="range" min="0" max="1" step="0.1" value="0.3" style="width:120px;">
-        </div>
-        <div class="settings-row">
-          <div class="label">知识库检索 Top-K <small>每次查询召回的知识条目数</small></div>
-          <input type="range" min="3" max="20" step="1" value="8" style="width:120px;">
-        </div>
-        <div class="settings-row">
-          <div class="label">自动提炼知识 <small>文档生成后自动分析并推送新知识</small></div>
-          <div class="toggle on"></div>
-        </div>
-      </div>
-      <div class="settings-card">
-        <h4>通知</h4>
-        <div class="desc">任务完成和异常提醒</div>
-        <div class="settings-row">
-          <div class="label">文档生成完成 <small>通过飞书/邮件通知</small></div>
-          <div class="toggle on"></div>
-        </div>
-        <div class="settings-row">
-          <div class="label">知识提炼推送 <small>有新的可入库知识时通知</small></div>
-          <div class="toggle on"></div>
-        </div>
-        <div class="settings-row">
-          <div class="label">异常告警 <small>字段提取失败或填充率过低</small></div>
-          <div class="toggle"></div>
-        </div>
-      </div>
-      <div class="settings-card">
-        <h4>团队</h4>
-        <div class="desc">团队成员管理和权限控制</div>
-        <div class="settings-row">
-          <div class="label">邀请成员 <small>通过邮箱添加团队成员</small></div>
-          <button class="btn-outline" style="padding:5px 14px;font-size:12px;">邀请</button>
-        </div>
-        <div class="settings-row">
-          <div class="label">当前成员 <small>3 人 · 管理员 1 · 编辑 2</small></div>
-          <button class="btn-outline" style="padding:5px 14px;font-size:12px;">管理</button>
-        </div>
-      </div>
-    </div>
+    </div><!-- /.content -->
+  </div><!-- /.main -->
+</div><!-- /#app -->
 
-  </div><!-- /.content -->
-</div><!-- /.main -->
+<!-- ═══ Modal ═══ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-box">
+    <h3 id="modalTitle">新建项目</h3>
+    <div class="m-desc" id="modalDesc">选择一个模板并上传方案 PDF 开始生成</div>
+    <div id="modalForm"></div>
+    <div class="modal-actions" id="modalActions"></div>
+  </div>
+</div>
 
-<script>
-  // ── Navigation ──
-  const navItems = document.querySelectorAll('.nav-item');
-  const pages = document.querySelectorAll('.page');
-  const pageTitle = document.getElementById('pageTitle');
-  const breadcrumb = document.getElementById('breadcrumb');
+<!-- ═══ Toast Container ═══ -->
+<div class="toast-container" id="toastContainer"></div>
 
-  const pageNames = {
-    dashboard: { title: '工作台', crumb: '总览' },
-    templates: { title: '模板库', crumb: '6 个模板' },
-    knowledge: { title: '知识库', crumb: '1,284 条目' },
-    projects:  { title: '项目', crumb: '3 个活跃项目' },
-    settings:  { title: '设置', crumb: '系统配置' }
-  };
-
-  navItems.forEach(item => {
-    item.addEventListener('click', () => {
-      navItems.forEach(n => n.classList.remove('active'));
-      item.classList.add('active');
-      const page = item.dataset.page;
-      pages.forEach(p => p.classList.remove('active'));
-      document.getElementById('page-' + page).classList.add('active');
-      const info = pageNames[page];
-      pageTitle.textContent = info.title;
-      breadcrumb.textContent = info.crumb;
-    });
-  });
-
-  // ── Upload zone interaction ──
-  const uploadZone = document.getElementById('dashboardUploadZone');
-  ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(evt => {
-    uploadZone.addEventListener(evt, e => {
-      e.preventDefault();
-      e.stopPropagation();
-    });
-  });
-  ['dragenter', 'dragover'].forEach(evt => {
-    uploadZone.addEventListener(evt, () => uploadZone.classList.add('dragover'));
-  });
-  ['dragleave', 'drop'].forEach(evt => {
-    uploadZone.addEventListener(evt, () => uploadZone.classList.remove('dragover'));
-  });
-  uploadZone.querySelector('input').addEventListener('change', function() {
-    if (this.files.length > 0) {
-      pageTitle.textContent = '方案上传中…';
-      breadcrumb.textContent = this.files.length + ' 个文件';
-      setTimeout(() => {
-        pageTitle.textContent = '工作台';
-        breadcrumb.textContent = '总览';
-        alert('已上传 ' + this.files.length + ' 个文件\n知识库查询中… 模板匹配中…');
-      }, 800);
-    }
-  });
-
-  // ── Toggle switches ──
-  document.querySelectorAll('.toggle').forEach(t => {
-    t.addEventListener('click', () => t.classList.toggle('on'));
-  });
-
-  // ── New project button ──
-  document.getElementById('newProjectBtn').addEventListener('click', () => {
-    alert('新建项目向导\nStep 1: 选择模板\nStep 2: 上传方案 PDF\nStep 3: AI 提取 → 校验 → 生成');
-  });
-
-  // ── Search with Enter key ──
-  document.getElementById('globalSearch').addEventListener('keydown', e => {
-    if (e.key === 'Enter' && e.target.value.trim()) {
-      alert('🔍 搜索 "' + e.target.value.trim() + '"\n（搜索结果将在此展示）');
-      e.target.value = '';
-    }
-  });
-</script>
+<script src="js/app.js"></script>
 </body>
 </html>
