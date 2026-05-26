@@ -10,6 +10,8 @@ if [ ! -d .venv ]; then
   .venv/bin/pip install -r requirements.txt -q
 fi
 
+.venv/bin/python scripts/seed_templates.py 2>/dev/null || true
+
 echo ""
 echo "  Crogo 已启动"
 echo "  请在浏览器打开:  http://127.0.0.1:8000"

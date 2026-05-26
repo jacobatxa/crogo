@@ -46,6 +46,16 @@ LLM_MODEL=gpt-4o-mini
 
 侧边栏：模板库、知识库、项目、设置。
 
+## 内置模板（DMC / DMP / SAP）
+
+首次启动会自动写入模板库（已映射字段，可直接用于新建项目）。手动补种：
+
+```bash
+cd backend && source .venv/bin/activate
+python scripts/seed_templates.py          # 仅补缺
+python scripts/seed_templates.py --force  # 按名称覆盖重建
+```
+
 ## 测试数据
 
 ```bash

@@ -1,5 +1,7 @@
 /* ── Crogo Application ── */
 
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
 const App = {
   state: {
     user: { name: '测试用户', role: '管理员' },
@@ -22,6 +24,7 @@ const App = {
     this.bindActions();
     await this.refreshAll();
     this.handleDeepLink();
+    this.initEngine();
   },
 
   setupAuth() {
@@ -168,6 +171,7 @@ const App = {
       knowledge: { title: '知识库', crumb: `${(this.state.kbStats.chunk_count || 0).toLocaleString()} 条目` },
       projects: { title: '项目', crumb: `${this.state.projects.length} 个项目` },
       settings: { title: '设置', crumb: '系统配置' },
+      engine: { title: '引擎', crumb: '文档生成管线' },
     };
     const info = crumbs[page] || { title: page, crumb: '' };
     document.getElementById('pageTitle').textContent = info.title;
@@ -803,6 +807,201 @@ const App = {
     container.appendChild(toast);
     setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity .3s'; }, 2800);
     setTimeout(() => toast.remove(), 3200);
+  },
+
+  /* ── Engine Integration ── */
+  initEngine() {
+    if (typeof CrogoEngine === 'undefined') return;
+    this.engine = CrogoEngine.createEngine();
+
+    document.getElementById('runPipelineBtn')?.addEventListener('click', () => this.runPipeline());
+  },
+
+  async runPipeline() {
+    if (!this.engine) return;
+
+    const setStep = (n, status, text) => {
+      const el = document.getElementById(`pipeStep${n}`);
+      const statusEl = document.getElementById(`pipeStatus${n}`);
+      el.className = 'pipe-step';
+      statusEl.className = 'pipe-status';
+      if (status === 'active') { el.classList.add('active'); statusEl.classList.add('running'); }
+      else if (status === 'done') { el.classList.add('done'); statusEl.classList.add('ok'); }
+      else statusEl.classList.add('idle');
+      statusEl.textContent = text;
+    };
+
+    // Reset all
+    for (let i = 1; i <= 4; i++) setStep(i, 'idle', '等待执行');
+
+    const btn = document.getElementById('runPipelineBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ 运行中...';
+
+    try {
+      // Mock knowledge context
+      const knowledgeContext = {
+        fieldValues: {
+          protocol_info: { project_name: '评估伊立替康脂质体治疗胰腺癌的有效性和安全性临床研究' },
+          design: { study_type: 'RWS（真实世界研究）', sample_size: '240例' },
+          endpoint: { primary: '总生存期（OS）', safety: 'TEAE/SAE' },
+          sponsor: { name: '恒瑞医药' },
+          timeline: { interim: '入组50%时' },
+        },
+        knowledgeEntries: []
+      };
+
+      // Existing mapping rules
+      const existingRules = [
+        { placeholderKey: '<项目名称>', knowledgeSource: 'protocol_info.project_name', templateType: 'DMC', confidence: 0.95, strategy: 'direct' },
+        { placeholderKey: '<申办方>', knowledgeSource: 'sponsor.name', templateType: 'DMC', confidence: 0.92, strategy: 'direct' },
+      ];
+
+      setStep(1, 'active', '解析中...');
+      await sleep(400);
+      const schema = this.engine.parser.parse('DMC Charter v2.1', 'DMC');
+      setStep(1, 'done', '✓ 解析完成');
+
+      setStep(2, 'active', '检索中...');
+      await sleep(400);
+      setStep(2, 'done', '✓ 检索完成');
+
+      setStep(3, 'active', '映射中...');
+      await sleep(400);
+      this.engine.mapper.loadRules(existingRules);
+      const mappings = await this.engine.mapper.resolve(schema, knowledgeContext);
+      setStep(3, 'done', `✓ ${mappings.length} 项映射`);
+
+      setStep(4, 'active', '生成 + 质检...');
+      await sleep(400);
+      const report = await this.engine.generator.generate(schema, mappings, knowledgeContext);
+      setStep(4, 'done', `✓ 等级 ${report.overall.grade}`);
+
+      // Render results
+      this._renderSchema(schema);
+      this._renderRules(this.engine.mapper.rules);
+      this._renderReport(report);
+      this._renderMappings(mappings, schema);
+
+      this.showToast(`管线执行完成 — 填充率 ${(report.overall.fillRate * 100).toFixed(0)}%，等级 ${report.overall.grade}`);
+
+    } catch (err) {
+      this.showToast('管线执行失败: ' + err.message, true);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '▶ 运行管线';
+    }
+  },
+
+  _renderSchema(schema) {
+    const el = document.getElementById('schemaViewer');
+    document.getElementById('schemaName').textContent = `· ${schema.name} (${schema.type} v${schema.version})`;
+
+    el.innerHTML = schema.chapters.map(ch => `
+      <div style="margin-bottom:12px">
+        <div style="font-weight:600;font-size:13px;color:var(--text-sec);margin-bottom:4px">
+          第${ch.number}章 ${ch.title}
+          <span style="font-weight:400;color:var(--text-ter);font-size:10px;margin-left:6px">${ch.sections.length} 节 · ${ch.placeholders.length} 占位符</span>
+        </div>
+        ${ch.sections.map(sec => `
+          <div style="padding-left:16px;margin-bottom:3px;font-size:11px;color:var(--text-sec)">
+            ${ch.number}.${sec.number} ${sec.title}
+            ${sec.placeholders.length ? `<span style="color:var(--text-ter);font-size:10px"> · 占位符: ${sec.placeholders.map(p => `<code style="background:#f1f5f9;padding:0 4px;border-radius:3px;font-size:10px">${this.escapeHtml(p.raw)}</code>`).join(' ')}</span>` : ''}
+          </div>
+        `).join('')}
+      </div>
+    `).join('') + `
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid #f1f5f9;font-size:11px;color:var(--text-ter)">
+        总计: ${schema.metadata.totalSections} 节 · ${schema.metadata.totalPlaceholders} 个占位符
+      </div>
+    `;
+  },
+
+  _renderRules(rules) {
+    const el = document.getElementById('rulesViewer');
+    if (!rules.length) {
+      el.innerHTML = '<div class="empty-state" style="padding:20px"><p>暂无规则</p></div>';
+      return;
+    }
+    const strategies = { direct: '精确', semantic: '语义', ai_fallback: 'AI推理', rule: '规则推理' };
+    el.innerHTML = rules.map(r => `
+      <div class="mapping-row">
+        <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px;font-size:10px">${this.escapeHtml(r.placeholderKey)}</code>
+        <span style="color:var(--text-ter)">→</span>
+        <span style="color:var(--text-sec)">${r.knowledgeSource}</span>
+        <span class="strategy-badge strategy-${r.strategy}">${strategies[r.strategy] || r.strategy}</span>
+        <span style="margin-left:auto;font-size:10px;color:var(--text-ter)">${Math.round(r.confidence * 100)}% · ${r.confirmedCount}次修正</span>
+      </div>
+    `).join('');
+  },
+
+  _renderReport(report) {
+    const el = document.getElementById('reportViewer');
+    const grades = { S: { label: 'S', color: 'var(--green)' }, A: { label: 'A', color: 'var(--teal)' }, B: { label: 'B', color: 'var(--yellow)' }, C: { label: 'C', color: 'var(--red)' } };
+    const g = grades[report.overall.grade] || grades.C;
+
+    el.innerHTML = `
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px">
+        <div style="font-size:36px;font-weight:800;color:${g.color}">${g.label}</div>
+        <div style="flex:1">
+          <div style="font-size:12px;font-weight:600;color:var(--text-sec);margin-bottom:2px">填充率 ${(report.overall.fillRate * 100).toFixed(0)}%</div>
+          <div style="font-size:10px;color:var(--text-ter)">
+            ${report.overall.filled}/${report.overall.totalPlaceholders} 已填充 · ${report.overall.aiGenerated} AI生成 · ${report.overall.requiresReview} 待确认
+          </div>
+        </div>
+      </div>
+      ${report.issues.length ? `
+        <div style="font-size:11px;font-weight:600;color:var(--text-sec);margin-bottom:6px">问题列表</div>
+        ${report.issues.map(iss => `
+          <div style="font-size:10px;padding:4px 0;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;gap:6px">
+            <span style="color:${iss.severity === 'high' ? 'var(--red)' : 'var(--yellow)'};font-weight:600">●</span>
+            <span style="color:var(--text-ter)">第${iss.chapter}章</span>
+            <code style="background:#f1f5f9;padding:0 4px;border-radius:3px;font-size:9px">${this.escapeHtml(iss.type)}</code>
+            <span>${iss.content}</span>
+          </div>
+        `).join('')}
+      ` : '<div style="font-size:11px;color:var(--green)">✓ 未发现问题</div>'}
+      <div style="margin-top:8px;font-size:10px;color:var(--text-ter)">
+        格式检查: ${report.formatChecks.alignmentOK ? '✓ 对齐' : '✗ 对齐'} · ${report.formatChecks.fontOK ? '✓ 字体' : '✗ 字体'} · ${report.formatChecks.spacingOK ? '✓ 行距' : '✗ 行距'}
+      </div>
+    `;
+  },
+
+  _renderMappings(mappings, schema) {
+    const el = document.getElementById('mappingDetail');
+    const sources = { knowledge: '知识精确', ai: 'AI推理', rule: '规则推理', empty: '未填充' };
+    const sourceClass = { knowledge: 'direct', ai: 'ai', rule: 'rule', empty: 'empty' };
+
+    // Group by chapter
+    const byChapter = {};
+    for (const m of mappings) {
+      const ch = m.chapter || '0';
+      if (!byChapter[ch]) byChapter[ch] = [];
+      byChapter[ch].push(m);
+    }
+
+    const chapterNames = {};
+    for (const ch of schema.chapters) {
+      chapterNames[ch.number] = ch.title;
+    }
+
+    el.innerHTML = Object.entries(byChapter).map(([chNum, items]) => `
+      <div style="margin-bottom:10px">
+        <div style="font-size:11px;font-weight:600;color:var(--text-sec);margin-bottom:4px">
+          第${chNum}章 ${chapterNames[chNum] || ''}
+        </div>
+        ${items.map(m => `
+          <div class="mapping-row">
+            <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px;font-size:10px">${this.escapeHtml(m.placeholderRaw)}</code>
+            <span style="color:var(--text-ter)">→</span>
+            <span style="${m.source === 'empty' ? 'color:var(--red)' : 'color:var(--text-sec)'}">${this.escapeHtml(m.value || '(未填充)')}</span>
+            <span class="strategy-badge strategy-${sourceClass[m.source]}">${sources[m.source] || m.source}</span>
+            <span style="margin-left:auto;font-size:10px;color:${m.confidence > 0.7 ? 'var(--green)' : 'var(--yellow)'}">${Math.round(m.confidence * 100)}%</span>
+            ${m.requiresReview ? '<span style="font-size:9px;color:var(--yellow);font-weight:600">需确认</span>' : ''}
+          </div>
+        `).join('')}
+      </div>
+    `).join('');
   },
 };
 
