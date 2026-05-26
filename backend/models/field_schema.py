@@ -1,0 +1,46 @@
+"""DMC-oriented field schema for protocol extraction."""
+
+FIELD_DEFINITIONS: list[dict] = [
+    {"key": "protocol_id", "label": "方案编号", "required": True},
+    {"key": "study_title", "label": "研究标题", "required": True},
+    {"key": "sponsor", "label": "申办方", "required": True},
+    {"key": "indication", "label": "适应症", "required": True},
+    {"key": "phase", "label": "研究分期", "required": False},
+    {"key": "design", "label": "研究设计", "required": True},
+    {"key": "primary_endpoint", "label": "主要终点", "required": True},
+    {"key": "secondary_endpoints", "label": "次要终点", "required": False},
+    {"key": "sample_size", "label": "样本量", "required": True},
+    {"key": "study_duration", "label": "研究周期", "required": False},
+    {"key": "inclusion_criteria", "label": "入选标准", "required": False},
+    {"key": "exclusion_criteria", "label": "排除标准", "required": False},
+    {"key": "safety_monitoring", "label": "安全性监测", "required": True},
+    {"key": "interim_analysis", "label": "期中分析", "required": False},
+    {"key": "stopping_rules", "label": "停止规则", "required": False},
+    {"key": "dmc_chair", "label": "DMC主席", "required": False},
+    {"key": "dmc_members", "label": "DMC成员", "required": False},
+    {"key": "meeting_frequency", "label": "会议频率", "required": False},
+    {"key": "confidentiality", "label": "保密条款", "required": False},
+]
+
+# Keywords for rule-based extraction (Chinese + English patterns)
+EXTRACTION_HINTS: dict[str, list[str]] = {
+    "protocol_id": ["方案编号", "Protocol No", "研究编号", "试验编号"],
+    "study_title": ["研究标题", "试验名称", "Study Title", "项目名称"],
+    "sponsor": ["申办方", "申办者", "Sponsor", "资助方"],
+    "indication": ["适应症", "Indication", "目标人群", "疾病"],
+    "phase": ["分期", "Phase", "I期", "II期", "III期", "IV期"],
+    "design": ["研究设计", "试验设计", "Design", "随机", "双盲", "单臂"],
+    "primary_endpoint": ["主要终点", "Primary Endpoint", "主要疗效终点"],
+    "secondary_endpoints": ["次要终点", "Secondary Endpoint"],
+    "sample_size": ["样本量", "Sample Size", "入组人数", "计划入组"],
+    "study_duration": ["研究周期", "试验周期", "Duration", "随访"],
+    "inclusion_criteria": ["入选标准", "入组标准", "Inclusion Criteria"],
+    "exclusion_criteria": ["排除标准", "Exclusion Criteria"],
+    "safety_monitoring": ["安全性监测", "安全监测", "Safety Monitoring", "AE"],
+    "interim_analysis": ["期中分析", "Interim Analysis"],
+    "stopping_rules": ["停止规则", "Stopping Rule", "终止规则"],
+    "dmc_chair": ["DMC主席", "委员会主席", "Chair"],
+    "dmc_members": ["DMC成员", "委员会成员", "数据监查委员会"],
+    "meeting_frequency": ["会议频率", "Meeting Frequency", "会议频次"],
+    "confidentiality": ["保密", "Confidentiality"],
+}

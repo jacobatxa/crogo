@@ -2,93 +2,206 @@
 
 const App = {
   state: {
-    user: null,
+    user: { name: '测试用户', role: '管理员' },
     page: 'dashboard',
-    templates: [
-      { id: 1, type: 'DMC', name: 'DMC Charter v2.1', desc: '数据监查委员会章程，含职责定义、会议流程、保密协议等标准章节', sections: 36, placeholders: 78, updated: '2024-12' },
-      { id: 2, type: 'DMP', name: '数据管理计划 v2.0', desc: '数据管理计划，涵盖数据录入、编码、核对及数据库锁定流程', sections: 28, placeholders: 54, updated: '2024-11' },
-      { id: 3, type: 'SAP', name: '统计分析计划 v1.0', desc: '统计分析计划，含统计方法、样本量计算、亚组分析和敏感性分析', sections: 31, placeholders: 63, updated: '2024-11' },
-      { id: 4, type: 'CSR', name: '临床研究报告 v1.0', desc: '临床研究报告，按 ICH E3 标准结构组织', sections: 42, placeholders: 95, updated: '2024-10' },
-      { id: 5, type: 'ICF', name: '知情同意书 v3.0', desc: '知情同意书，符合 GCP 要求，含风险说明、数据隐私、自愿退出条款', sections: 18, placeholders: 42, updated: '2024-09' },
-    ],
-    projects: [
-      { id: 1, initials: 'R', color: '#0891b2', name: 'RWS-2024-012 · 胰腺癌真实世界研究', sponsor: '恒瑞医药', version: 'v3.2', status: 'progress', updated: '2h 前' },
-      { id: 2, initials: 'D', color: '#7c3aed', name: 'DMC Charter · 肝癌双盲 III 期', sponsor: '信达生物', version: 'v2.0', status: 'done', updated: '1d 前' },
-      { id: 3, initials: 'S', color: '#d97706', name: 'SAP · 非小细胞肺癌二线治疗', sponsor: '百济神州', version: 'v1.5', status: 'draft', updated: '3d 前' },
-    ],
-    queries: [
-      { text: '胰腺癌 RWS 中伊立替康脂质体的安全监测模式', project: 'RWS-2024-012', results: 2, confidence: 94, status: 'adopted' },
-      { text: '肝癌 III 期双盲试验的期中分析停止边界', project: 'DMC-2024-008', results: 3, confidence: 88, status: 'adopted' },
-      { text: '非小细胞肺癌二线治疗 OS 终点定义（RECIST 1.1）', project: 'SAP-2024-005', results: 1, confidence: 96, status: 'pending' },
-    ]
+    templates: [],
+    projects: [],
+    kbStats: { chunk_count: 0, document_count: 0, project_count: 0 },
+    currentProjectId: null,
+    currentTemplateId: null,
+    fieldSchema: [],
+    queries: [],
   },
 
-  init() {
-    this.bindLogin();
+  async init() {
+    this.setupAuth();
     this.bindNavigation();
     this.bindUpload();
     this.bindToggle();
     this.bindSearch();
     this.bindActions();
-    this.renderTemplates();
-    this.renderProjects();
-    this.renderQueries();
+    await this.refreshAll();
+    this.handleDeepLink();
   },
 
-  /* ── Login ── */
+  setupAuth() {
+    const showLogin = new URLSearchParams(location.search).get('login') === '1';
+    const loginEl = document.getElementById('login-screen');
+    const appEl = document.getElementById('app');
+
+    if (showLogin) {
+      loginEl.classList.add('show-login');
+      appEl.classList.add('hidden');
+      this.bindLogin();
+    } else {
+      loginEl.classList.remove('show-login');
+      appEl.classList.remove('hidden');
+      const avatar = document.querySelector('.user-avatar');
+      const nameEl = document.querySelector('.user-name');
+      if (avatar) avatar.textContent = this.state.user.name[0].toUpperCase();
+      if (nameEl) nameEl.textContent = this.state.user.name;
+    }
+  },
+
   bindLogin() {
     const form = document.getElementById('loginForm');
+    if (!form) return;
     form.addEventListener('submit', (e) => {
       e.preventDefault();
       const email = document.getElementById('loginEmail').value.trim() || '测试用户';
-      const password = document.getElementById('loginPassword').value.trim();
-
-      this.state.user = { name: email.includes('@') ? email.split('@')[0] : email, role: '管理员' };
-      document.getElementById('login-screen').style.display = 'none';
-      document.getElementById('app').style.display = 'flex';
-      this.showToast('登录成功，欢迎回来');
+      this.state.user = {
+        name: email.includes('@') ? email.split('@')[0] : email,
+        role: '管理员',
+      };
+      document.getElementById('login-screen').classList.remove('show-login');
+      document.getElementById('app').classList.remove('hidden');
+      this.showToast('登录成功');
     });
   },
 
-  /* ── Navigation ── */
+  handleDeepLink() {
+    const params = new URLSearchParams(location.search);
+    const projectId = params.get('project');
+    const templateId = params.get('template');
+    if (projectId) this.openProjectDetail(parseInt(projectId, 10));
+    else if (templateId) this.openTemplateDetail(parseInt(templateId, 10));
+  },
+
+  async refreshAll() {
+    try {
+      await API.health();
+      const [stats, templates, projects, schema] = await Promise.all([
+        API.kbStats(),
+        API.listTemplates(),
+        API.listProjects(),
+        API.fieldSchema(),
+      ]);
+      this.state.kbStats = stats;
+      this.state.templates = templates;
+      this.state.projects = projects;
+      this.state.fieldSchema = schema;
+      this.updateStatsUI();
+      this.renderTemplates();
+      this.renderProjects();
+    } catch (e) {
+      this.showToast(e.message, true);
+      this.state.templates = this.state.templates.length ? this.state.templates : [];
+      this.renderTemplates();
+      this.renderProjects();
+    }
+  },
+
+  updateStatsUI() {
+    const s = this.state.kbStats;
+    const chunks = s.chunk_count || 0;
+    const docs = s.document_count || 0;
+    const projs = s.project_count || 0;
+    const done = this.state.projects.filter(p => p.status === 'done').length;
+
+    const set = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = typeof val === 'number' ? val.toLocaleString() : val;
+    };
+
+    set('dashStatChunks', chunks);
+    set('kbStatChunks', chunks);
+    set('dashStatChunksSub', `已入库 ${docs} 份文档`);
+    set('kbStatChunksSub', chunks > 0 ? '向量索引已完成' : '等待导入 PDF');
+    set('kbStatDocs', docs);
+    set('kbStatDocsSub', docs > 0 ? '历史方案 PDF' : '拖入 PDF 开始构建');
+    set('kbStatProjects', projs);
+    set('kbStatProjectsSub', '工作区项目数');
+    set('dashStatTemplates', this.state.templates.length);
+    set('dashStatProjects', this.state.projects.length);
+    set('dashStatProjectsSub', `${this.state.projects.filter(p => p.status !== 'done').length} 进行中`);
+    set('dashStatGenerated', done);
+
+    document.querySelectorAll('.nav-item .nav-badge').forEach(badge => {
+      const page = badge.closest('.nav-item')?.dataset.page;
+      if (page === 'templates') badge.textContent = String(this.state.templates.length);
+      if (page === 'knowledge') badge.textContent = String(docs || 0);
+      if (page === 'projects') badge.textContent = String(this.state.projects.length);
+    });
+  },
+
   bindNavigation() {
     document.querySelectorAll('.nav-item').forEach(item => {
       item.addEventListener('click', () => {
         const page = item.dataset.page;
         if (page === 'logout') {
-          this.state.user = null;
-          document.getElementById('app').style.display = 'none';
-          document.getElementById('login-screen').style.display = 'flex';
-          document.getElementById('loginEmail').value = '';
-          document.getElementById('loginPassword').value = '';
+          location.reload();
           return;
         }
-        this.navigate(page);
+        if (page) this.navigate(page);
       });
+    });
+
+    document.getElementById('projectDetailBack')?.addEventListener('click', () => {
+      history.replaceState({}, '', location.pathname);
+      this.navigate('projects');
+    });
+    document.getElementById('templateDetailBack')?.addEventListener('click', () => {
+      history.replaceState({}, '', location.pathname);
+      this.navigate('templates');
     });
   },
 
   navigate(page) {
+    if (page === 'project-detail' || page === 'template-detail') {
+      this.state.page = page;
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(`page-${page}`)?.classList.add('active');
+      return;
+    }
+
     this.state.page = page;
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.querySelector(`.nav-item[data-page="${page}"]`).classList.add('active');
+    const nav = document.querySelector(`.nav-item[data-page="${page}"]`);
+    if (nav) nav.classList.add('active');
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(`page-${page}`).classList.add('active');
+    document.getElementById(`page-${page}`)?.classList.add('active');
 
-    const titles = {
+    const crumbs = {
       dashboard: { title: '工作台', crumb: '总览' },
       templates: { title: '模板库', crumb: `${this.state.templates.length} 个模板` },
-      knowledge: { title: '知识库', crumb: '1,284 条目' },
-      projects:  { title: '项目', crumb: `${this.state.projects.length} 个活跃项目` },
-      settings:  { title: '设置', crumb: '系统配置' }
+      knowledge: { title: '知识库', crumb: `${(this.state.kbStats.chunk_count || 0).toLocaleString()} 条目` },
+      projects: { title: '项目', crumb: `${this.state.projects.length} 个项目` },
+      settings: { title: '设置', crumb: '系统配置' },
     };
-    const info = titles[page];
+    const info = crumbs[page] || { title: page, crumb: '' };
     document.getElementById('pageTitle').textContent = info.title;
     document.getElementById('breadcrumb').textContent = info.crumb;
+
+    if (page === 'knowledge' || page === 'dashboard') this.refreshAll();
   },
 
-  /* ── Upload Zone ── */
   bindUpload() {
+    const ingest = async (files, zoneId) => {
+      if (!files?.length) return;
+      const pdfs = Array.from(files).filter(f => f.name.toLowerCase().endsWith('.pdf'));
+      if (!pdfs.length) {
+        this.showToast('请上传 PDF 文件', true);
+        return;
+      }
+      const zone = document.getElementById(zoneId);
+      zone?.classList.add('uploading');
+      this.showToast(`正在入库 ${pdfs.length} 个 PDF...`);
+      try {
+        const job = await API.kbIngest(pdfs);
+        if (job.status === 'error') {
+          this.showToast(job.message || '入库失败', true);
+        } else {
+          this.showToast(job.message || '知识库索引完成 ✓');
+        }
+        await this.refreshAll();
+      } catch (e) {
+        this.showToast(e.message, true);
+      } finally {
+        zone?.classList.remove('uploading');
+      }
+    };
+
     ['dashboardUpload', 'kbUpload'].forEach(id => {
       const zone = document.getElementById(id);
       if (!zone) return;
@@ -97,63 +210,61 @@ const App = {
         zone.addEventListener(evt, e => { e.preventDefault(); zone.classList.add('dragover'); });
       });
       ['dragleave', 'drop'].forEach(evt => {
-        zone.addEventListener(evt, e => { e.preventDefault(); zone.classList.remove('dragover'); });
-      });
-      input.addEventListener('change', function() {
-        if (this.files.length > 0) {
-          const names = Array.from(this.files).map(f => f.name).join(', ');
-          App.showToast(`已接收 ${this.files.length} 个文件`);
-          if (id === 'kbUpload') {
-            App.showToast('知识库构建已启动...');
-            setTimeout(() => App.showToast('知识索引完成 ✓'), 2000);
+        zone.addEventListener(evt, e => {
+          e.preventDefault();
+          zone.classList.remove('dragover');
+          if (evt === 'drop' && e.dataTransfer?.files?.length) {
+            ingest(e.dataTransfer.files, id);
           }
-          this.value = '';
-        }
+        });
+      });
+      zone.addEventListener('click', () => input?.click());
+      input?.addEventListener('change', function () {
+        if (this.files.length) ingest(this.files, id);
+        this.value = '';
       });
     });
   },
 
-  /* ── Toggle switches ── */
   bindToggle() {
     document.querySelectorAll('.toggle').forEach(t => {
       t.addEventListener('click', () => t.classList.toggle('on'));
     });
   },
 
-  /* ── Search ── */
   bindSearch() {
-    document.getElementById('globalSearch').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && e.target.value.trim()) {
-        this.showToast(`搜索: "${e.target.value.trim()}"`);
-        e.target.value = '';
+    document.getElementById('globalSearch')?.addEventListener('keydown', async (e) => {
+      if (e.key !== 'Enter' || !e.target.value.trim()) return;
+      const q = e.target.value.trim();
+      try {
+        const results = await API.kbSearch(q);
+        this.state.queries = results.slice(0, 5).map((r, i) => ({
+          text: q,
+          project: r.source || '知识库',
+          results: results.length,
+          confidence: Math.round((r.score || 0) * 100),
+          status: i === 0 ? 'adopted' : 'pending',
+          snippet: r.text?.slice(0, 80),
+        }));
+        this.renderQueries();
+        this.navigate('knowledge');
+        this.showToast(`找到 ${results.length} 条相关知识`);
+      } catch (err) {
+        this.showToast(err.message, true);
       }
+      e.target.value = '';
     });
   },
 
-  /* ── Action buttons ── */
   bindActions() {
-    // New project
-    document.getElementById('newProjectBtn').addEventListener('click', () => {
-      this.openModal('newProject');
-    });
-
-    // Upload template
-    document.getElementById('uploadTemplateBtn').addEventListener('click', () => {
-      this.openModal('uploadTemplate');
-    });
-
-    // Modal close
-    document.querySelectorAll('.modal-close-btn').forEach(btn => {
-      btn.addEventListener('click', () => this.closeModal());
-    });
-
-    // Modal overlay click to close
-    document.getElementById('modalOverlay').addEventListener('click', (e) => {
+    document.getElementById('newProjectBtn')?.addEventListener('click', () => this.openModal('newProject'));
+    document.getElementById('newProjectBtn2')?.addEventListener('click', () => this.openModal('newProject'));
+    document.getElementById('uploadTemplateBtn')?.addEventListener('click', () => this.openModal('uploadTemplate'));
+    document.getElementById('modalOverlay')?.addEventListener('click', (e) => {
       if (e.target === e.currentTarget) this.closeModal();
     });
   },
 
-  /* ── Modal System ── */
   openModal(type) {
     const overlay = document.getElementById('modalOverlay');
     const title = document.getElementById('modalTitle');
@@ -163,165 +274,384 @@ const App = {
 
     if (type === 'newProject') {
       title.textContent = '新建项目';
-      desc.textContent = '选择一个模板并上传方案 PDF 开始生成';
+      desc.textContent = '选择模板并上传方案 PDF，随后进行字段提取与校验';
+      const tplOpts = this.state.templates.length
+        ? this.state.templates.map(t => `<option value="${t.id}">${t.type} — ${t.name}</option>`).join('')
+        : '<option value="">（请先上传模板）</option>';
       form.innerHTML = `
-        <div class="form-group">
-          <label>项目名称</label>
-          <input type="text" id="projName" placeholder="例：RWS-2024-012" style="width:100%">
-        </div>
-        <div class="form-group">
-          <label>选择模板</label>
-          <select id="projTemplate" style="width:100%;padding:9px 12px;border-radius:6px;border:1px solid var(--border);font-size:13px">
-            ${this.state.templates.map(t => `<option value="${t.id}">${t.type} — ${t.name}</option>`).join('')}
-          </select>
-        </div>
-        <div class="form-group">
-          <label>方案 PDF</label>
-          <input type="file" accept=".pdf" style="font-size:12px">
-        </div>
-      `;
+        <div class="form-group"><label>项目名称</label>
+          <input type="text" id="projName" placeholder="例：RWS-2024-012" style="width:100%"></div>
+        <div class="form-group"><label>申办方</label>
+          <input type="text" id="projSponsor" placeholder="例：恒瑞医药" style="width:100%"></div>
+        <div class="form-group"><label>选择模板</label>
+          <select id="projTemplate" style="width:100%;padding:9px 12px;border-radius:6px;border:1px solid var(--border);font-size:13px">${tplOpts}</select></div>
+        <div class="form-group"><label>方案 PDF</label>
+          <input type="file" id="projPdf" accept=".pdf" style="font-size:12px"></div>`;
       actions.innerHTML = `
         <button class="btn btn-outline btn-sm modal-close-btn" type="button">取消</button>
-        <button class="btn btn-primary btn-sm" type="submit" style="background:var(--teal)">创建项目</button>
-      `;
+        <button class="btn btn-primary btn-sm" id="modalSubmit" type="button" style="background:var(--teal)">创建并提取</button>`;
     } else if (type === 'uploadTemplate') {
       title.textContent = '上传模板';
-      desc.textContent = '上传 .docx 模板文件，系统将自动解析章节结构和占位符';
+      desc.textContent = '上传 .docx，系统将解析章节与占位符（支持 {{key}}、<key>、【key】）';
       form.innerHTML = `
-        <div class="form-group">
-          <label>模板类型</label>
+        <div class="form-group"><label>模板类型</label>
           <select id="tplType" style="width:100%;padding:9px 12px;border-radius:6px;border:1px solid var(--border);font-size:13px">
-            <option value="DMC">DMC — 数据监查委员会章程</option>
-            <option value="DMP">DMP — 数据管理计划</option>
-            <option value="SAP">SAP — 统计分析计划</option>
-            <option value="CSR">CSR — 临床研究报告</option>
-            <option value="ICF">ICF — 知情同意书</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>模板文件 (.docx)</label>
-          <input type="file" accept=".docx" style="font-size:12px">
-        </div>
-      `;
+            <option value="DMC">DMC</option><option value="DMP">DMP</option><option value="SAP">SAP</option>
+            <option value="CSR">CSR</option><option value="ICF">ICF</option></select></div>
+        <div class="form-group"><label>模板名称</label>
+          <input type="text" id="tplName" placeholder="例：DMC Charter v2.1" style="width:100%"></div>
+        <div class="form-group"><label>模板文件 (.docx)</label>
+          <input type="file" id="tplFile" accept=".docx" style="font-size:12px"></div>`;
       actions.innerHTML = `
         <button class="btn btn-outline btn-sm modal-close-btn" type="button">取消</button>
-        <button class="btn btn-primary btn-sm" type="submit" style="background:var(--teal)">上传并解析</button>
-      `;
+        <button class="btn btn-primary btn-sm" id="modalSubmit" type="button" style="background:var(--teal)">上传并解析</button>`;
     }
 
     overlay.classList.add('show');
-    const submitBtn = actions.querySelector('[type="submit"]');
-    if (submitBtn) {
-      submitBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        this.closeModal();
-        this.showToast(type === 'newProject' ? '项目创建成功' : '模板上传成功，正在解析...');
-        setTimeout(() => this.showToast('解析完成 ✓'), 1500);
-      });
-    }
-    // Re-bind close buttons since they were recreated
+    document.getElementById('modalSubmit')?.addEventListener('click', () => this.handleModalSubmit(type));
     document.querySelectorAll('.modal-close-btn').forEach(btn => {
       btn.addEventListener('click', () => this.closeModal());
     });
   },
 
-  closeModal() {
-    document.getElementById('modalOverlay').classList.remove('show');
+  async handleModalSubmit(type) {
+    try {
+      if (type === 'newProject') {
+        const name = document.getElementById('projName')?.value.trim();
+        const sponsor = document.getElementById('projSponsor')?.value.trim();
+        const templateId = document.getElementById('projTemplate')?.value;
+        const file = document.getElementById('projPdf')?.files?.[0];
+        if (!name || !file) {
+          this.showToast('请填写项目名称并上传 PDF', true);
+          return;
+        }
+        this.closeModal();
+        this.showToast('正在创建项目...');
+        const proj = await API.createProject(name, sponsor, templateId, file);
+        this.showToast('正在提取字段...');
+        await API.extractProject(proj.id);
+        await this.refreshAll();
+        history.replaceState({}, '', `${location.pathname}?project=${proj.id}`);
+        this.openProjectDetail(proj.id);
+      } else if (type === 'uploadTemplate') {
+        const typeVal = document.getElementById('tplType')?.value;
+        const name = document.getElementById('tplName')?.value.trim();
+        const file = document.getElementById('tplFile')?.files?.[0];
+        if (!file) {
+          this.showToast('请选择 .docx 文件', true);
+          return;
+        }
+        this.closeModal();
+        this.showToast('正在解析模板...');
+        const tpl = await API.uploadTemplate(typeVal, name, file);
+        await this.refreshAll();
+        history.replaceState({}, '', `${location.pathname}?template=${tpl.id}`);
+        this.openTemplateDetail(tpl.id);
+      }
+    } catch (e) {
+      this.showToast(e.message, true);
+    }
   },
 
-  /* ── Rendering ── */
+  closeModal() {
+    document.getElementById('modalOverlay')?.classList.remove('show');
+  },
+
+  async openProjectDetail(id) {
+    this.state.currentProjectId = id;
+    this.navigate('project-detail');
+    const body = document.getElementById('projectDetailBody');
+    const title = document.getElementById('projectDetailTitle');
+    body.innerHTML = '<p class="loading-text">加载中...</p>';
+
+    try {
+      const proj = await API.getProject(id);
+      title.textContent = proj.name;
+      body.innerHTML = this.renderProjectDetail(proj);
+      this.bindProjectDetailActions(proj);
+    } catch (e) {
+      body.innerHTML = `<p class="error-text">${e.message}</p>`;
+    }
+  },
+
+  renderProjectDetail(proj) {
+    const statusMap = {
+      draft: '草稿',
+      extracting: '提取中',
+      validating: '待校验',
+      generating: '生成中',
+      done: '已完成',
+    };
+    const fields = proj.fields || [];
+    const fieldsHtml = fields.length
+      ? fields.map(f => `
+        <div class="field-row" data-key="${f.key}">
+          <div class="field-label">
+            ${f.label}${f.required ? '<span class="req">*</span>' : ''}
+            <small>置信度 ${Math.round((f.confidence || 0) * 100)}%</small>
+          </div>
+          <textarea class="field-input" rows="2">${this.escapeHtml(f.value || '')}</textarea>
+          ${f.source_snippet ? `<div class="field-source">依据: ${this.escapeHtml(f.source_snippet)}</div>` : ''}
+        </div>`).join('')
+      : '<p>暂无字段，请点击下方按钮提取。</p>';
+
+    const downloadBtn = proj.has_output
+      ? `<a class="btn btn-primary btn-sm" href="${API.downloadUrl(proj.id)}" download>下载 DOCX</a>`
+      : '';
+
+    return `
+      <div class="detail-meta">
+        <span>状态: ${statusMap[proj.status] || proj.status}</span>
+        <span>方案: ${this.escapeHtml(proj.pdf_filename || '')}</span>
+        <span>模板 ID: ${proj.template_id || '未选择'}</span>
+      </div>
+      <div class="detail-actions">
+        ${proj.status === 'draft' ? '<button class="btn btn-primary btn-sm" id="btnExtract">提取字段</button>' : ''}
+        <button class="btn btn-outline btn-sm" id="btnSaveFields">保存校验</button>
+        <button class="btn btn-primary btn-sm" id="btnGenerate" style="background:var(--teal)">一键生成 DMC</button>
+        ${downloadBtn}
+      </div>
+      <div class="fields-panel"><h4>字段校验</h4>${fieldsHtml}</div>`;
+  },
+
+  bindProjectDetailActions(proj) {
+    document.getElementById('btnExtract')?.addEventListener('click', async () => {
+      try {
+        this.showToast('正在提取...');
+        await API.extractProject(proj.id);
+        await this.openProjectDetail(proj.id);
+        this.showToast('提取完成，请校验字段');
+      } catch (e) {
+        this.showToast(e.message, true);
+      }
+    });
+
+    document.getElementById('btnSaveFields')?.addEventListener('click', async () => {
+      const fields = this.collectFieldsFromDOM();
+      try {
+        await API.saveFields(proj.id, fields);
+        this.showToast('字段已保存');
+        await this.refreshAll();
+      } catch (e) {
+        this.showToast(e.message, true);
+      }
+    });
+
+    document.getElementById('btnGenerate')?.addEventListener('click', async () => {
+      const fields = this.collectFieldsFromDOM();
+      try {
+        await API.saveFields(proj.id, fields);
+        this.showToast('正在生成文档...');
+        const res = await API.generateProject(proj.id);
+        this.showToast(res.message || '生成成功');
+        await this.openProjectDetail(proj.id);
+        await this.refreshAll();
+      } catch (e) {
+        this.showToast(e.message, true);
+      }
+    });
+  },
+
+  collectFieldsFromDOM() {
+    const schemaByKey = {};
+    (this.state.fieldSchema || []).forEach(d => { schemaByKey[d.key] = d; });
+    return Array.from(document.querySelectorAll('.field-row')).map(row => {
+      const key = row.dataset.key;
+      const defn = schemaByKey[key] || { label: key, required: false };
+      return {
+        key,
+        label: defn.label || key,
+        value: row.querySelector('.field-input')?.value || '',
+        confidence: 1,
+        source_snippet: row.querySelector('.field-source')?.textContent?.replace('依据: ', '') || '',
+        required: defn.required !== false,
+      };
+    });
+  },
+
+  async openTemplateDetail(id) {
+    this.state.currentTemplateId = id;
+    this.navigate('template-detail');
+    const body = document.getElementById('templateDetailBody');
+    const title = document.getElementById('templateDetailTitle');
+    body.innerHTML = '<p class="loading-text">加载中...</p>';
+
+    try {
+      const tpl = await API.getTemplate(id);
+      title.textContent = `${tpl.type} — ${tpl.name}`;
+      const schema = this.state.fieldSchema || [];
+      const phRows = (tpl.placeholders_list || []).map(ph => {
+        const selected = tpl.mappings?.[ph.name] || '';
+        const opts = schema.map(f =>
+          `<option value="${f.key}"${f.key === selected ? ' selected' : ''}>${this.escapeHtml(f.label)} (${f.key})</option>`
+        ).join('');
+        return `
+          <tr>
+            <td><code>${this.escapeHtml(ph.name)}</code></td>
+            <td class="ph-context">${this.escapeHtml(ph.context || '')}</td>
+            <td>
+              <select class="mapping-select" data-ph="${this.escapeHtml(ph.name)}">
+                <option value="">— 未映射 —</option>
+                ${opts}
+              </select>
+            </td>
+          </tr>`;
+      }).join('');
+
+      const sectionsHtml = (tpl.sections_list || []).slice(0, 12).map(s =>
+        `<li>${this.escapeHtml(s.number || '')} ${this.escapeHtml(s.title || '')}</li>`
+      ).join('');
+
+      body.innerHTML = `
+        <p class="detail-meta">${tpl.desc}</p>
+        <div class="detail-actions">
+          <button class="btn btn-primary btn-sm" id="btnSaveMappings">保存映射</button>
+        </div>
+        <div class="mapping-grid">
+          <div class="sections-preview"><h4>章节预览</h4><ul>${sectionsHtml || '<li>无章节</li>'}</ul></div>
+          <div class="mapping-table-wrap">
+            <h4>占位符映射</h4>
+            <table class="mapping-table">
+              <thead><tr><th>占位符</th><th>上下文</th><th>字段</th></tr></thead>
+              <tbody>${phRows || '<tr><td colspan="3">未发现占位符，请在 docx 中使用 {{field_key}} 格式</td></tr>'}</tbody>
+            </table>
+          </div>
+        </div>`;
+
+      document.querySelectorAll('.mapping-select').forEach(sel => {
+        const ph = sel.dataset.ph;
+        if (tpl.mappings?.[ph]) sel.value = tpl.mappings[ph];
+      });
+
+      document.getElementById('btnSaveMappings')?.addEventListener('click', async () => {
+        const mappings = {};
+        document.querySelectorAll('.mapping-select').forEach(sel => {
+          if (sel.value) mappings[sel.dataset.ph] = sel.value;
+        });
+        try {
+          await API.saveMappings(id, mappings);
+          this.showToast('映射已保存');
+          await this.refreshAll();
+        } catch (e) {
+          this.showToast(e.message, true);
+        }
+      });
+    } catch (e) {
+      body.innerHTML = `<p class="error-text">${e.message}</p>`;
+    }
+  },
+
   renderTemplates() {
     const grid = document.getElementById('templateGrid');
     if (!grid) return;
-    grid.innerHTML = this.state.templates.map(t => `
-      <div class="template-card">
+    const cards = this.state.templates.map(t => `
+      <div class="template-card clickable" data-tpl-id="${t.id}">
         <div class="tc-type">${t.type}</div>
-        <h4>${t.name}</h4>
-        <p>${t.desc}</p>
+        <h4>${this.escapeHtml(t.name)}</h4>
+        <p>${this.escapeHtml(t.desc || '')}</p>
         <div class="tc-meta">
-          <span>${t.sections} 章节</span>
-          <span class="dot"></span>
-          <span>${t.placeholders} 占位符</span>
-          <span class="dot"></span>
-          <span>${t.updated}</span>
+          <span>${t.sections} 章节</span><span class="dot"></span>
+          <span>${t.placeholders} 占位符</span><span class="dot"></span>
+          <span>${t.mappings_complete ? '已映射' : '待映射'}</span>
         </div>
-      </div>
-    `).join('') + `
+      </div>`).join('');
+    grid.innerHTML = cards + `
       <div class="template-card add-card" id="uploadTemplateBtn2">
         <div class="add-icon">+</div>
         <p style="color:var(--text-ter);margin-bottom:0;">上传新模板</p>
-      </div>
-    `;
+      </div>`;
+    grid.querySelectorAll('.template-card.clickable').forEach(card => {
+      card.addEventListener('click', () => {
+        history.replaceState({}, '', `${location.pathname}?template=${card.dataset.tplId}`);
+        this.openTemplateDetail(parseInt(card.dataset.tplId, 10));
+      });
+    });
     document.getElementById('uploadTemplateBtn2')?.addEventListener('click', () => this.openModal('uploadTemplate'));
   },
 
   renderProjects() {
-    const statusMap = { done: '已完成', progress: '生成中', draft: '待校验' };
-    const statusClass = { done: 'status-done', progress: 'status-progress', draft: 'status-draft' };
+    const statusMap = {
+      done: '已完成',
+      generating: '生成中',
+      validating: '待校验',
+      extracting: '提取中',
+      draft: '草稿',
+      progress: '进行中',
+    };
+    const statusClass = {
+      done: 'status-done',
+      generating: 'status-progress',
+      validating: 'status-draft',
+      extracting: 'status-progress',
+      draft: 'status-draft',
+      progress: 'status-progress',
+    };
+    const colors = ['#0891b2', '#7c3aed', '#d97706', '#2563eb', '#dc2626'];
 
-    document.querySelectorAll('.project-list').forEach((list, idx) => {
-      if (idx === 1) return; // skip projects page
-      list.innerHTML = this.state.projects.map(p => `
-        <div class="project-item">
-          <div class="pi-icon" style="background:${p.color}">${p.initials}</div>
+    const html = this.state.projects.map((p, i) => {
+      const initials = (p.name || 'P')[0].toUpperCase();
+      const color = colors[i % colors.length];
+      return `
+        <div class="project-item clickable" data-proj-id="${p.id}">
+          <div class="pi-icon" style="background:${color}">${initials}</div>
           <div class="pi-info">
-            <div class="pi-name">${p.name}</div>
+            <div class="pi-name">${this.escapeHtml(p.name)}</div>
             <div class="pi-meta">
-              <span>申办方：${p.sponsor}</span>
-              <span>${p.version}</span>
-              <span>更新于 ${p.updated}</span>
+              <span>申办方：${this.escapeHtml(p.sponsor || '—')}</span>
+              <span>${statusMap[p.status] || p.status}</span>
+              <span>${p.updated_at || ''}</span>
             </div>
           </div>
-          <span class="pi-status ${statusClass[p.status]}">${statusMap[p.status]}</span>
-        </div>
-      `).join('');
+          <span class="pi-status ${statusClass[p.status] || 'status-draft'}">${statusMap[p.status] || p.status}</span>
+        </div>`;
+    }).join('') || '<p class="empty-text">暂无项目，点击「新建项目」开始</p>';
+
+    document.querySelectorAll('.project-list').forEach(list => {
+      list.innerHTML = html;
+      list.querySelectorAll('.project-item.clickable').forEach(item => {
+        item.addEventListener('click', () => {
+          const id = parseInt(item.dataset.projId, 10);
+          history.replaceState({}, '', `${location.pathname}?project=${id}`);
+          this.openProjectDetail(id);
+        });
+      });
     });
-
-    // Projects page full list
-    const fullList = document.getElementById('projectsFullList');
-    if (fullList) {
-      fullList.innerHTML = this.state.projects.map(p => `
-        <div class="project-item">
-          <div class="pi-icon" style="background:${p.color}">${p.initials}</div>
-          <div class="pi-info">
-            <div class="pi-name">${p.name}</div>
-            <div class="pi-meta">
-              <span>模板：DMC v2.1</span>
-              <span>${p.version}</span>
-              <span>创建于 ${p.updated}</span>
-            </div>
-          </div>
-          <span class="pi-status ${statusClass[p.status]}">${statusMap[p.status]}</span>
-        </div>
-      `).join('');
-    }
   },
 
   renderQueries() {
     const list = document.getElementById('queryList');
     if (!list) return;
-    list.innerHTML = this.state.queries.map(q => `
+    const qs = this.state.queries;
+    if (!qs.length) {
+      list.innerHTML = '<p class="empty-text">使用顶部搜索或完成项目提取后，相关知识将显示在此</p>';
+      return;
+    }
+    list.innerHTML = qs.map(q => `
       <div class="query-item">
         <div class="qi-icon">◈</div>
         <div class="qi-body">
-          <div class="qi-text">${q.text}</div>
-          <div class="qi-meta">${q.project} · ${q.results}条结果 · 置信度 ${q.confidence}%</div>
+          <div class="qi-text">${this.escapeHtml(q.text)}</div>
+          <div class="qi-meta">${this.escapeHtml(q.project)} · ${q.results}条 · 置信度 ${q.confidence}%</div>
         </div>
         <span class="qi-status" style="background:${q.status === 'adopted' ? 'var(--green-bg)' : 'var(--yellow-bg)'};color:${q.status === 'adopted' ? 'var(--green)' : 'var(--yellow)'}">${q.status === 'adopted' ? '已采纳' : '待确认'}</span>
-      </div>
-    `).join('');
+      </div>`).join('');
   },
 
-  /* ── Toast ── */
-  showToast(msg) {
+  escapeHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  },
+
+  showToast(msg, isError = false) {
     const container = document.getElementById('toastContainer');
     const toast = document.createElement('div');
-    toast.className = 'toast';
+    toast.className = 'toast' + (isError ? ' toast-error' : '');
     toast.textContent = msg;
     container.appendChild(toast);
-    setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity .3s'; }, 2500);
-    setTimeout(() => toast.remove(), 3000);
-  }
+    setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity .3s'; }, 2800);
+    setTimeout(() => toast.remove(), 3200);
+  },
 };
 
 document.addEventListener('DOMContentLoaded', () => App.init());

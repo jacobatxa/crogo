@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Crogo · 医药CRO文档工作台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -92,12 +95,17 @@
       </div>
       <div class="topbar-right">
         <div class="search-box">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           <input type="text" placeholder="搜索项目、模板、知识..." id="globalSearch">
         </div>
         <div class="topbar-actions">
-          <button class="btn-icon" title="通知">🔔</button>
-          <button class="btn btn-primary btn-sm" id="newProjectBtn">＋ 新项目</button>
+          <button class="btn-icon" title="通知" aria-label="通知">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          </button>
+          <button class="btn btn-primary btn-sm" id="newProjectBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            新项目
+          </button>
         </div>
       </div>
     </header>
@@ -109,33 +117,29 @@
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-lbl">◈ 知识库条目</div>
-            <div class="stat-num">1,284</div>
-            <div class="stat-sub">覆盖 47 个项目</div>
-            <div class="stat-trend up">↑ 12% 本月</div>
+            <div class="stat-num" id="dashStatChunks">0</div>
+            <div class="stat-sub" id="dashStatChunksSub">—</div>
           </div>
           <div class="stat-card">
             <div class="stat-lbl">⊞ 可用模板</div>
-            <div class="stat-num">6</div>
-            <div class="stat-sub">DMC / DMP / SAP / CSR</div>
-            <div class="stat-trend neutral">-- 无变化</div>
+            <div class="stat-num" id="dashStatTemplates">0</div>
+            <div class="stat-sub">DMC / DMP / SAP</div>
           </div>
           <div class="stat-card">
             <div class="stat-lbl">◎ 活跃项目</div>
-            <div class="stat-num">3</div>
-            <div class="stat-sub">2 进行中 · 1 待审核</div>
-            <div class="stat-trend up">↑ 1 本周</div>
+            <div class="stat-num" id="dashStatProjects">0</div>
+            <div class="stat-sub" id="dashStatProjectsSub">—</div>
           </div>
           <div class="stat-card">
-            <div class="stat-lbl">📄 本月生成</div>
-            <div class="stat-num">18</div>
-            <div class="stat-sub">平均填充率 87%</div>
-            <div class="stat-trend up">↑ 5% 上个月</div>
+            <div class="stat-lbl">📄 已生成文档</div>
+            <div class="stat-num" id="dashStatGenerated">0</div>
+            <div class="stat-sub">完成的项目</div>
           </div>
         </div>
 
         <div class="upload-zone" id="dashboardUpload">
           <div class="uz-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
           </div>
           <h3>拖入方案 PDF</h3>
           <p>或点击上传 · 支持 .pdf .docx</p>
@@ -162,19 +166,19 @@
       <div class="page" id="page-knowledge">
         <div class="kb-stats">
           <div class="kb-card">
-            <div class="kb-num">1,284</div>
+            <div class="kb-num" id="kbStatChunks">0</div>
             <div class="kb-lbl">知识条目</div>
-            <div class="kb-sub">向量索引已完成</div>
+            <div class="kb-sub" id="kbStatChunksSub">向量索引</div>
           </div>
           <div class="kb-card">
-            <div class="kb-num">47</div>
-            <div class="kb-lbl">已入库项目</div>
-            <div class="kb-sub">覆盖 8 个治疗领域</div>
+            <div class="kb-num" id="kbStatDocs">0</div>
+            <div class="kb-lbl">已入库文档</div>
+            <div class="kb-sub" id="kbStatDocsSub">—</div>
           </div>
           <div class="kb-card">
-            <div class="kb-num">96%</div>
-            <div class="kb-lbl">提取匹配率</div>
-            <div class="kb-sub">较上月 +3%</div>
+            <div class="kb-num" id="kbStatProjects">0</div>
+            <div class="kb-lbl">关联项目</div>
+            <div class="kb-sub" id="kbStatProjectsSub">—</div>
           </div>
         </div>
 
@@ -195,9 +199,27 @@
       <div class="page" id="page-projects">
         <div class="section-hdr">
           <h3>所有项目</h3>
-          <button class="btn btn-primary btn-sm">＋ 新建项目</button>
+          <button class="btn btn-primary btn-sm" id="newProjectBtn2">＋ 新建项目</button>
         </div>
         <div class="project-list" id="projectsFullList"></div>
+      </div>
+
+      <!-- ══ Project Detail ══ -->
+      <div class="page" id="page-project-detail">
+        <div class="section-hdr">
+          <button class="btn btn-outline btn-xs" id="projectDetailBack">← 返回</button>
+          <h3 id="projectDetailTitle">项目详情</h3>
+        </div>
+        <div id="projectDetailBody"></div>
+      </div>
+
+      <!-- ══ Template Mapping ══ -->
+      <div class="page" id="page-template-detail">
+        <div class="section-hdr">
+          <button class="btn btn-outline btn-xs" id="templateDetailBack">← 返回模板库</button>
+          <h3 id="templateDetailTitle">映射确认</h3>
+        </div>
+        <div id="templateDetailBody"></div>
       </div>
 
       <!-- ══ Settings ══ -->
@@ -265,6 +287,7 @@
 <!-- ═══ Toast Container ═══ -->
 <div class="toast-container" id="toastContainer"></div>
 
+<script src="js/api.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

@@ -1,0 +1,7 @@
+data/
+backend/.venv/
+__pycache__/
+*.pyc
+.env
+.cursor/mcp.json
+.DS_Store
