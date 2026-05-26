@@ -40,22 +40,10 @@ const App = {
     const form = document.getElementById('loginForm');
     form.addEventListener('submit', (e) => {
       e.preventDefault();
-      const email = document.getElementById('loginEmail').value.trim();
+      const email = document.getElementById('loginEmail').value.trim() || '测试用户';
       const password = document.getElementById('loginPassword').value.trim();
-      const error = document.getElementById('loginError');
 
-      if (!email || !password) {
-        error.textContent = '请输入邮箱和密码';
-        error.style.display = 'block';
-        return;
-      }
-      if (!email.includes('@')) {
-        error.textContent = '请输入有效的邮箱地址';
-        error.style.display = 'block';
-        return;
-      }
-
-      this.state.user = { name: email.split('@')[0], role: '管理员' };
+      this.state.user = { name: email.includes('@') ? email.split('@')[0] : email, role: '管理员' };
       document.getElementById('login-screen').style.display = 'none';
       document.getElementById('app').style.display = 'flex';
       this.showToast('登录成功，欢迎回来');
