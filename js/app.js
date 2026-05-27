@@ -471,6 +471,11 @@ const App = {
       ? `<div class="generations-grid">${generations.map(g => {
           const cls = genStatusClass[g.status] || 'gen-pending';
           const label = genStatusLabel[g.status] || g.status;
+          const qualityLine = g.quality_grade
+            ? `<div class="gc-quality">等级 ${this.escapeHtml(g.quality_grade)} · 填充率 ${Math.round((g.fill_rate || 0) * 100)}%${g.requires_review ? ` · ${g.requires_review} 项需确认` : ''}</div>`
+            : (g.message && g.status === 'done'
+                ? `<div class="gc-quality">${this.escapeHtml(g.message)}</div>`
+                : '');
           const action = g.status === 'done'
             ? `<a class="btn btn-primary btn-xs" href="${API.downloadUrl(proj.id, g.template_id)}" download>下载 .docx</a>`
             : (g.status === 'error'
@@ -483,6 +488,7 @@ const App = {
                 <span class="gc-name">${this.escapeHtml(g.template_name || '')}</span>
                 <span class="gc-status">${label}</span>
               </div>
+              ${qualityLine}
               <div class="gc-action">${action}</div>
             </div>`;
         }).join('')}</div>`
@@ -577,15 +583,27 @@ const App = {
       const tpl = await API.getTemplate(id);
       title.textContent = `${tpl.type} — ${tpl.name}`;
       const schema = this.state.fieldSchema || [];
+      const suggestions = tpl.mapping_suggestions || {};
       const phRows = (tpl.placeholders_list || []).map(ph => {
-        const selected = tpl.mappings?.[ph.name] || '';
+        const sug = suggestions[ph.name] || {};
+        const selected = tpl.mappings?.[ph.name] || sug.field_key || '';
+        const needsReview = sug.requires_review && !tpl.mappings?.[ph.name];
+        const statusHtml = !selected
+          ? '<span class="mapping-status mapping-status-warn">待映射</span>'
+          : (needsReview
+              ? '<span class="mapping-status mapping-status-warn">需确认</span>'
+              : '<span class="mapping-status mapping-status-ok">已确认</span>');
         const opts = schema.map(f =>
           `<option value="${f.key}"${f.key === selected ? ' selected' : ''}>${this.escapeHtml(f.label)} (${f.key})</option>`
         ).join('');
+        const confHint = sug.confidence
+          ? `<small class="sug-conf">建议 ${Math.round((sug.confidence || 0) * 100)}%</small>`
+          : '';
         return `
-          <tr>
-            <td><code>${this.escapeHtml(ph.name)}</code></td>
+          <tr class="${needsReview || !selected ? 'mapping-row-warn' : ''}">
+            <td><code>${this.escapeHtml(ph.name)}</code>${confHint}</td>
             <td class="ph-context">${this.escapeHtml(ph.context || '')}</td>
+            <td>${statusHtml}</td>
             <td>
               <select class="mapping-select" data-ph="${this.escapeHtml(ph.name)}">
                 <option value="">— 未映射 —</option>
@@ -600,11 +618,21 @@ const App = {
       ).join('');
 
       const phCount = (tpl.placeholders_list || []).length;
-      const mappedCount = Object.keys(tpl.mappings || {}).length;
+      const mappedCount = (tpl.placeholders_list || []).filter(
+        ph => tpl.mappings?.[ph.name]
+      ).length;
+      const pendingReview = (tpl.placeholders_list || []).filter(ph => {
+        const sug = suggestions[ph.name] || {};
+        return sug.requires_review && !tpl.mappings?.[ph.name];
+      }).length;
       const ready = tpl.mappings_complete;
       const bannerClass = ready ? 'banner-ok' : 'banner-warn';
-      const bannerTitle = ready ? '模板已可用于项目生成' : '模板已上传，请确认占位符映射';
-      const bannerDesc = `已识别 ${tpl.sections} 章节 / ${phCount} 占位符 · 已映射 ${mappedCount} / ${phCount}`;
+      const bannerTitle = ready
+        ? '模板已可用于项目生成'
+        : '模板已上传，请确认占位符映射（黄色项需人工确认）';
+      const bannerDesc = phCount
+        ? `已识别 ${tpl.sections} 章节 / ${phCount} 占位符 · 已映射 ${mappedCount} / ${phCount}${pendingReview ? ` · ${pendingReview} 项待确认` : ''}`
+        : `已识别 ${tpl.sections} 章节 · 未发现占位符，请在 docx 中使用 {{field_key}} 或 <项目名称> 格式`;
 
       body.innerHTML = `
         <div class="confirm-banner ${bannerClass}">
@@ -624,8 +652,8 @@ const App = {
           <div class="mapping-table-wrap">
             <h4>占位符映射</h4>
             <table class="mapping-table">
-              <thead><tr><th>占位符</th><th>上下文</th><th>字段</th></tr></thead>
-              <tbody>${phRows || '<tr><td colspan="3">未发现占位符，请在 docx 中使用 {{field_key}} 格式</td></tr>'}</tbody>
+              <thead><tr><th>占位符</th><th>上下文</th><th>状态</th><th>字段</th></tr></thead>
+              <tbody>${phRows || '<tr><td colspan="4">未发现占位符，请在 docx 中使用 {{field_key}} 或 &lt;项目名称&gt; 格式</td></tr>'}</tbody>
             </table>
           </div>
         </div>`;
@@ -637,9 +665,16 @@ const App = {
 
       document.getElementById('btnSaveMappings')?.addEventListener('click', async () => {
         const mappings = {};
+        const missing = [];
         document.querySelectorAll('.mapping-select').forEach(sel => {
-          if (sel.value) mappings[sel.dataset.ph] = sel.value;
+          const ph = sel.dataset.ph;
+          if (sel.value) mappings[ph] = sel.value;
+          else if (ph) missing.push(ph);
         });
+        if (missing.length) {
+          this.showToast(`还有 ${missing.length} 个占位符未映射`, true);
+          return;
+        }
         try {
           await API.saveMappings(id, mappings);
           this.showToast('模板已保存，可在新建项目时勾选');

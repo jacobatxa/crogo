@@ -58,6 +58,16 @@ class ProjectGenerationOut(BaseModel):
     status: str = "pending"
     message: str = ""
     download_url: str = ""
+    quality_grade: str = ""
+    fill_rate: float = 0.0
+    requires_review: int = 0
+
+
+class MappingSuggestionOut(BaseModel):
+    field_key: str = ""
+    confidence: float = 0.0
+    requires_review: bool = True
+    strategy: str = "unknown"
 
 
 class ProjectDetail(ProjectOut):
@@ -92,6 +102,7 @@ class TemplateDetailOut(TemplateOut):
     sections_list: List[SectionOut] = Field(default_factory=list)
     placeholders_list: List[PlaceholderOut] = Field(default_factory=list)
     mappings: Dict[str, str] = Field(default_factory=dict)
+    mapping_suggestions: Dict[str, MappingSuggestionOut] = Field(default_factory=dict)
 
 
 class MappingUpdate(BaseModel):

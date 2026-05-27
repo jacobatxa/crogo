@@ -24,6 +24,7 @@ from models.schemas import (
     IngestJobResponse,
     IngestJobStatus,
     KBStats,
+    MappingSuggestionOut,
     MappingUpdate,
     ProjectCreateResponse,
     ProjectDetail,
@@ -35,6 +36,12 @@ from models.schemas import (
 )
 from services.docx_generate import generate_docx
 from services.docx_parser import parse_docx
+from services.mapping_suggest import (
+    auto_apply_mappings,
+    mappings_complete as check_mappings_complete,
+    suggest_mappings,
+)
+from services.quality_check import check_generated_docx, format_quality_message
 from services.extract import extract_fields_from_pdf, fields_from_json, fields_to_json
 from services.ingest import run_ingest
 from services.pdf_loader import PDFLoadError, extract_text_from_pdf
@@ -134,7 +141,24 @@ def _template_out(row: dict) -> TemplateOut:
         sections=len(sections),
         placeholders=len(placeholders),
         updated=updated or "—",
-        mappings_complete=len(mappings) >= min(1, len(placeholders)),
+        mappings_complete=check_mappings_complete(placeholders, mappings),
+    )
+
+
+def _template_detail_out(row: dict) -> TemplateDetailOut:
+    placeholders = json.loads(row.get("placeholders_json") or "[]")
+    mappings = json.loads(row.get("mappings_json") or "{}")
+    suggestions_raw = suggest_mappings(placeholders)
+    suggestions = {
+        k: MappingSuggestionOut(**v) for k, v in suggestions_raw.items()
+    }
+    base = _template_out(row)
+    return TemplateDetailOut(
+        **base.model_dump(),
+        sections_list=json.loads(row.get("sections_json") or "[]"),
+        placeholders_list=placeholders,
+        mappings=mappings,
+        mapping_suggestions=suggestions,
     )
 
 
@@ -166,6 +190,9 @@ async def upload_template(
         sections,
         placeholders,
     )
+    auto = auto_apply_mappings(placeholders)
+    if auto:
+        db.update_template_mappings(tpl_id, auto)
     row = db.get_template(tpl_id)
     return _template_out(row)
 
@@ -175,13 +202,7 @@ def get_template(tpl_id: int):
     row = db.get_template(tpl_id)
     if not row:
         raise HTTPException(404, "模板不存在")
-    base = _template_out(row)
-    return TemplateDetailOut(
-        **base.model_dump(),
-        sections_list=json.loads(row.get("sections_json") or "[]"),
-        placeholders_list=json.loads(row.get("placeholders_json") or "[]"),
-        mappings=json.loads(row.get("mappings_json") or "{}"),
-    )
+    return _template_detail_out(row)
 
 
 @app.patch("/api/templates/{tpl_id}/mappings")
@@ -294,12 +315,33 @@ async def create_project(
             raise HTTPException(400, f"模板 {tid} 不存在")
         mappings = json.loads(tpl.get("mappings_json") or "{}")
         placeholders = json.loads(tpl.get("placeholders_json") or "[]")
-        if placeholders and not mappings:
-            raise HTTPException(400, f"模板「{tpl['name']}」尚未完成映射")
+        if not check_mappings_complete(placeholders, mappings):
+            raise HTTPException(
+                400,
+                f"模板「{tpl['name']}」尚未完成全部占位符映射，请先在模板库确认",
+            )
 
     proj_id = db.create_project(name, sponsor, ids, str(dest), file.filename)
     db.reset_project_generations(proj_id, ids)
     return ProjectCreateResponse(id=proj_id, name=name, status="draft")
+
+
+def _parse_generation_message(raw: str) -> tuple[str, str, float, int]:
+    """Return display_message, grade, fill_rate, requires_review."""
+    if not raw:
+        return "", "", 0.0, 0
+    try:
+        meta = json.loads(raw)
+        if isinstance(meta, dict) and "grade" in meta:
+            return (
+                meta.get("summary") or format_quality_message(meta),
+                meta.get("grade") or "",
+                float(meta.get("fill_rate") or 0),
+                int(meta.get("requires_review") or 0),
+            )
+    except (json.JSONDecodeError, TypeError, ValueError):
+        pass
+    return raw, "", 0.0, 0
 
 
 def _generation_out(proj_id: int, template_ids: List[int]) -> List[ProjectGenerationOut]:
@@ -311,18 +353,24 @@ def _generation_out(proj_id: int, template_ids: List[int]) -> List[ProjectGenera
             continue
         g = gens.get(tid) or {}
         status = g.get("status") or "pending"
+        display_msg, grade, fill_rate, review = _parse_generation_message(
+            g.get("message") or ""
+        )
         out.append(
             ProjectGenerationOut(
                 template_id=tid,
                 template_name=tpl["name"],
                 template_type=tpl["type"],
                 status=status,
-                message=g.get("message") or "",
+                message=display_msg,
                 download_url=(
                     f"/api/projects/{proj_id}/download?template_id={tid}"
                     if status == "done"
                     else ""
                 ),
+                quality_grade=grade,
+                fill_rate=fill_rate,
+                requires_review=review,
             )
         )
     return out
@@ -410,9 +458,9 @@ def generate_project(proj_id: int):
             continue
         mappings = json.loads(tpl.get("mappings_json") or "{}")
         placeholders = json.loads(tpl.get("placeholders_json") or "[]")
-        if placeholders and not mappings:
+        if not check_mappings_complete(placeholders, mappings):
             db.update_generation(
-                proj_id, tid, status="error", message="模板未完成映射"
+                proj_id, tid, status="error", message="模板未完成全部占位符映射"
             )
             continue
 
@@ -420,8 +468,18 @@ def generate_project(proj_id: int):
         out_path = settings.outputs_dir / out_name
         try:
             generate_docx(Path(tpl["file_path"]), out_path, fields, mappings)
+            report = check_generated_docx(
+                out_path,
+                expected_placeholders=placeholders,
+                mappings=mappings,
+            )
+            report["summary"] = format_quality_message(report)
             db.update_generation(
-                proj_id, tid, status="done", output_path=str(out_path)
+                proj_id,
+                tid,
+                status="done",
+                output_path=str(out_path),
+                message=json.dumps(report, ensure_ascii=False),
             )
             success_count += 1
             if not primary_output:

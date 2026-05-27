@@ -6,8 +6,9 @@ from pathlib import Path
 from docx import Document
 PLACEHOLDER_PATTERNS = [
     re.compile(r"\{\{([a-zA-Z0-9_]+)\}\}"),
-    re.compile(r"<([a-zA-Z0-9_]+)>"),
+    re.compile(r"<([a-zA-Z0-9_\u4e00-\u9fff]+)>"),
     re.compile(r"【([a-zA-Z0-9_\u4e00-\u9fff]+)】"),
+    re.compile(r"\[请[^\]]{0,60}填[^\]]*\]"),
 ]
 
 
@@ -15,7 +16,10 @@ def _extract_placeholders_from_text(text: str) -> list[str]:
     found: list[str] = []
     for pat in PLACEHOLDER_PATTERNS:
         for m in pat.finditer(text):
-            name = m.group(1)
+            if pat.pattern.startswith(r"\[请"):
+                name = m.group(0)
+            else:
+                name = m.group(1)
             if name not in found:
                 found.append(name)
     return found
