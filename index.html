@@ -2,396 +2,740 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Crogo · 医药CRO文档工作台</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crogo — 医药CRO文档智能平台</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: #08080f;
+  color: #e2e8f0;
+  overflow-x: hidden;
+}
+
+/* ── Hero ── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 24px;
+  position: relative;
+  background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(8,145,178,.12) 0%, transparent 70%),
+              radial-gradient(ellipse 60% 50% at 30% 70%, rgba(59,130,246,.08) 0%, transparent 60%);
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+}
+.hero-logo {
+  font-size: 72px;
+  font-weight: 800;
+  letter-spacing: -3px;
+  background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+.hero-tagline {
+  font-size: 20px;
+  color: #94a3b8;
+  margin-top: 16px;
+  letter-spacing: 1px;
+}
+.hero-desc {
+  max-width: 680px;
+  margin: 24px auto 40px;
+  font-size: 16px;
+  line-height: 1.8;
+  color: #94a3b8;
+}
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 36px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0891b2, #3b82f6);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform .2s, box-shadow .2s;
+  box-shadow: 0 4px 24px rgba(8,145,178,.25);
+}
+.hero-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(8,145,178,.35);
+}
+
+/* ── Sections ── */
+.section {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 100px 24px;
+}
+.section-title {
+  font-size: 32px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #e2e8f0, #64748b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.section-subtitle {
+  text-align: center;
+  color: #64748b;
+  font-size: 15px;
+  margin-bottom: 60px;
+  line-height: 1.6;
+}
+
+/* ── Problem / Solution ── */
+.problem-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+.problem-list h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #f87171;
+  margin-bottom: 20px;
+}
+.problem-item {
+  display: flex;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.problem-item:last-child { border: none; }
+.problem-item .icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.problem-item .text { font-size: 14px; line-height: 1.7; color: #94a3b8; }
+.problem-item .label { font-weight: 600; color: #cbd5e1; }
+
+.solution-list h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #22d3ee;
+  margin-bottom: 20px;
+}
+.solution-item {
+  display: flex;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.solution-item:last-child { border: none; }
+.solution-item .icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.solution-item .text { font-size: 14px; line-height: 1.7; color: #94a3b8; }
+.solution-item .label { font-weight: 600; color: #cbd5e1; }
+
+/* ── How It Works ── */
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.step-card {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 16px;
+  padding: 36px 28px;
+  position: relative;
+  transition: border-color .3s, transform .3s;
+}
+.step-card:hover {
+  border-color: rgba(8,145,178,.3);
+  transform: translateY(-4px);
+}
+.step-number {
+  font-size: 48px;
+  font-weight: 800;
+  background: linear-gradient(135deg, rgba(8,145,178,.15), rgba(59,130,246,.15));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+  margin-bottom: 16px;
+}
+.step-card h4 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #e2e8f0;
+}
+.step-card ul {
+  font-size: 13px;
+  line-height: 1.8;
+  color: #64748b;
+  padding-left: 0;
+  list-style: none;
+}
+.step-card ul li::before {
+  content: '▸ ';
+  color: #0891b2;
+}
+.step-arrow {
+  position: absolute;
+  right: -16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 24px;
+  color: rgba(8,145,178,.3);
+}
+.steps .step-card:last-child .step-arrow { display: none; }
+
+/* ── Features ── */
+.features {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.feature-card {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 14px;
+  padding: 28px 24px;
+  transition: border-color .3s;
+}
+.feature-card:hover { border-color: rgba(8,145,178,.2); }
+.feature-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-bottom: 14px;
+}
+.feature-card h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #e2e8f0;
+}
+.feature-card p {
+  font-size: 13px;
+  line-height: 1.7;
+  color: #64748b;
+}
+
+/* ── Data Flywheel ── */
+.flywheel {
+  text-align: center;
+}
+.flywheel-diagram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+.flywheel-node {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(8,145,178,.2);
+  border-radius: 12px;
+  padding: 16px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #94a3b8;
+  min-width: 100px;
+}
+.flywheel-arrow {
+  color: rgba(8,145,178,.4);
+  font-size: 20px;
+  font-weight: 300;
+}
+.flywheel-node.active {
+  background: linear-gradient(135deg, rgba(8,145,178,.12), rgba(59,130,246,.08));
+  border-color: rgba(8,145,178,.5);
+  color: #22d3ee;
+}
+.flywheel-note {
+  max-width: 620px;
+  margin: 40px auto 0;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #64748b;
+  padding: 20px 24px;
+  background: rgba(255,255,255,.02);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.04);
+}
+
+/* ── Case Studies ── */
+.cases-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.case-card {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 16px;
+  padding: 32px 28px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .3s;
+}
+.case-card:hover { border-color: rgba(8,145,178,.2); }
+.case-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #0891b2, #3b82f6);
+  opacity: .6;
+}
+.case-tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(8,145,178,.12);
+  color: #22d3ee;
+  margin-bottom: 14px;
+  letter-spacing: .3px;
+}
+.case-card h4 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #e2e8f0;
+}
+.case-detail {
+  font-size: 13px;
+  line-height: 1.7;
+  color: #64748b;
+  margin-bottom: 16px;
+}
+.case-metrics {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.case-metric {
+  text-align: center;
+  min-width: 80px;
+}
+.case-metric .num {
+  font-size: 24px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #22d3ee, #60a5fa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.case-metric .label {
+  font-size: 11px;
+  color: #475569;
+  margin-top: 2px;
+}
+.case-quote {
+  margin-top: 16px;
+  padding: 14px 16px;
+  background: rgba(255,255,255,.02);
+  border-left: 2px solid rgba(8,145,178,.3);
+  border-radius: 0 8px 8px 0;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #94a3b8;
+  font-style: italic;
+}
+.case-card.full {
+  grid-column: 1 / -1;
+}
+
+/* ── Target Users ── */
+.users-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.user-card {
+  text-align: center;
+  padding: 36px 20px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 14px;
+}
+.user-card .emoji {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+.user-card h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.user-card p {
+  font-size: 12px;
+  color: #64748b;
+  line-height: 1.6;
+}
+
+/* ── CTA ── */
+.cta-section {
+  text-align: center;
+  padding: 80px 24px 100px;
+  background: radial-gradient(ellipse 60% 40% at 50% 50%, rgba(8,145,178,.08), transparent);
+}
+.cta-section h2 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.cta-section p {
+  color: #64748b;
+  margin-bottom: 32px;
+}
+
+/* ── Footer ── */
+.footer {
+  text-align: center;
+  padding: 32px 24px;
+  color: #334155;
+  font-size: 13px;
+  border-top: 1px solid rgba(255,255,255,.04);
+}
+
+/* ── Glossary Pill ── */
+.glossary-pill {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  background: rgba(59,130,246,.1);
+  border: 1px solid rgba(59,130,246,.15);
+  color: #60a5fa;
+  cursor: help;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .hero-logo { font-size: 48px; }
+  .problem-grid { grid-template-columns: 1fr; gap: 32px; }
+  .steps { grid-template-columns: 1fr; }
+  .step-arrow { display: none; }
+  .features { grid-template-columns: 1fr; }
+  .cases-grid { grid-template-columns: 1fr; }
+  .users-grid { grid-template-columns: 1fr; }
+  .flywheel-diagram { flex-direction: column; }
+  .flywheel-arrow { transform: rotate(90deg); }
+  .section { padding: 60px 20px; }
+}
+</style>
 </head>
 <body>
 
-<!-- ═══ Login Screen ═══ -->
-<div id="login-screen">
-  <div class="login-left">
-    <div class="logo">Crogo</div>
-    <div class="tagline">医药CRO文档工作台</div>
-    <div class="modules">
-      <div class="mod"><span class="mod-icon" style="background:#0891b2;">◈</span> 模板管理 — 上传解析各类模板</div>
-      <div class="mod"><span class="mod-icon" style="background:#2563eb;">⊞</span> 知识库 — 方案PDF批量入库，构建RAG</div>
-      <div class="mod"><span class="mod-icon" style="background:#7c3aed;">◎</span> 文档生成 — 一键生成DMC/DMP/SAP</div>
+<!-- ═══ Hero ═══ -->
+<section class="hero">
+  <div class="hero-logo">Crogo</div>
+  <div class="hero-tagline">医药 CRO 文档智能平台</div>
+  <p class="hero-desc">
+    上传临床试验方案（<span class="glossary-pill">CSP</span>），构建专属知识库，<br>
+    自动填充模板，一键生成 <span class="glossary-pill">DMC Charter</span> · <span class="glossary-pill">DMP</span> · <span class="glossary-pill">SAP</span>。<br>
+    遵循 <span class="glossary-pill">ICH E6(R2) GCP</span> / <span class="glossary-pill">E8(R1)</span> / <span class="glossary-pill">E9(R1) 估计目标框架</span>，<br>
+    支持临床试验方案章节级字段映射、<span class="glossary-pill">不良事件(SAE/SUSAR)</span> 周期自动对齐。
+  </p>
+  <a href="#how-it-works" class="hero-cta">了解工作流程 →</a>
+</section>
+
+<!-- ═══ Problem / Solution ═══ -->
+<section class="section" id="problem">
+  <div class="problem-grid">
+    <div class="problem-list">
+      <h3>✕ 现状痛点</h3>
+      <div class="problem-item">
+        <span class="icon">🔄</span>
+        <div class="text"><span class="label">重复劳动 · 方案信息孤岛</span><br>每个项目手动翻阅临床试验方案（CSP），从「入排标准」「终点定义」「安全性监测」等章节反复抄录，数据管理计划（DMP）和统计分析计划（SAP）各自为政，三份文档同一参数（如 AE 收集周期、主要终点定义、分析人群 FAS/PPS/SS）极易不一致</div>
+      </div>
+      <div class="problem-item">
+        <span class="icon">🗄️</span>
+        <div class="text"><span class="label">知识沉睡 · 人员更替即失传</span><br>项目结项后 SDTM / ADaM 映射经验、不良事件编码（<span class="glossary-pill">MedDRA</span> / <span class="glossary-pill">WHO Drug</span>）选择逻辑、方案偏离判定规则散落在个人笔记和邮件中，核心分析师离职即失传，新项目要重新摸索</div>
+      </div>
+      <div class="problem-item">
+        <span class="icon">📋</span>
+        <div class="text"><span class="label">模板混乱 · 手工适配成本高</span><br>每个申办方有自己模板体系——DMC 章程的章节编号、不良事件报告窗口、数据监查委员会（<span class="glossary-pill">DSMB</span>）章程措辞各有差异，统计师每次换模板要花 1-2 天手动对齐章节占位符</div>
+      </div>
+      <div class="problem-item">
+        <span class="icon">⚠️</span>
+        <div class="text"><span class="label">文档矛盾 · 审核返工频发</span><br>同一临床试验方案，DMC Charter 和 DMP 中 SAE 报告时限、严重不良事件（<span class="glossary-pill">SUSAR</span>）通报流程、期中分析触发条件说法不一致——DM review 和 QC 阶段发现，返工成本极高</div>
+      </div>
+      <div class="problem-item">
+        <span class="icon">🔬</span>
+        <div class="text"><span class="label">监管合规压力</span><br>CFDI 核查、FDA 远程评估（REA）对文档完整性要求越来越严——端点定义溯源、<span class="glossary-pill">盲态审核</span>记录、<span class="glossary-pill">锁库</span> SOP 一致性和可追溯性不足是常见发现项</div>
+      </div>
+    </div>
+
+    <div class="solution-list">
+      <h3>✓ Crogo 方案</h3>
+      <div class="solution-item">
+        <span class="icon">⚡</span>
+        <div class="text"><span class="label">一次建库 · 自动填充 · 一致性保障</span><br>批量入库历史方案 PDF 构建 RAG 知识库 → 新方案 CSP 上传后自动匹配模板，从入排标准、终点定义（主要/次要/探索性）、安全性监测周期、<span class="glossary-pill">期中分析</span>触发条件等关键字段自动填充，DMC/DMP/SAP 三件套基于同一知识源生成</div>
+      </div>
+      <div class="solution-item">
+        <span class="icon">🌱</span>
+        <div class="text"><span class="label">知识留存 · 数据飞轮 · 越用越强</span><br>项目做完知识留下——终点定义、入排标准规则、<span class="glossary-pill">SAE Reconsiliation</span> 逻辑、<span class="glossary-pill">DSUR</span> / <span class="glossary-pill">PSUR</span> 参考数据不断积累。AI 从每份生成文档中自动提炼新知识点，推送用户确认后入库</div>
+      </div>
+      <div class="solution-item">
+        <span class="icon">🧩</span>
+        <div class="text"><span class="label">上传即用 · 自适应多模板</span><br>上传申办方 .docx 模板自动解析章节结构（方案概述 / 目的 / 安全性监测…）和占位符，系统学习规则后同一申办方新项目自动匹配——支持跨治疗领域（肿瘤、疫苗、罕见病、医疗器械）模板差异</div>
+      </div>
+      <div class="solution-item">
+        <span class="icon">🎯</span>
+        <div class="text"><span class="label">统一知识驱动 · 合规可追溯</span><br>同一知识库驱动 DMC/DMP/SAP 三件套生成，终点定义、分析人群、不良事件收集周期天然一致。每字段可追溯至 CSP 原文位置（章节号+行），满足 CFDI 核查和 <span class="glossary-pill">ICH E6(R2)</span> 对源文档溯源的合规要求</div>
+      </div>
+      <div class="solution-item">
+        <span class="icon">🔗</span>
+        <div class="text"><span class="label">CSP 章节 → 文档字段自动关联</span><br>系统自动识别 CSP 中「入排标准」「主要终点」「次要终点」「安全性评价」「统计分析」等章节，与模板占位符建立精确映射——无需人工标记，覆盖率持续提升</div>
+      </div>
     </div>
   </div>
-  <div class="login-right">
-    <h2>登录</h2>
-    <form id="loginForm">
-      <div class="login-error" id="loginError"></div>
-      <div class="form-group">
-        <label>邮箱</label>
-        <input type="email" id="loginEmail" placeholder="name@company.com" autocomplete="email">
-      </div>
-      <div class="form-group">
-        <label>密码</label>
-        <input type="password" id="loginPassword" placeholder="••••••" autocomplete="current-password">
-      </div>
-      <button type="submit" class="btn btn-primary w-full">登录</button>
-      <div style="text-align:center"><a href="#" class="forgot-link">忘记密码？</a></div>
-    </form>
-    <div class="login-footer">Crogo · 专为医药CRO打造</div>
+</section>
+
+<!-- ═══ How It Works ═══ -->
+<section class="section" id="how-it-works">
+  <h2 class="section-title">三步工作流</h2>
+  <p class="section-subtitle">从模板到文档，全程智能辅助</p>
+  <div class="steps">
+    <div class="step-card">
+      <span class="step-arrow">→</span>
+      <div class="step-number">01</div>
+      <h4>上传模板</h4>
+      <p>拖入申办方 .docx 模板 → 系统自动解析：</p>
+      <ul>
+        <li>章节结构：1. 方案概述 / 2. 研究目的 / 3. 入排标准 / 4. 安全性监测…</li>
+        <li>占位符：<入排标准> <终点定义> <AE 收集周期> <SAE 报告时限> <期中分析触发条件></li>
+        <li><span class="glossary-pill">CDISC</span> 标准字段映射直出</li>
+        <li>用户确认映射 → 系统学习规则，同系列模板自动匹配</li>
+      </ul>
+    </div>
+    <div class="step-card">
+      <span class="step-arrow">→</span>
+      <div class="step-number">02</div>
+      <h4>构建知识库</h4>
+      <p>批量上传所有历史临床试验方案 PDF：</p>
+      <ul>
+        <li>构建 <span class="glossary-pill">RAG</span> 向量知识库</li>
+        <li>自动提取：入排标准、终点指标（主要/次要/探索性）、安全性监测、<span class="glossary-pill">亚组分析</span>方案、<span class="glossary-pill">期中分析(IA)</span>触发规则</li>
+        <li>支持 <span class="glossary-pill">盲态审核</span>保留规则、<span class="glossary-pill">锁库</span>原则、<span class="glossary-pill">适应性设计</span>自适应条件提取</li>
+        <li>生成后 AI 提炼新知识推送确认入库</li>
+      </ul>
+    </div>
+    <div class="step-card">
+      <span class="step-arrow" style="display:none"></span>
+      <div class="step-number">03</div>
+      <h4>一键生成文档</h4>
+      <p>选模板 + 关联 CSP → 自动映射填充：</p>
+      <ul>
+        <li>知识库字段 → 模板占位符自动填充，生成 .docx 下载</li>
+        <li>同时生成 DMC Charter + DMP + SAP 三件套</li>
+        <li>遵循 <span class="glossary-pill">ICH E9(R1) 估计目标</span>框架规范</li>
+        <li>填充率报告 + <span class="glossary-pill">GCP</span> 合规检查 + 可追溯性审计</li>
+      </ul>
+    </div>
   </div>
+</section>
+
+<!-- ═══ Features ═══ -->
+<section class="section">
+  <h2 class="section-title">核心功能</h2>
+  <p class="section-subtitle">覆盖临床试验文档全链路</p>
+  <div class="features">
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(8,145,178,.15);color:#22d3ee;">◈</div>
+      <h4>模板管理</h4>
+      <p>上传解析各类申办方 DMC/DMP/SAP 模板，支持多版本、申办方标签、治疗领域标签（肿瘤/疫苗/罕见病/医疗器械）。系统学习章节结构+占位符映射规则，同系列模板自动识别。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(59,130,246,.15);color:#60a5fa;">⊞</div>
+      <h4>智能知识库 <span class="glossary-pill">RAG</span></h4>
+      <p>临床试验方案 PDF 批量入库构建向量索引（<span class="glossary-pill">Chunk → Embedding → Index</span>），支持全文检索、终点定义查询、<span class="glossary-pill">SDTM / ADaM</span> 映射经验抽取、<span class="glossary-pill">MedDRA / WHO Drug</span> 编码历史参考。持续生长。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(139,92,246,.15);color:#a78bfa;">◎</div>
+      <h4>文档生成</h4>
+      <p>知识库字段自动映射模板占位符，一键生成 DMC/DMP/SAP。支持主要/次要/探索性终点分层映射、<span class="glossary-pill">FAS / PPS / SS</span> 分析人群、<span class="glossary-pill">亚组分析</span>方案、<span class="glossary-pill">Richards 改良回归</span>等统计方法描述。填充率实时报告。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(251,146,60,.15);color:#fb923c;">✓</div>
+      <h4>校验确认</h4>
+      <p>逐字段展示 AI 从 CSP 提取的结果：主要终点 / 次要终点 / 安全性监测计划 / 分析人群 / <span class="glossary-pill">期中分析(IA)</span>触发规则 / <span class="glossary-pill">DSMB</span> 职责分工 → 用户一键确认或手动修正，每字段可溯源 CSP 原文。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(34,197,94,.15);color:#4ade80;">↻</div>
+      <h4>知识提炼闭环</h4>
+      <p>文档生成后 AI 自动分析新方案中有价值的终点定义、<span class="glossary-pill">入排标准</span>规则、不良事件编码逻辑、<span class="glossary-pill">SAE Reconciliation</span> 方法——推送用户确认后入库，<span class="glossary-pill">PSUR</span>/<span class="glossary-pill">DSUR</span> 数据随时间自然沉淀。</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:rgba(236,72,153,.15);color:#f472b6;">⏐</div>
+      <h4>批量生成 <span class="glossary-pill">+ CDISC</span></h4>
+      <p>一个 CSP 同时生成 DMC Charter + DMP + SAP 三件套。支持申办方标签筛选、跨治疗领域模板匹配、<span class="glossary-pill">SDTM</span> 映射参考直出。<span class="glossary-pill">盲态审核</span>报告模板、<span class="glossary-pill">锁库</span>确认函亦可纳入管线。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Data Flywheel ═══ -->
+<section class="section flywheel">
+  <h2 class="section-title">数据飞轮</h2>
+  <p class="section-subtitle">越用越聪明，切换成本越来越高</p>
+  <div class="flywheel-diagram">
+    <span class="flywheel-node active">📥 批量入库历史 CSP</span>
+    <span class="flywheel-arrow">→</span>
+    <span class="flywheel-node">🔍 终点定义/入排标准/安全性规则提取</span>
+    <span class="flywheel-arrow">→</span>
+    <span class="flywheel-node">📄 模板 → DMC/DMP/SAP 生成</span>
+    <span class="flywheel-arrow">→</span>
+    <span class="flywheel-node active">🧠 AI 提炼：终点/编码/SAE Reconcile</span>
+    <span class="flywheel-arrow">→</span>
+    <span class="flywheel-node">📚 知识库变强（字段→章节→规则）</span>
+  </div>
+  <div class="flywheel-note">
+    <strong>与通用 GPT / RAG 的本质区别：</strong><br>
+    通用工具临时问答，用完就走，不积累。<br>
+    Crogo 每个项目做完知识留下——终点定义、安全性监测规则、<span class="glossary-pill">MedDRA</span> 编码策略、<span class="glossary-pill">SDTM</span> 映射经验不断层叠复用，<br>
+    形成真正的 CRO 领域专属数据飞轮。切换平台不仅是换工具，而是放弃几年沉淀的知识资产。
+  </div>
+</section>
+
+<!-- ═══ Case Studies ═══ -->
+<section class="section">
+  <h2 class="section-title">客户案例</h2>
+  <p class="section-subtitle">真实场景下的效率提升与质量改善</p>
+  <div class="cases-grid">
+
+    <div class="case-card">
+      <span class="case-tag">肿瘤领域 CRO</span>
+      <h4>50 个历史项目建库，新项目 SAP 2 小时完成</h4>
+      <p class="case-detail">
+        某专注于肿瘤领域的中型 CRO，累计 50+ 个历史项目的 SAP 散落在个人电脑中。导入 Crogo 后一次性批量入库所有历史方案 PDF，构建肿瘤领域专属知识库。新承接的「胰腺癌 III 期 RWS」项目，上传 CSP 后系统自动匹配历史项目中相似终点定义（ORR / PFS / OS / DOR）、入排标准逻辑和亚组分析方案，24 个字段自动填充 21 个，SAP 从 3 天缩短至 2 小时。
+      </p>
+      <div class="case-metrics">
+        <div class="case-metric"><div class="num">50+</div><div class="label">历史项目入库</div></div>
+        <div class="case-metric"><div class="num">87%</div><div class="label">字段自动填充率</div></div>
+        <div class="case-metric"><div class="num">3天→2h</div><div class="label">SAP 交付周期</div></div>
+      </div>
+      <div class="case-quote">
+        "之前翻历史方案找终点定义（ORR/PFS 的判定标准）至少半天，现在上传就自动匹配。最重要的是知识库越用越准——新项目的填充率两个月从 75% 涨到 87%。"
+      </div>
+    </div>
+
+    <div class="case-card">
+      <span class="case-tag">跨国申办方本土化</span>
+      <h4>全球模板适配 6 套，DMC Charter 一致性 100%</h4>
+      <p class="case-detail">
+        某头部 CRO 承接多家跨国药企的中国区项目，每家申办方的 DMC Charter 模板结构、章节编号、SAE 报告窗口（24h vs 48h）、SUSAR 通报流程各不相同。统计师团队手动适配 6 套模板，每套 1-2 天。使用 Crogo 上传 6 套模板并标注申办方标签后，系统自动学习每套模板的章节结构+占位符映射规则。新项目到来自动匹配对应模板，同一方案 DMC/DMP/SAP 三份文档的不良事件收集周期、DSMB 职责分工完全一致。
+      </p>
+      <div class="case-metrics">
+        <div class="case-metric"><div class="num">6</div><div class="label">申办方模板自动适配</div></div>
+        <div class="case-metric"><div class="num">100%</div><div class="label">文档间一致性</div></div>
+        <div class="case-metric"><div class="num">1-2天→10分钟</div><div class="label">新模板适配时间</div></div>
+      </div>
+      <div class="case-quote">
+        "以前最怕换申办方模板——DMC Charter 的章节编号不一样，SAE 报告窗口和 SUSAR 通报流程的措辞全要重新对。现在首次上传就学好了，再新项目来只管选模板。"
+      </div>
+    </div>
+
+    <div class="case-card">
+      <span class="case-tag">快速启动新业务线</span>
+      <h4>从零建立疫苗领域文档体系，3 周交付首套文档</h4>
+      <p class="case-detail">
+        某综合型 CRO 新成立疫苗事业部，团队尚无疫苗项目文档模板和历史数据。使用 Crogo 导入 3 份公开的疫苗临床试验方案（COVID-19 + 流感 + RSV），系统自动学习疫苗领域特有的终点类型（免疫原性终点如 GMT / GMI / SCR、安全性随访周期、不良事件收集窗口）、实验室检查指标范围（中和抗体滴度、血常规）、不良事件编码参考。团队在此基础上快速完成首套 DMC Charter + DMP + SAP 交付。
+      </p>
+      <div class="case-metrics">
+        <div class="case-metric"><div class="num">3份</div><div class="label">参考方案建库</div></div>
+        <div class="case-metric"><div class="num">3周</div><div class="label">从零到首套文档</div></div>
+        <div class="case-metric"><div class="num">70%→82%</div><div class="label">填充率（2周提升）</div></div>
+      </div>
+    </div>
+
+    <div class="case-card">
+      <span class="case-tag">罕见病领域 CRO</span>
+      <h4>小样本试验（N=80），SAP 适应性设计 1 天搞定</h4>
+      <p class="case-detail">
+        某专注于罕见病的 CRO 承接一个肌萎缩侧索硬化症（ALS）II 期概念验证试验，受试者仅 80 人，方案采用适应性设计（adaptive design），包含 2 次期中分析（IA1 安全性和 IA2 无效性终止）。传统方式下 SAP 需要反复沟通统计方法和分析人群定义。使用 Crogo 导入 2 份历史罕见病 CSP，知识库自动辅助提取适应性设计规则（Lan-DeMets α 消耗函数、O'Brien-Fleming 边界）、小样本特殊统计方法描述（精确 Fisher 检验 vs 广义线性混合模型）。SAP 从 5 天缩减至 1 天交付，期中分析触发条件描述零错误。
+      </p>
+      <div class="case-metrics">
+        <div class="case-metric"><div class="num">80</div><div class="label">受试者样本量</div></div>
+        <div class="case-metric"><div class="num">5天→1天</div><div class="label">SAP 交付周期</div></div>
+        <div class="case-metric"><div class="num">2次</div><div class="label">期中分析规则自动填充</div></div>
+      </div>
+      <div class="case-quote">
+        "罕见病项目的统计分析方法和常规肿瘤完全不同——样本量小、多用适应性设计、终点选择灵活。Crogo 把之前罕见病项目的分析经验保留下来了，IA 触发条件、α 消耗函数的描述再也不用手工写。"
+      </div>
+    </div>
+
+    <div class="case-card full">
+      <span class="case-tag">医疗器械临床评价 (CER)</span>
+      <h4>ISO 14155 合规：6 个产品线 PMCF 文档包从 8 周缩至 2 周</h4>
+      <p class="case-detail">
+        某医疗器械公司需为 6 个产品线（III 类植入物：髋关节假体、冠脉支架、心律转复除颤器）准备上市后临床随访（PMCF）计划/报告，满足欧盟 MDR 法规和 ISO 14155:2020 要求。每个产品线的临床评价报告（CER）模板不同——终点定义（主要不良心脏事件 MACE、器械相关 AE、Kaplan-Meier 生存曲线）、随访窗口（3 月/6 月/12 月/24 月）、不良事件分类规则（ISO 14155 附录 J）各有差异。使用 Crogo 导入 6 套 CER 模板和历史 PMCF 数据，系统自动适配各产品线的终点定义和安全报告要求。6 个文档包从 8 周压缩至 2 周完成，PMCF 报告一致性和完整性通过审核。
+      </p>
+      <div class="case-metrics">
+        <div class="case-metric"><div class="num">6</div><div class="label">产品线同时推进</div></div>
+        <div class="case-metric"><div class="num">8周→2周</div><div class="label">PMCF 文档交付</div></div>
+        <div class="case-metric"><div class="num">ISO 14155</div><div class="label">合规一次性通过</div></div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══ Target Users ═══ -->
+<section class="section">
+  <h2 class="section-title">目标用户</h2>
+  <p class="section-subtitle">为医药 CRO 团队量身打造</p>
+  <div class="users-grid">
+    <div class="user-card">
+      <div class="emoji">📊</div>
+      <h4>统计师</h4>
+      <p>快速生成 SAP，自动匹配主要/次要/探索性终点定义、分析人群（<span class="glossary-pill">FAS / PPS / SS</span>）、亚组分析方案、期中分析（<span class="glossary-pill">IA</span>）设计——删失规则、非劣效界值、α 消耗函数自动填充。告别手动翻 CSP 找统计方法描述。</p>
+    </div>
+    <div class="user-card">
+      <div class="emoji">📋</div>
+      <h4>数据管理员</h4>
+      <p>一键生成 DMC Charter + DMP，知识库确保 AE 收集周期、<span class="glossary-pill">SAE</span> 报告时限、<span class="glossary-pill">SUSAR</span> 通报流程、<span class="glossary-pill">DSMB</span> 职责分工、<span class="glossary-pill">盲态审核</span>规则一致。支持 <span class="glossary-pill">EDC</span> 数据质疑管理描述参考。</p>
+    </div>
+    <div class="user-card">
+      <div class="emoji">✍️</div>
+      <h4>医学写作者</h4>
+      <p>基于历史方案自动填充 CS / DMP，入排标准、疗效终点、安全性评价复述准确无误。<span class="glossary-pill">ICH E3</span> 临床研究报告架构自动匹配，<span class="glossary-pill">MedDRA</span> / <span class="glossary-pill">WHO Drug</span> 编码参考直出，聚焦内容质量而非重复抄录。</p>
+    </div>
+    <div class="user-card">
+      <div class="emoji">🔬</div>
+      <h4>临床监查员</h4>
+      <p>快速获取项目文档背景（DMC/DMP/SAP），方案偏离判断参考、<span class="glossary-pill">SDV</span> 策略对齐、<span class="glossary-pill">远程监查</span>描述参考。同一平台查看申办方模板演化和历史项目端点定义，提升监查效率。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<section class="cta-section">
+  <h2>准备好让临床试验文档工作更智能了吗？</h2>
+  <p>从批量入库到一键生成三件套，Crogo 让每个项目的文档效率翻倍，一致性不再靠人工核对。<br>知识越用越值钱，数据飞轮成就真正的 CRO 知识资产积累。</p>
+  <a href="mailto:" class="hero-cta">联系我们 →</a>
+</section>
+
+<!-- ═══ Footer ═══ -->
+<div class="footer">
+  Crogo — 医药 CRO 文档智能平台 · 让知识留下来 · 遵循 ICH E6(R2) / E8(R1) / E9(R1) · 支持 CDISC 标准
 </div>
 
-<!-- ═══ Main App ═══ -->
-<div id="app">
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar-brand">
-      <div class="brand-row">
-        <span class="logo-pill">Cg</span>
-        <h1>Crogo</h1>
-      </div>
-      <div class="tagline">CRO 文档智能平台</div>
-      <button type="button" class="sidebar-cta" id="newProjectBtn" data-action="new-project">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        <span>新建项目</span>
-      </button>
-    </div>
-    <nav class="sidebar-nav">
-      <div class="nav-section">核心</div>
-      <div class="nav-item active" data-page="dashboard">
-        <span class="nav-icon">◉</span> <span>工作台</span>
-      </div>
-      <div class="nav-item" data-page="templates">
-        <span class="nav-icon">⊞</span> <span>模板库</span>
-        <span class="nav-badge">6</span>
-      </div>
-      <div class="nav-item" data-page="knowledge">
-        <span class="nav-icon">◈</span> <span>知识库</span>
-        <span class="nav-badge">12</span>
-      </div>
-      <div class="nav-section">管理</div>
-      <div class="nav-item" data-page="projects">
-        <span class="nav-icon">◎</span> <span>项目</span>
-        <span class="nav-badge">3</span>
-      </div>
-      <div class="nav-item" data-page="settings">
-        <span class="nav-icon">⚙</span> <span>设置</span>
-      </div>
-      <div class="nav-section">系统</div>
-      <div class="nav-item" data-page="engine">
-        <span class="nav-icon">▤</span> <span>引擎</span>
-      </div>
-      <div class="nav-section" style="margin-top:auto;border-top:1px solid rgba(255,255,255,.06);padding-top:12px;margin-bottom:0;">账户</div>
-      <div class="nav-item" data-page="logout">
-        <span class="nav-icon">↩</span> <span>退出登录</span>
-      </div>
-    </nav>
-    <div class="sidebar-footer">
-      <div class="user-info">
-        <div class="user-avatar">J</div>
-        <span class="user-name">管理员</span>
-      </div>
-    </div>
-  </aside>
-
-  <!-- Main Area -->
-  <div class="main">
-    <header class="topbar">
-      <div class="topbar-left">
-        <h2 id="pageTitle">工作台</h2>
-        <div class="breadcrumb">/ <span id="breadcrumb">总览</span></div>
-      </div>
-      <div class="topbar-right">
-        <div class="search-box">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" placeholder="搜索项目、模板、知识..." id="globalSearch">
-        </div>
-        <div class="topbar-actions">
-          <button class="btn-icon" title="通知" aria-label="通知">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-          </button>
-        </div>
-      </div>
-    </header>
-
-    <div class="content">
-
-      <!-- ══ Dashboard ══ -->
-      <div class="page active" id="page-dashboard">
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-lbl">◈ 知识库条目</div>
-            <div class="stat-num" id="dashStatChunks">0</div>
-            <div class="stat-sub" id="dashStatChunksSub">—</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-lbl">⊞ 可用模板</div>
-            <div class="stat-num" id="dashStatTemplates">0</div>
-            <div class="stat-sub">DMC / DMP / SAP</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-lbl">◎ 活跃项目</div>
-            <div class="stat-num" id="dashStatProjects">0</div>
-            <div class="stat-sub" id="dashStatProjectsSub">—</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-lbl">📄 已生成文档</div>
-            <div class="stat-num" id="dashStatGenerated">0</div>
-            <div class="stat-sub">完成的项目</div>
-          </div>
-        </div>
-
-        <div class="empty-state-banner" id="dashboardEmptyState" hidden>
-          <div class="esb-icon">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-          </div>
-          <div class="esb-body">
-            <h3>开始你的第一个项目</h3>
-            <p>上传方案 PDF，一次性生成 DMC / DMP / SAP 等文档。也可以先把历史 PDF 入库构建知识检索。</p>
-            <div class="esb-actions">
-              <button class="btn btn-primary btn-sm" data-action="new-project">＋ 新建项目</button>
-              <button class="btn btn-outline btn-sm" data-page-nav="knowledge">导入历史 PDF 到知识库</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="section-hdr">
-          <h3>最近项目</h3>
-          <div class="section-hdr-actions">
-            <button class="btn btn-primary btn-sm" data-action="new-project">＋ 新建项目</button>
-            <button class="btn btn-outline btn-xs" data-page-nav="projects">查看全部</button>
-          </div>
-        </div>
-        <div class="project-list"></div>
-      </div>
-
-      <!-- ══ Templates ══ -->
-      <div class="page" id="page-templates">
-        <div class="section-hdr">
-          <h3>所有模板</h3>
-          <button class="btn btn-primary btn-sm" id="uploadTemplateBtn">＋ 上传模板</button>
-        </div>
-        <div class="template-grid" id="templateGrid"></div>
-      </div>
-
-      <!-- ══ Knowledge Base ══ -->
-      <div class="page" id="page-knowledge">
-        <div class="kb-stats">
-          <div class="kb-card">
-            <div class="kb-num" id="kbStatChunks">0</div>
-            <div class="kb-lbl">知识条目</div>
-            <div class="kb-sub" id="kbStatChunksSub">向量索引</div>
-          </div>
-          <div class="kb-card">
-            <div class="kb-num" id="kbStatDocs">0</div>
-            <div class="kb-lbl">已入库文档</div>
-            <div class="kb-sub" id="kbStatDocsSub">—</div>
-          </div>
-          <div class="kb-card">
-            <div class="kb-num" id="kbStatProjects">0</div>
-            <div class="kb-lbl">关联项目</div>
-            <div class="kb-sub" id="kbStatProjectsSub">—</div>
-          </div>
-        </div>
-
-        <div class="kb-upload" id="kbUpload">
-          <h4>批量导入 PDF</h4>
-          <p>拖入历史方案 PDF（多选）→ 自动构建 RAG 知识库</p>
-          <input type="file" accept=".pdf" multiple>
-        </div>
-
-        <div class="section-hdr">
-          <h3>最近知识查询</h3>
-          <button class="btn btn-outline btn-xs">查看全部</button>
-        </div>
-        <div id="queryList"></div>
-      </div>
-
-      <!-- ══ Projects ══ -->
-      <div class="page" id="page-projects">
-        <div class="section-hdr">
-          <h3>所有项目</h3>
-          <button class="btn btn-primary btn-sm" data-action="new-project">＋ 新建项目</button>
-        </div>
-        <div class="project-list" id="projectsFullList"></div>
-      </div>
-
-      <!-- ══ Project Detail ══ -->
-      <div class="page" id="page-project-detail">
-        <div class="section-hdr">
-          <button class="btn btn-outline btn-xs" id="projectDetailBack">← 返回</button>
-          <h3 id="projectDetailTitle">项目详情</h3>
-        </div>
-        <div id="projectDetailBody"></div>
-      </div>
-
-      <!-- ══ Template Mapping ══ -->
-      <div class="page" id="page-template-detail">
-        <div class="section-hdr">
-          <button class="btn btn-outline btn-xs" id="templateDetailBack">← 返回模板库</button>
-          <h3 id="templateDetailTitle">映射确认</h3>
-        </div>
-        <div id="templateDetailBody"></div>
-      </div>
-
-      <!-- ══ Engine ══ -->
-      <div class="page" id="page-engine">
-        <div class="section-hdr">
-          <h3>文档生成引擎</h3>
-          <button class="btn btn-primary btn-sm" id="runPipelineBtn">▶ 运行管线</button>
-        </div>
-
-        <style scoped>
-        .pipe-step {
-          background: var(--white); border-radius: var(--radius); padding: 14px 16px;
-          border: 1px solid #f1f5f9; box-shadow: var(--shadow);
-          position: relative;
-        }
-        .pipe-step.active { border-color: var(--teal); background: var(--teal-light); }
-        .pipe-step.done { border-color: var(--green); background: var(--green-bg); }
-        .pipe-status {
-          font-size: 10px; font-weight: 600; margin-top: 8px; padding: 2px 8px;
-          border-radius: 8px; display: inline-block;
-        }
-        .pipe-status.idle { background: #f1f5f9; color: var(--text-ter); }
-        .pipe-status.running { background: var(--blue-bg); color: var(--blue); }
-        .pipe-status.ok { background: var(--green-bg); color: var(--green); }
-        .pipe-arrow {
-          position: absolute; right: -8px; top: 50%; transform: translateY(-50%);
-          color: var(--text-ter); font-size: 18px;
-        }
-        .mapping-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid #f1f5f9; font-size: 11px; }
-        .mapping-row:last-child { border-bottom: none; }
-        .strategy-badge { font-size: 9px; padding: 1px 6px; border-radius: 6px; font-weight: 600; white-space: nowrap; }
-        .strategy-direct { background: var(--green-bg); color: var(--green); }
-        .strategy-rule { background: var(--blue-bg); color: var(--blue); }
-        .strategy-ai { background: var(--yellow-bg); color: var(--yellow); }
-        .strategy-empty { background: #f1f5f9; color: var(--text-ter); }
-        </style>
-
-        <!-- Pipeline Steps -->
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">
-          <div class="pipe-step" id="pipeStep1">
-            <div style="font-size:10px;font-weight:600;color:var(--text-ter);margin-bottom:4px">STEP 1</div>
-            <div style="font-size:13px;font-weight:600;color:var(--text-sec)">模板解析</div>
-            <div style="font-size:10px;color:var(--text-ter);margin-top:2px">Template Parser</div>
-            <div class="pipe-status idle" id="pipeStatus1">等待执行</div>
-          </div>
-          <div class="pipe-step" id="pipeStep2">
-            <div style="font-size:10px;font-weight:600;color:var(--text-ter);margin-bottom:4px">STEP 2</div>
-            <div style="font-size:13px;font-weight:600;color:var(--text-sec)">知识检索</div>
-            <div style="font-size:10px;color:var(--text-ter);margin-top:2px">Knowledge Retrieval</div>
-            <div class="pipe-status idle" id="pipeStatus2">等待执行</div>
-          </div>
-          <div class="pipe-step" id="pipeStep3">
-            <div style="font-size:10px;font-weight:600;color:var(--text-ter);margin-bottom:4px">STEP 3</div>
-            <div style="font-size:13px;font-weight:600;color:var(--text-sec)">映射引擎</div>
-            <div style="font-size:10px;color:var(--text-ter);margin-top:2px">Mapping Engine ★</div>
-            <div class="pipe-status idle" id="pipeStatus3">等待执行</div>
-          </div>
-          <div class="pipe-step" id="pipeStep4">
-            <div style="font-size:10px;font-weight:600;color:var(--text-ter);margin-bottom:4px">STEP 4</div>
-            <div style="font-size:13px;font-weight:600;color:var(--text-sec)">生成 + 质检</div>
-            <div style="font-size:10px;color:var(--text-ter);margin-top:2px">Gen + Quality Check</div>
-            <div class="pipe-status idle" id="pipeStatus4">等待执行</div>
-          </div>
-        </div>
-
-        <!-- Schema Viewer -->
-        <div class="settings-card">
-          <h4>模板 Schema <span id="schemaName" style="font-weight:400;color:var(--text-ter);font-size:12px"></span></h4>
-          <div class="s-desc">模板的章节树 + 占位符索引</div>
-          <div id="schemaViewer" style="font-size:12px;line-height:1.6">
-            <div class="empty-state"><div class="empty-icon">⊞</div><h4>未加载模板</h4><p>点击"运行管线"加载 DMC Charter 示例模板</p></div>
-          </div>
-        </div>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
-          <div class="settings-card">
-            <h4>映射规则 <span style="font-weight:400;color:var(--text-ter);font-size:11px">（占位符 → 知识源）</span></h4>
-            <div class="s-desc">精确映射 / 语义匹配 / 规则推理 / AI 兜底</div>
-            <div id="rulesViewer" style="font-size:12px"><div class="empty-state" style="padding:20px"><p>暂无规则</p></div></div>
-          </div>
-          <div class="settings-card">
-            <h4>质检报告</h4>
-            <div class="s-desc">填充率 / 问题列表 / 格式检查</div>
-            <div id="reportViewer" style="font-size:12px"><div class="empty-state" style="padding:20px"><p>暂未生成</p></div></div>
-          </div>
-        </div>
-
-        <div class="settings-card">
-          <h4>映射详情 <span style="font-weight:400;color:var(--text-ter);font-size:11px">（每占位符的四层解析结果）</span></h4>
-          <div id="mappingDetail" style="font-size:12px"><div class="empty-state" style="padding:20px"><p>运行管线后查看</p></div></div>
-        </div>
-      </div>
-
-      <!-- ══ Settings ══ -->
-      <div class="page" id="page-settings">
-        <div class="settings-card">
-          <h4>AI 参数</h4>
-          <div class="s-desc">文档生成时 AI 模型的行为控制</div>
-          <div class="settings-row">
-            <div class="s-label">生成温度 <small>数值越高，输出越有创造性</small></div>
-            <input type="range" min="0" max="1" step="0.1" value="0.3">
-          </div>
-          <div class="settings-row">
-            <div class="s-label">知识库检索 Top-K <small>每次查询召回的知识条目数</small></div>
-            <input type="range" min="3" max="20" step="1" value="8">
-          </div>
-          <div class="settings-row">
-            <div class="s-label">自动提炼知识 <small>文档生成后自动分析并推送新知识</small></div>
-            <div class="toggle on"></div>
-          </div>
-        </div>
-        <div class="settings-card">
-          <h4>通知</h4>
-          <div class="s-desc">任务完成和异常提醒</div>
-          <div class="settings-row">
-            <div class="s-label">文档生成完成 <small>通过飞书/邮件通知</small></div>
-            <div class="toggle on"></div>
-          </div>
-          <div class="settings-row">
-            <div class="s-label">知识提炼推送 <small>有新的可入库知识时通知</small></div>
-            <div class="toggle on"></div>
-          </div>
-          <div class="settings-row">
-            <div class="s-label">异常告警 <small>字段提取失败或填充率过低</small></div>
-            <div class="toggle"></div>
-          </div>
-        </div>
-        <div class="settings-card">
-          <h4>团队</h4>
-          <div class="s-desc">团队成员管理和权限控制</div>
-          <div class="settings-row">
-            <div class="s-label">邀请成员 <small>通过邮箱添加团队成员</small></div>
-            <button class="btn btn-outline btn-xs">邀请</button>
-          </div>
-          <div class="settings-row">
-            <div class="s-label">当前成员 <small>管理员 1 · 编辑 2</small></div>
-            <button class="btn btn-outline btn-xs">管理</button>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /.content -->
-  </div><!-- /.main -->
-</div><!-- /#app -->
-
-<!-- ═══ Modal ═══ -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal-box">
-    <h3 id="modalTitle">新建项目</h3>
-    <div class="m-desc" id="modalDesc">选择一个模板并上传方案 PDF 开始生成</div>
-    <div id="modalForm"></div>
-    <div class="modal-actions" id="modalActions"></div>
-  </div>
-</div>
-
-<!-- ═══ Toast Container ═══ -->
-<div class="toast-container" id="toastContainer"></div>
-
-<script src="js/api.js"></script>
-<script src="js/engine.js"></script>
-<script src="js/app.js"></script>
 </body>
 </html>
