@@ -2,740 +2,434 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Crogo — 医药CRO文档智能平台</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Crogo · 医药CRO文档智能平台</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  background: #08080f;
-  color: #e2e8f0;
-  overflow-x: hidden;
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#f7f8f8;
+  --hero-bg:#08090a;
+  --surf:#fff;
+  --surf-hover:#f3f4f5;
+  --text:#171717;
+  --text-sec:#545a63;
+  --text-ter:#8a8f98;
+  --accent:#5e6ad2;
+  --accent-hover:#7170ff;
+  --accent-soft:#eef0ff;
+  --teal:#0891b2;
+  --teal-soft:#ecfeff;
+  --green:#16a34a;
+  --green-bg:#dcfce7;
+  --amber:#d97706;
+  --amber-bg:#fef3c7;
+  --purple:#7c3aed;
+  --purple-bg:#f3e8ff;
+  --border:#e2e8f0;
+  --border-subtle:rgba(255,255,255,.08);
+  --navy:#0f172a;
+  --navy-light:#1e293b;
+  --radius:12px;
+  --radius-sm:8px;
 }
+body{font-family:'Inter','Noto Sans SC',-apple-system,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
 
 /* ── Hero ── */
-.hero {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 40px 24px;
-  position: relative;
-  background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(8,145,178,.12) 0%, transparent 70%),
-              radial-gradient(ellipse 60% 50% at 30% 70%, rgba(59,130,246,.08) 0%, transparent 60%);
-}
-.hero::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  pointer-events: none;
-}
-.hero-logo {
-  font-size: 72px;
-  font-weight: 800;
-  letter-spacing: -3px;
-  background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #8b5cf6 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  line-height: 1;
-}
-.hero-tagline {
-  font-size: 20px;
-  color: #94a3b8;
-  margin-top: 16px;
-  letter-spacing: 1px;
-}
-.hero-desc {
-  max-width: 680px;
-  margin: 24px auto 40px;
-  font-size: 16px;
-  line-height: 1.8;
-  color: #94a3b8;
-}
-.hero-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 14px 36px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, #0891b2, #3b82f6);
-  color: #fff;
-  font-size: 16px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: transform .2s, box-shadow .2s;
-  box-shadow: 0 4px 24px rgba(8,145,178,.25);
-}
-.hero-cta:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(8,145,178,.35);
-}
+.hero{background:var(--hero-bg);color:#f7f8f8;padding:0;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;top:-50%;right:-20%;width:600px;height:600px;background:radial-gradient(circle,rgba(94,106,210,.12),transparent 70%);pointer-events:none}
+.hero-inner{max-width:1200px;margin:0 auto;padding:100px 48px 80px;position:relative;z-index:1}
+.hero-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:72px}
+.hero-logo{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:600;color:#f7f8f8}
+.hero-logo svg{width:22px;height:22px}
+.hero-nav-links{display:flex;align-items:center;gap:32px}
+.hero-nav-links a{font-size:14px;color:#8a8f98;transition:.2s}
+.hero-nav-links a:hover{color:#f7f8f8}
+.hero-nav-cta{background:var(--accent);color:#fff;padding:8px 20px;border-radius:6px;font-size:14px;font-weight:500;transition:.2s}
+.hero-nav-cta:hover{background:var(--accent-hover)}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+.hero-text{max-width:540px}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px 4px 8px;border-radius:9999px;border:1px solid rgba(255,255,255,.08);font-size:12px;color:#8a8f98;margin-bottom:24px;background:rgba(255,255,255,.02)}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--green)}
+.hero h1{font-size:56px;font-weight:600;line-height:1.05;letter-spacing:-1.2px;color:#f7f8f8;margin-bottom:20px}
+.hero h1 span{color:var(--accent)}
+.hero p{font-size:17px;line-height:1.65;color:#8a8f98;margin-bottom:36px;max-width:480px}
+.hero-actions{display:flex;gap:12px}
+.hero-actions .primary{background:var(--accent);color:#fff;padding:12px 28px;border-radius:6px;font-size:15px;font-weight:500;transition:.2s}
+.hero-actions .primary:hover{background:var(--accent-hover)}
+.hero-actions .ghost{padding:12px 28px;border-radius:6px;font-size:15px;color:#8a8f98;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);transition:.2s}
+.hero-actions .ghost:hover{color:#f7f8f8;border-color:rgba(255,255,255,.15)}
+.hero-visual{position:relative}
+.hero-screenshot{width:100%;border-radius:var(--radius);border:1px solid rgba(255,255,255,.1);box-shadow:0 24px 48px -12px rgba(0,0,0,.6);background:#0f1011;overflow:hidden}
+.hero-screenshot img{width:100%;display:block}
+
+/* ── Stats ── */
+.stats{background:#fff;border-bottom:1px solid var(--border)}
+.stats-inner{max-width:1200px;margin:0 auto;padding:48px;display:grid;grid-template-columns:repeat(4,1fr);gap:32px}
+.stat-item{text-align:center}
+.stat-num{font-size:36px;font-weight:700;color:var(--accent);margin-bottom:4px}
+.stat-label{font-size:14px;color:var(--text-sec)}
 
 /* ── Sections ── */
-.section {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 100px 24px;
-}
-.section-title {
-  font-size: 32px;
-  font-weight: 700;
-  text-align: center;
-  margin-bottom: 12px;
-  background: linear-gradient(135deg, #e2e8f0, #64748b);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.section-subtitle {
-  text-align: center;
-  color: #64748b;
-  font-size: 15px;
-  margin-bottom: 60px;
-  line-height: 1.6;
-}
+.section{padding:100px 48px}
+.section-inner{max-width:1200px;margin:0 auto}
+.section-tag{font-size:12px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+.section h2{font-size:36px;font-weight:600;line-height:1.15;letter-spacing:-.6px;margin-bottom:14px}
+.section h2 span{color:var(--accent)}
+.section-desc{font-size:16px;color:var(--text-sec);line-height:1.6;max-width:600px}
 
-/* ── Problem / Solution ── */
-.problem-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 48px;
-  align-items: center;
-}
-.problem-list h3 {
-  font-size: 18px;
-  font-weight: 600;
-  color: #f87171;
-  margin-bottom: 20px;
-}
-.problem-item {
-  display: flex;
-  gap: 12px;
-  padding: 14px 0;
-  border-bottom: 1px solid rgba(255,255,255,.04);
-}
-.problem-item:last-child { border: none; }
-.problem-item .icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
-.problem-item .text { font-size: 14px; line-height: 1.7; color: #94a3b8; }
-.problem-item .label { font-weight: 600; color: #cbd5e1; }
-
-.solution-list h3 {
-  font-size: 18px;
-  font-weight: 600;
-  color: #22d3ee;
-  margin-bottom: 20px;
-}
-.solution-item {
-  display: flex;
-  gap: 12px;
-  padding: 14px 0;
-  border-bottom: 1px solid rgba(255,255,255,.04);
-}
-.solution-item:last-child { border: none; }
-.solution-item .icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
-.solution-item .text { font-size: 14px; line-height: 1.7; color: #94a3b8; }
-.solution-item .label { font-weight: 600; color: #cbd5e1; }
-
-/* ── How It Works ── */
-.steps {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-}
-.step-card {
-  background: rgba(255,255,255,.03);
-  border: 1px solid rgba(255,255,255,.06);
-  border-radius: 16px;
-  padding: 36px 28px;
-  position: relative;
-  transition: border-color .3s, transform .3s;
-}
-.step-card:hover {
-  border-color: rgba(8,145,178,.3);
-  transform: translateY(-4px);
-}
-.step-number {
-  font-size: 48px;
-  font-weight: 800;
-  background: linear-gradient(135deg, rgba(8,145,178,.15), rgba(59,130,246,.15));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  line-height: 1;
-  margin-bottom: 16px;
-}
-.step-card h4 {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 10px;
-  color: #e2e8f0;
-}
-.step-card ul {
-  font-size: 13px;
-  line-height: 1.8;
-  color: #64748b;
-  padding-left: 0;
-  list-style: none;
-}
-.step-card ul li::before {
-  content: '▸ ';
-  color: #0891b2;
-}
-.step-arrow {
-  position: absolute;
-  right: -16px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 24px;
-  color: rgba(8,145,178,.3);
-}
-.steps .step-card:last-child .step-arrow { display: none; }
+/* ── Workflow ── */
+.workflow-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
+.workflow-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:32px;transition:.2s}
+.workflow-card:hover{border-color:var(--accent);box-shadow:0 4px 24px rgba(94,106,210,.08)}
+.workflow-step{width:32px;height:32px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;margin-bottom:16px}
+.workflow-card h3{font-size:17px;font-weight:600;margin-bottom:8px}
+.workflow-card p{font-size:14px;color:var(--text-sec);line-height:1.6}
 
 /* ── Features ── */
-.features {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-}
-.feature-card {
-  background: rgba(255,255,255,.03);
-  border: 1px solid rgba(255,255,255,.06);
-  border-radius: 14px;
-  padding: 28px 24px;
-  transition: border-color .3s;
-}
-.feature-card:hover { border-color: rgba(8,145,178,.2); }
-.feature-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  margin-bottom: 14px;
-}
-.feature-card h4 {
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: #e2e8f0;
-}
-.feature-card p {
-  font-size: 13px;
-  line-height: 1.7;
-  color: #64748b;
-}
+.section-alt{background:#fff}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
+.feature-card{padding:32px;border-radius:var(--radius);border:1px solid var(--border);transition:.2s;background:#fff}
+.feature-card:hover{border-color:var(--accent);box-shadow:0 4px 24px rgba(94,106,210,.08)}
+.feature-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px}
+.feature-card h3{font-size:17px;font-weight:600;margin-bottom:6px}
+.feature-card p{font-size:14px;color:var(--text-sec);line-height:1.6;margin-bottom:12px}
+.feature-tags{display:flex;flex-wrap:wrap;gap:6px}
+.feature-tag{padding:2px 10px;border-radius:9999px;font-size:11px;font-weight:500;border:1px solid var(--border);color:var(--text-sec)}
 
-/* ── Data Flywheel ── */
-.flywheel {
-  text-align: center;
-}
-.flywheel-diagram {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-top: 20px;
-}
-.flywheel-node {
-  background: rgba(255,255,255,.04);
-  border: 1px solid rgba(8,145,178,.2);
-  border-radius: 12px;
-  padding: 16px 20px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #94a3b8;
-  min-width: 100px;
-}
-.flywheel-arrow {
-  color: rgba(8,145,178,.4);
-  font-size: 20px;
-  font-weight: 300;
-}
-.flywheel-node.active {
-  background: linear-gradient(135deg, rgba(8,145,178,.12), rgba(59,130,246,.08));
-  border-color: rgba(8,145,178,.5);
-  color: #22d3ee;
-}
-.flywheel-note {
-  max-width: 620px;
-  margin: 40px auto 0;
-  font-size: 14px;
-  line-height: 1.8;
-  color: #64748b;
-  padding: 20px 24px;
-  background: rgba(255,255,255,.02);
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,.04);
-}
+/* ── Screenshots ── */
+.screenshots{padding:100px 48px;background:var(--hero-bg);color:#f7f8f8}
+.screenshots-inner{max-width:1200px;margin:0 auto}
+.screenshots h2{font-size:36px;font-weight:600;letter-spacing:-.6px;margin-bottom:48px;text-align:center}
+.screenshots h2 span{color:var(--accent)}
+.gallery{display:flex;flex-direction:column;gap:64px}
+.gallery-item{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.gallery-item.reverse{direction:rtl}
+.gallery-item.reverse>*{direction:ltr}
+.gallery-img{border-radius:var(--radius);border:1px solid rgba(255,255,255,.1);overflow:hidden;background:#0f1011;cursor:pointer;transition:.3s;position:relative}
+.gallery-img:hover{transform:scale(1.01);box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.gallery-img img{width:100%;display:block}
+.gallery-text h3{font-size:22px;font-weight:600;margin-bottom:10px}
+.gallery-text p{font-size:15px;color:#8a8f98;line-height:1.6}
+.gallery-text .tag{display:inline-block;padding:2px 10px;border-radius:9999px;font-size:11px;border:1px solid rgba(255,255,255,.08);color:#8a8f98;margin-top:12px}
 
-/* ── Case Studies ── */
-.cases-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-}
-.case-card {
-  background: rgba(255,255,255,.03);
-  border: 1px solid rgba(255,255,255,.06);
-  border-radius: 16px;
-  padding: 32px 28px;
-  position: relative;
-  overflow: hidden;
-  transition: border-color .3s;
-}
-.case-card:hover { border-color: rgba(8,145,178,.2); }
-.case-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #0891b2, #3b82f6);
-  opacity: .6;
-}
-.case-tag {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-  background: rgba(8,145,178,.12);
-  color: #22d3ee;
-  margin-bottom: 14px;
-  letter-spacing: .3px;
-}
-.case-card h4 {
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 12px;
-  color: #e2e8f0;
-}
-.case-detail {
-  font-size: 13px;
-  line-height: 1.7;
-  color: #64748b;
-  margin-bottom: 16px;
-}
-.case-metrics {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-}
-.case-metric {
-  text-align: center;
-  min-width: 80px;
-}
-.case-metric .num {
-  font-size: 24px;
-  font-weight: 700;
-  background: linear-gradient(135deg, #22d3ee, #60a5fa);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.case-metric .label {
-  font-size: 11px;
-  color: #475569;
-  margin-top: 2px;
-}
-.case-quote {
-  margin-top: 16px;
-  padding: 14px 16px;
-  background: rgba(255,255,255,.02);
-  border-left: 2px solid rgba(8,145,178,.3);
-  border-radius: 0 8px 8px 0;
-  font-size: 12px;
-  line-height: 1.7;
-  color: #94a3b8;
-  font-style: italic;
-}
-.case-card.full {
-  grid-column: 1 / -1;
-}
-
-/* ── Target Users ── */
-.users-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-}
-.user-card {
-  text-align: center;
-  padding: 36px 20px;
-  background: rgba(255,255,255,.03);
-  border: 1px solid rgba(255,255,255,.06);
-  border-radius: 14px;
-}
-.user-card .emoji {
-  font-size: 32px;
-  margin-bottom: 12px;
-}
-.user-card h4 {
-  font-size: 15px;
-  font-weight: 600;
-  margin-bottom: 6px;
-}
-.user-card p {
-  font-size: 12px;
-  color: #64748b;
-  line-height: 1.6;
-}
+/* ── Flywheel ── */
+.flywheel{background:#fff;border-top:1px solid var(--border)}
+.flywheel .section-desc{max-width:700px;text-align:center;margin:14px auto 0}
+.flywheel-vis{display:flex;align-items:center;justify-content:center;gap:24px;margin-top:56px;padding:0 48px;flex-wrap:wrap}
+.flywheel-node{text-align:center;padding:24px;border-radius:var(--radius);background:var(--bg);border:1px solid var(--border);flex:1;min-width:200px;max-width:260px}
+.flywheel-node .icon{font-size:28px;margin-bottom:8px}
+.flywheel-node h4{font-size:14px;font-weight:600;margin-bottom:4px}
+.flywheel-node p{font-size:12px;color:var(--text-sec);line-height:1.5}
+.flywheel-arrow{font-size:24px;color:var(--accent);flex-shrink:0}
 
 /* ── CTA ── */
-.cta-section {
-  text-align: center;
-  padding: 80px 24px 100px;
-  background: radial-gradient(ellipse 60% 40% at 50% 50%, rgba(8,145,178,.08), transparent);
-}
-.cta-section h2 {
-  font-size: 28px;
-  font-weight: 700;
-  margin-bottom: 12px;
-}
-.cta-section p {
-  color: #64748b;
-  margin-bottom: 32px;
-}
+.cta-section{background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);color:#fff;text-align:center;padding:100px 48px}
+.cta-section h2{font-size:36px;font-weight:600;letter-spacing:-.6px;margin-bottom:14px}
+.cta-section p{font-size:16px;color:#94a3b8;margin-bottom:32px;max-width:500px;margin-left:auto;margin-right:auto}
+.cta-btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;padding:14px 36px;border-radius:6px;font-size:16px;font-weight:500;transition:.2s}
+.cta-btn:hover{background:var(--accent-hover);transform:translateY(-1px)}
 
 /* ── Footer ── */
-.footer {
-  text-align: center;
-  padding: 32px 24px;
-  color: #334155;
-  font-size: 13px;
-  border-top: 1px solid rgba(255,255,255,.04);
-}
+.footer{background:#0f172a;color:#64748b;text-align:center;padding:24px 48px;font-size:13px;border-top:1px solid rgba(255,255,255,.05)}
 
-/* ── Glossary Pill ── */
-.glossary-pill {
-  display: inline-block;
-  padding: 2px 7px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 500;
-  background: rgba(59,130,246,.1);
-  border: 1px solid rgba(59,130,246,.15);
-  color: #60a5fa;
-  cursor: help;
-}
+/* ── Lightbox ── */
+.lightbox{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.92);align-items:center;justify-content:center;cursor:zoom-out;padding:48px}
+.lightbox.active{display:flex}
+.lightbox img{max-width:90vw;max-height:85vh;border-radius:8px;box-shadow:0 24px 64px rgba(0,0,0,.6)}
+.lightbox-caption{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);color:#94a3b8;font-size:14px;background:rgba(0,0,0,.6);padding:8px 16px;border-radius:6px}
+.lightbox-nav{position:fixed;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.1);border:none;color:#fff;font-size:20px;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center}
+.lightbox-nav:hover{background:rgba(255,255,255,.2)}
+.lightbox-prev{left:24px}
+.lightbox-next{right:24px}
 
 /* ── Responsive ── */
-@media (max-width: 768px) {
-  .hero-logo { font-size: 48px; }
-  .problem-grid { grid-template-columns: 1fr; gap: 32px; }
-  .steps { grid-template-columns: 1fr; }
-  .step-arrow { display: none; }
-  .features { grid-template-columns: 1fr; }
-  .cases-grid { grid-template-columns: 1fr; }
-  .users-grid { grid-template-columns: 1fr; }
-  .flywheel-diagram { flex-direction: column; }
-  .flywheel-arrow { transform: rotate(90deg); }
-  .section { padding: 60px 20px; }
+@media(max-width:900px){
+  .hero-grid,.gallery-item,.gallery-item.reverse{grid-template-columns:1fr;direction:ltr}
+  .gallery-item.reverse>*{direction:ltr}
+  .hero-inner{padding:48px 24px 48px}
+  .hero-nav-links{display:none}
+  .hero h1{font-size:36px;letter-spacing:-.7px}
+  .workflow-grid,.features-grid{grid-template-columns:1fr}
+  .stats-inner{grid-template-columns:repeat(2,1fr);padding:32px 24px}
+  .section{padding:60px 24px}
+  .screenshots{padding:60px 24px}
+  .flywheel-vis{flex-direction:column;align-items:center}
+  .flywheel-arrow{transform:rotate(90deg)}
+  .cta-section{padding:60px 24px}
 }
 </style>
 </head>
 <body>
 
-<!-- ═══ Hero ═══ -->
-<section class="hero">
-  <div class="hero-logo">Crogo</div>
-  <div class="hero-tagline">医药 CRO 文档智能平台</div>
-  <p class="hero-desc">
-    上传临床试验方案（<span class="glossary-pill">CSP</span>），构建专属知识库，<br>
-    自动填充模板，一键生成 <span class="glossary-pill">DMC Charter</span> · <span class="glossary-pill">DMP</span> · <span class="glossary-pill">SAP</span>。<br>
-    遵循 <span class="glossary-pill">ICH E6(R2) GCP</span> / <span class="glossary-pill">E8(R1)</span> / <span class="glossary-pill">E9(R1) 估计目标框架</span>，<br>
-    支持临床试验方案章节级字段映射、<span class="glossary-pill">不良事件(SAE/SUSAR)</span> 周期自动对齐。
-  </p>
-  <a href="#how-it-works" class="hero-cta">了解工作流程 →</a>
-</section>
-
-<!-- ═══ Problem / Solution ═══ -->
-<section class="section" id="problem">
-  <div class="problem-grid">
-    <div class="problem-list">
-      <h3>✕ 现状痛点</h3>
-      <div class="problem-item">
-        <span class="icon">🔄</span>
-        <div class="text"><span class="label">重复劳动 · 方案信息孤岛</span><br>每个项目手动翻阅临床试验方案（CSP），从「入排标准」「终点定义」「安全性监测」等章节反复抄录，数据管理计划（DMP）和统计分析计划（SAP）各自为政，三份文档同一参数（如 AE 收集周期、主要终点定义、分析人群 FAS/PPS/SS）极易不一致</div>
+<!-- Hero -->
+<div class="hero">
+<div class="hero-inner">
+  <div class="hero-nav">
+    <div class="hero-logo">
+      <svg viewBox="0 0 22 22" fill="none"><rect x="1" y="1" width="20" height="20" rx="5" fill="#5e6ad2"/><path d="M6 11h10M11 6v10" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>
+      Crogo
+    </div>
+    <div class="hero-nav-links">
+      <a href="#workflow">工作流</a>
+      <a href="#features">功能</a>
+      <a href="#screenshots">界面</a>
+      <a href="#flywheel">数据飞轮</a>
+      <a href="#demo" class="hero-nav-cta">预约演示</a>
+      <a href="app/" class="hero-nav-cta" style="background:transparent;border:1px solid rgba(255,255,255,.15)">进入应用 →</a>
+    </div>
+  </div>
+  <div class="hero-grid">
+    <div class="hero-text">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        医药CRO专属 · 文档智能平台
       </div>
-      <div class="problem-item">
-        <span class="icon">🗄️</span>
-        <div class="text"><span class="label">知识沉睡 · 人员更替即失传</span><br>项目结项后 SDTM / ADaM 映射经验、不良事件编码（<span class="glossary-pill">MedDRA</span> / <span class="glossary-pill">WHO Drug</span>）选择逻辑、方案偏离判定规则散落在个人笔记和邮件中，核心分析师离职即失传，新项目要重新摸索</div>
-      </div>
-      <div class="problem-item">
-        <span class="icon">📋</span>
-        <div class="text"><span class="label">模板混乱 · 手工适配成本高</span><br>每个申办方有自己模板体系——DMC 章程的章节编号、不良事件报告窗口、数据监查委员会（<span class="glossary-pill">DSMB</span>）章程措辞各有差异，统计师每次换模板要花 1-2 天手动对齐章节占位符</div>
-      </div>
-      <div class="problem-item">
-        <span class="icon">⚠️</span>
-        <div class="text"><span class="label">文档矛盾 · 审核返工频发</span><br>同一临床试验方案，DMC Charter 和 DMP 中 SAE 报告时限、严重不良事件（<span class="glossary-pill">SUSAR</span>）通报流程、期中分析触发条件说法不一致——DM review 和 QC 阶段发现，返工成本极高</div>
-      </div>
-      <div class="problem-item">
-        <span class="icon">🔬</span>
-        <div class="text"><span class="label">监管合规压力</span><br>CFDI 核查、FDA 远程评估（REA）对文档完整性要求越来越严——端点定义溯源、<span class="glossary-pill">盲态审核</span>记录、<span class="glossary-pill">锁库</span> SOP 一致性和可追溯性不足是常见发现项</div>
+      <h1>告别手动填文档。<br><span>一键生成，越用越聪明。</span></h1>
+      <p>上传模板，构建知识库，AI自动填充——每做一个项目，系统就聪明一分。CRO文档从此不再是瓶颈。</p>
+      <div class="hero-actions">
+        <a href="#demo" class="primary">预约演示 →</a>
+        <a href="#workflow" class="ghost">了解工作流</a>
       </div>
     </div>
-
-    <div class="solution-list">
-      <h3>✓ Crogo 方案</h3>
-      <div class="solution-item">
-        <span class="icon">⚡</span>
-        <div class="text"><span class="label">一次建库 · 自动填充 · 一致性保障</span><br>批量入库历史方案 PDF 构建 RAG 知识库 → 新方案 CSP 上传后自动匹配模板，从入排标准、终点定义（主要/次要/探索性）、安全性监测周期、<span class="glossary-pill">期中分析</span>触发条件等关键字段自动填充，DMC/DMP/SAP 三件套基于同一知识源生成</div>
-      </div>
-      <div class="solution-item">
-        <span class="icon">🌱</span>
-        <div class="text"><span class="label">知识留存 · 数据飞轮 · 越用越强</span><br>项目做完知识留下——终点定义、入排标准规则、<span class="glossary-pill">SAE Reconsiliation</span> 逻辑、<span class="glossary-pill">DSUR</span> / <span class="glossary-pill">PSUR</span> 参考数据不断积累。AI 从每份生成文档中自动提炼新知识点，推送用户确认后入库</div>
-      </div>
-      <div class="solution-item">
-        <span class="icon">🧩</span>
-        <div class="text"><span class="label">上传即用 · 自适应多模板</span><br>上传申办方 .docx 模板自动解析章节结构（方案概述 / 目的 / 安全性监测…）和占位符，系统学习规则后同一申办方新项目自动匹配——支持跨治疗领域（肿瘤、疫苗、罕见病、医疗器械）模板差异</div>
-      </div>
-      <div class="solution-item">
-        <span class="icon">🎯</span>
-        <div class="text"><span class="label">统一知识驱动 · 合规可追溯</span><br>同一知识库驱动 DMC/DMP/SAP 三件套生成，终点定义、分析人群、不良事件收集周期天然一致。每字段可追溯至 CSP 原文位置（章节号+行），满足 CFDI 核查和 <span class="glossary-pill">ICH E6(R2)</span> 对源文档溯源的合规要求</div>
-      </div>
-      <div class="solution-item">
-        <span class="icon">🔗</span>
-        <div class="text"><span class="label">CSP 章节 → 文档字段自动关联</span><br>系统自动识别 CSP 中「入排标准」「主要终点」「次要终点」「安全性评价」「统计分析」等章节，与模板占位符建立精确映射——无需人工标记，覆盖率持续提升</div>
+    <div class="hero-visual">
+      <div class="hero-screenshot" onclick="openLightbox(0)">
+        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=780&q=80" alt="Crogo 工作台界面" style="background:#0f1011;min-height:320px;object-fit:cover">
       </div>
     </div>
   </div>
-</section>
-
-<!-- ═══ How It Works ═══ -->
-<section class="section" id="how-it-works">
-  <h2 class="section-title">三步工作流</h2>
-  <p class="section-subtitle">从模板到文档，全程智能辅助</p>
-  <div class="steps">
-    <div class="step-card">
-      <span class="step-arrow">→</span>
-      <div class="step-number">01</div>
-      <h4>上传模板</h4>
-      <p>拖入申办方 .docx 模板 → 系统自动解析：</p>
-      <ul>
-        <li>章节结构：1. 方案概述 / 2. 研究目的 / 3. 入排标准 / 4. 安全性监测…</li>
-        <li>占位符：<入排标准> <终点定义> <AE 收集周期> <SAE 报告时限> <期中分析触发条件></li>
-        <li><span class="glossary-pill">CDISC</span> 标准字段映射直出</li>
-        <li>用户确认映射 → 系统学习规则，同系列模板自动匹配</li>
-      </ul>
-    </div>
-    <div class="step-card">
-      <span class="step-arrow">→</span>
-      <div class="step-number">02</div>
-      <h4>构建知识库</h4>
-      <p>批量上传所有历史临床试验方案 PDF：</p>
-      <ul>
-        <li>构建 <span class="glossary-pill">RAG</span> 向量知识库</li>
-        <li>自动提取：入排标准、终点指标（主要/次要/探索性）、安全性监测、<span class="glossary-pill">亚组分析</span>方案、<span class="glossary-pill">期中分析(IA)</span>触发规则</li>
-        <li>支持 <span class="glossary-pill">盲态审核</span>保留规则、<span class="glossary-pill">锁库</span>原则、<span class="glossary-pill">适应性设计</span>自适应条件提取</li>
-        <li>生成后 AI 提炼新知识推送确认入库</li>
-      </ul>
-    </div>
-    <div class="step-card">
-      <span class="step-arrow" style="display:none"></span>
-      <div class="step-number">03</div>
-      <h4>一键生成文档</h4>
-      <p>选模板 + 关联 CSP → 自动映射填充：</p>
-      <ul>
-        <li>知识库字段 → 模板占位符自动填充，生成 .docx 下载</li>
-        <li>同时生成 DMC Charter + DMP + SAP 三件套</li>
-        <li>遵循 <span class="glossary-pill">ICH E9(R1) 估计目标</span>框架规范</li>
-        <li>填充率报告 + <span class="glossary-pill">GCP</span> 合规检查 + 可追溯性审计</li>
-      </ul>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ Features ═══ -->
-<section class="section">
-  <h2 class="section-title">核心功能</h2>
-  <p class="section-subtitle">覆盖临床试验文档全链路</p>
-  <div class="features">
-    <div class="feature-card">
-      <div class="feature-icon" style="background:rgba(8,145,178,.15);color:#22d3ee;">◈</div>
-      <h4>模板管理</h4>
-      <p>上传解析各类申办方 DMC/DMP/SAP 模板，支持多版本、申办方标签、治疗领域标签（肿瘤/疫苗/罕见病/医疗器械）。系统学习章节结构+占位符映射规则，同系列模板自动识别。</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon" style="background:rgba(59,130,246,.15);color:#60a5fa;">⊞</div>
-      <h4>智能知识库 <span class="glossary-pill">RAG</span></h4>
-      <p>临床试验方案 PDF 批量入库构建向量索引（<span class="glossary-pill">Chunk → Embedding → Index</span>），支持全文检索、终点定义查询、<span class="glossary-pill">SDTM / ADaM</span> 映射经验抽取、<span class="glossary-pill">MedDRA / WHO Drug</span> 编码历史参考。持续生长。</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon" style="background:rgba(139,92,246,.15);color:#a78bfa;">◎</div>
-      <h4>文档生成</h4>
-      <p>知识库字段自动映射模板占位符，一键生成 DMC/DMP/SAP。支持主要/次要/探索性终点分层映射、<span class="glossary-pill">FAS / PPS / SS</span> 分析人群、<span class="glossary-pill">亚组分析</span>方案、<span class="glossary-pill">Richards 改良回归</span>等统计方法描述。填充率实时报告。</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon" style="background:rgba(251,146,60,.15);color:#fb923c;">✓</div>
-      <h4>校验确认</h4>
-      <p>逐字段展示 AI 从 CSP 提取的结果：主要终点 / 次要终点 / 安全性监测计划 / 分析人群 / <span class="glossary-pill">期中分析(IA)</span>触发规则 / <span class="glossary-pill">DSMB</span> 职责分工 → 用户一键确认或手动修正，每字段可溯源 CSP 原文。</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon" style="background:rgba(34,197,94,.15);color:#4ade80;">↻</div>
-      <h4>知识提炼闭环</h4>
-      <p>文档生成后 AI 自动分析新方案中有价值的终点定义、<span class="glossary-pill">入排标准</span>规则、不良事件编码逻辑、<span class="glossary-pill">SAE Reconciliation</span> 方法——推送用户确认后入库，<span class="glossary-pill">PSUR</span>/<span class="glossary-pill">DSUR</span> 数据随时间自然沉淀。</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon" style="background:rgba(236,72,153,.15);color:#f472b6;">⏐</div>
-      <h4>批量生成 <span class="glossary-pill">+ CDISC</span></h4>
-      <p>一个 CSP 同时生成 DMC Charter + DMP + SAP 三件套。支持申办方标签筛选、跨治疗领域模板匹配、<span class="glossary-pill">SDTM</span> 映射参考直出。<span class="glossary-pill">盲态审核</span>报告模板、<span class="glossary-pill">锁库</span>确认函亦可纳入管线。</p>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ Data Flywheel ═══ -->
-<section class="section flywheel">
-  <h2 class="section-title">数据飞轮</h2>
-  <p class="section-subtitle">越用越聪明，切换成本越来越高</p>
-  <div class="flywheel-diagram">
-    <span class="flywheel-node active">📥 批量入库历史 CSP</span>
-    <span class="flywheel-arrow">→</span>
-    <span class="flywheel-node">🔍 终点定义/入排标准/安全性规则提取</span>
-    <span class="flywheel-arrow">→</span>
-    <span class="flywheel-node">📄 模板 → DMC/DMP/SAP 生成</span>
-    <span class="flywheel-arrow">→</span>
-    <span class="flywheel-node active">🧠 AI 提炼：终点/编码/SAE Reconcile</span>
-    <span class="flywheel-arrow">→</span>
-    <span class="flywheel-node">📚 知识库变强（字段→章节→规则）</span>
-  </div>
-  <div class="flywheel-note">
-    <strong>与通用 GPT / RAG 的本质区别：</strong><br>
-    通用工具临时问答，用完就走，不积累。<br>
-    Crogo 每个项目做完知识留下——终点定义、安全性监测规则、<span class="glossary-pill">MedDRA</span> 编码策略、<span class="glossary-pill">SDTM</span> 映射经验不断层叠复用，<br>
-    形成真正的 CRO 领域专属数据飞轮。切换平台不仅是换工具，而是放弃几年沉淀的知识资产。
-  </div>
-</section>
-
-<!-- ═══ Case Studies ═══ -->
-<section class="section">
-  <h2 class="section-title">客户案例</h2>
-  <p class="section-subtitle">真实场景下的效率提升与质量改善</p>
-  <div class="cases-grid">
-
-    <div class="case-card">
-      <span class="case-tag">肿瘤领域 CRO</span>
-      <h4>50 个历史项目建库，新项目 SAP 2 小时完成</h4>
-      <p class="case-detail">
-        某专注于肿瘤领域的中型 CRO，累计 50+ 个历史项目的 SAP 散落在个人电脑中。导入 Crogo 后一次性批量入库所有历史方案 PDF，构建肿瘤领域专属知识库。新承接的「胰腺癌 III 期 RWS」项目，上传 CSP 后系统自动匹配历史项目中相似终点定义（ORR / PFS / OS / DOR）、入排标准逻辑和亚组分析方案，24 个字段自动填充 21 个，SAP 从 3 天缩短至 2 小时。
-      </p>
-      <div class="case-metrics">
-        <div class="case-metric"><div class="num">50+</div><div class="label">历史项目入库</div></div>
-        <div class="case-metric"><div class="num">87%</div><div class="label">字段自动填充率</div></div>
-        <div class="case-metric"><div class="num">3天→2h</div><div class="label">SAP 交付周期</div></div>
-      </div>
-      <div class="case-quote">
-        "之前翻历史方案找终点定义（ORR/PFS 的判定标准）至少半天，现在上传就自动匹配。最重要的是知识库越用越准——新项目的填充率两个月从 75% 涨到 87%。"
-      </div>
-    </div>
-
-    <div class="case-card">
-      <span class="case-tag">跨国申办方本土化</span>
-      <h4>全球模板适配 6 套，DMC Charter 一致性 100%</h4>
-      <p class="case-detail">
-        某头部 CRO 承接多家跨国药企的中国区项目，每家申办方的 DMC Charter 模板结构、章节编号、SAE 报告窗口（24h vs 48h）、SUSAR 通报流程各不相同。统计师团队手动适配 6 套模板，每套 1-2 天。使用 Crogo 上传 6 套模板并标注申办方标签后，系统自动学习每套模板的章节结构+占位符映射规则。新项目到来自动匹配对应模板，同一方案 DMC/DMP/SAP 三份文档的不良事件收集周期、DSMB 职责分工完全一致。
-      </p>
-      <div class="case-metrics">
-        <div class="case-metric"><div class="num">6</div><div class="label">申办方模板自动适配</div></div>
-        <div class="case-metric"><div class="num">100%</div><div class="label">文档间一致性</div></div>
-        <div class="case-metric"><div class="num">1-2天→10分钟</div><div class="label">新模板适配时间</div></div>
-      </div>
-      <div class="case-quote">
-        "以前最怕换申办方模板——DMC Charter 的章节编号不一样，SAE 报告窗口和 SUSAR 通报流程的措辞全要重新对。现在首次上传就学好了，再新项目来只管选模板。"
-      </div>
-    </div>
-
-    <div class="case-card">
-      <span class="case-tag">快速启动新业务线</span>
-      <h4>从零建立疫苗领域文档体系，3 周交付首套文档</h4>
-      <p class="case-detail">
-        某综合型 CRO 新成立疫苗事业部，团队尚无疫苗项目文档模板和历史数据。使用 Crogo 导入 3 份公开的疫苗临床试验方案（COVID-19 + 流感 + RSV），系统自动学习疫苗领域特有的终点类型（免疫原性终点如 GMT / GMI / SCR、安全性随访周期、不良事件收集窗口）、实验室检查指标范围（中和抗体滴度、血常规）、不良事件编码参考。团队在此基础上快速完成首套 DMC Charter + DMP + SAP 交付。
-      </p>
-      <div class="case-metrics">
-        <div class="case-metric"><div class="num">3份</div><div class="label">参考方案建库</div></div>
-        <div class="case-metric"><div class="num">3周</div><div class="label">从零到首套文档</div></div>
-        <div class="case-metric"><div class="num">70%→82%</div><div class="label">填充率（2周提升）</div></div>
-      </div>
-    </div>
-
-    <div class="case-card">
-      <span class="case-tag">罕见病领域 CRO</span>
-      <h4>小样本试验（N=80），SAP 适应性设计 1 天搞定</h4>
-      <p class="case-detail">
-        某专注于罕见病的 CRO 承接一个肌萎缩侧索硬化症（ALS）II 期概念验证试验，受试者仅 80 人，方案采用适应性设计（adaptive design），包含 2 次期中分析（IA1 安全性和 IA2 无效性终止）。传统方式下 SAP 需要反复沟通统计方法和分析人群定义。使用 Crogo 导入 2 份历史罕见病 CSP，知识库自动辅助提取适应性设计规则（Lan-DeMets α 消耗函数、O'Brien-Fleming 边界）、小样本特殊统计方法描述（精确 Fisher 检验 vs 广义线性混合模型）。SAP 从 5 天缩减至 1 天交付，期中分析触发条件描述零错误。
-      </p>
-      <div class="case-metrics">
-        <div class="case-metric"><div class="num">80</div><div class="label">受试者样本量</div></div>
-        <div class="case-metric"><div class="num">5天→1天</div><div class="label">SAP 交付周期</div></div>
-        <div class="case-metric"><div class="num">2次</div><div class="label">期中分析规则自动填充</div></div>
-      </div>
-      <div class="case-quote">
-        "罕见病项目的统计分析方法和常规肿瘤完全不同——样本量小、多用适应性设计、终点选择灵活。Crogo 把之前罕见病项目的分析经验保留下来了，IA 触发条件、α 消耗函数的描述再也不用手工写。"
-      </div>
-    </div>
-
-    <div class="case-card full">
-      <span class="case-tag">医疗器械临床评价 (CER)</span>
-      <h4>ISO 14155 合规：6 个产品线 PMCF 文档包从 8 周缩至 2 周</h4>
-      <p class="case-detail">
-        某医疗器械公司需为 6 个产品线（III 类植入物：髋关节假体、冠脉支架、心律转复除颤器）准备上市后临床随访（PMCF）计划/报告，满足欧盟 MDR 法规和 ISO 14155:2020 要求。每个产品线的临床评价报告（CER）模板不同——终点定义（主要不良心脏事件 MACE、器械相关 AE、Kaplan-Meier 生存曲线）、随访窗口（3 月/6 月/12 月/24 月）、不良事件分类规则（ISO 14155 附录 J）各有差异。使用 Crogo 导入 6 套 CER 模板和历史 PMCF 数据，系统自动适配各产品线的终点定义和安全报告要求。6 个文档包从 8 周压缩至 2 周完成，PMCF 报告一致性和完整性通过审核。
-      </p>
-      <div class="case-metrics">
-        <div class="case-metric"><div class="num">6</div><div class="label">产品线同时推进</div></div>
-        <div class="case-metric"><div class="num">8周→2周</div><div class="label">PMCF 文档交付</div></div>
-        <div class="case-metric"><div class="num">ISO 14155</div><div class="label">合规一次性通过</div></div>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<!-- ═══ Target Users ═══ -->
-<section class="section">
-  <h2 class="section-title">目标用户</h2>
-  <p class="section-subtitle">为医药 CRO 团队量身打造</p>
-  <div class="users-grid">
-    <div class="user-card">
-      <div class="emoji">📊</div>
-      <h4>统计师</h4>
-      <p>快速生成 SAP，自动匹配主要/次要/探索性终点定义、分析人群（<span class="glossary-pill">FAS / PPS / SS</span>）、亚组分析方案、期中分析（<span class="glossary-pill">IA</span>）设计——删失规则、非劣效界值、α 消耗函数自动填充。告别手动翻 CSP 找统计方法描述。</p>
-    </div>
-    <div class="user-card">
-      <div class="emoji">📋</div>
-      <h4>数据管理员</h4>
-      <p>一键生成 DMC Charter + DMP，知识库确保 AE 收集周期、<span class="glossary-pill">SAE</span> 报告时限、<span class="glossary-pill">SUSAR</span> 通报流程、<span class="glossary-pill">DSMB</span> 职责分工、<span class="glossary-pill">盲态审核</span>规则一致。支持 <span class="glossary-pill">EDC</span> 数据质疑管理描述参考。</p>
-    </div>
-    <div class="user-card">
-      <div class="emoji">✍️</div>
-      <h4>医学写作者</h4>
-      <p>基于历史方案自动填充 CS / DMP，入排标准、疗效终点、安全性评价复述准确无误。<span class="glossary-pill">ICH E3</span> 临床研究报告架构自动匹配，<span class="glossary-pill">MedDRA</span> / <span class="glossary-pill">WHO Drug</span> 编码参考直出，聚焦内容质量而非重复抄录。</p>
-    </div>
-    <div class="user-card">
-      <div class="emoji">🔬</div>
-      <h4>临床监查员</h4>
-      <p>快速获取项目文档背景（DMC/DMP/SAP），方案偏离判断参考、<span class="glossary-pill">SDV</span> 策略对齐、<span class="glossary-pill">远程监查</span>描述参考。同一平台查看申办方模板演化和历史项目端点定义，提升监查效率。</p>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ CTA ═══ -->
-<section class="cta-section">
-  <h2>准备好让临床试验文档工作更智能了吗？</h2>
-  <p>从批量入库到一键生成三件套，Crogo 让每个项目的文档效率翻倍，一致性不再靠人工核对。<br>知识越用越值钱，数据飞轮成就真正的 CRO 知识资产积累。</p>
-  <a href="mailto:" class="hero-cta">联系我们 →</a>
-</section>
-
-<!-- ═══ Footer ═══ -->
-<div class="footer">
-  Crogo — 医药 CRO 文档智能平台 · 让知识留下来 · 遵循 ICH E6(R2) / E8(R1) / E9(R1) · 支持 CDISC 标准
+</div>
 </div>
 
+<!-- Stats -->
+<div class="stats">
+<div class="stats-inner">
+  <div class="stat-item"><div class="stat-num">3</div><div class="stat-label">步完成文档生成</div></div>
+  <div class="stat-item"><div class="stat-num">47</div><div class="stat-label">历史项目知识条目</div></div>
+  <div class="stat-item"><div class="stat-num">93%</div><div class="stat-label">字段填充准确率</div></div>
+  <div class="stat-item"><div class="stat-num">∞</div><div class="stat-label">知识库持续生长</div></div>
+</div>
+</div>
+
+<!-- Workflow -->
+<div class="section" id="workflow">
+<div class="section-inner">
+  <div class="section-tag">Three-Step Workflow</div>
+  <h2>三步完成一篇文档。<br>越做越简单。</h2>
+  <p class="section-desc">从模板上传到文档生成，整个流程被压缩到三个清晰的步骤。每个环节都有AI辅助和用户确认。</p>
+  <div class="workflow-grid">
+    <div class="workflow-card">
+      <div class="workflow-step">1</div>
+      <h3>上传模板</h3>
+      <p>拖入 .docx 模板 → 自动解析章节结构和占位符 → 用户确认映射 → 系统自动学习规则，下次直接匹配。</p>
+    </div>
+    <div class="workflow-card" style="border-top:3px solid var(--accent)">
+      <div class="workflow-step">2</div>
+      <h3>构建知识库</h3>
+      <p>批量上传所有历史方案PDF，自动构建RAG/向量知识库。新方案查询辅助提取，知识提炼闭环持续生长。</p>
+    </div>
+    <div class="workflow-card">
+      <div class="workflow-step">3</div>
+      <h3>一键生成</h3>
+      <p>选择模板 + 新上传的方案 → 一键生成完整 .docx 文档。DMP、SAP、DMC Charter——所有模板类文档全覆盖。</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Features -->
+<div class="section section-alt" id="features">
+<div class="section-inner">
+  <div class="section-tag">Core Features</div>
+  <h2>不只填模板。<br><span>更聪明的工作方式。</span></h2>
+  <p class="section-desc">Crogo 围绕 CRO 文档的真实工作流设计，三个核心模块无缝衔接，形成完整闭环。</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon" style="background:var(--accent-soft);color:var(--accent)">📋</div>
+      <h3>模板管理</h3>
+      <p>上传 .docx 自动解析结构。支持 DMP、SAP、DMC Charter、CSR、ICF、Safety Plan 等多种模板类型。按类别管理，面签修正后自动学习。</p>
+      <div class="feature-tags">
+        <span class="feature-tag">自动解析</span>
+        <span class="feature-tag">映射确认</span>
+        <span class="feature-tag">自动学习</span>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:var(--teal-soft);color:var(--teal)">🧠</div>
+      <h3>智能知识库</h3>
+      <p>核心差异化功能。从 0 到 1 批量入库历史方案，构建 RAG 向量知识库。新方案上传自动查询参考，抽提字段准确率 93%。</p>
+      <div class="feature-tags">
+        <span class="feature-tag">RAG 向量库</span>
+        <span class="feature-tag">批量入库</span>
+        <span class="feature-tag">智能查询</span>
+      </div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon" style="background:var(--green-bg);color:var(--green)">⚡</div>
+      <h3>文档生成</h3>
+      <p>选模板 + 选方案 → 一键生成完整文档。同时打通知识库，生成完成后 AI 自动提炼可入库的新知识，推送确认后入库。</p>
+      <div class="feature-tags">
+        <span class="feature-tag">一键生成</span>
+        <span class="feature-tag">填充率报告</span>
+        <span class="feature-tag">知识提炼</span>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Screenshots -->
+<div class="screenshots" id="screenshots">
+<div class="screenshots-inner">
+  <h2>产品界面 <span>预览</span></h2>
+  <div class="gallery" id="gallery">
+    
+    <div class="gallery-item">
+      <div class="gallery-img" onclick="openLightbox(0)">
+        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=780&q=80" alt="工作台总览" style="min-height:300px;object-fit:cover;background:#0f1011">
+      </div>
+      <div class="gallery-text">
+        <h3>工作台总览</h3>
+        <p>项目仪表盘一目了然——模板数量、知识库状态、待生成文档。三步进度条清晰指引当前所处的阶段，所有核心操作集中在一个页面完成。</p>
+        <span class="tag">Dashboard · 总览</span>
+      </div>
+    </div>
+
+    <div class="gallery-item reverse">
+      <div class="gallery-img" onclick="openLightbox(1)">
+        <img src="https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=780&q=80" alt="知识库管理" style="min-height:300px;object-fit:cover;background:#0f1011">
+      </div>
+      <div class="gallery-text">
+        <h3>知识库管理</h3>
+        <p>以项目为颗粒度管理知识条目。支持批量上传 PDF、自动提取字段、AI 辅助校验。每条知识都有来源追溯和版本记录。</p>
+        <span class="tag">Knowledge Base · RAG</span>
+      </div>
+    </div>
+
+    <div class="gallery-item">
+      <div class="gallery-img" onclick="openLightbox(2)">
+        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=780&q=80" alt="模板解析" style="min-height:300px;object-fit:cover;background:#0f1011">
+      </div>
+      <div class="gallery-text">
+        <h3>模板智能解析</h3>
+        <p>拖入 .docx 模板文件，系统自动识别章节结构和占位符字段。支持手动修正映射关系，系统自动学习优化，后续模板解析准确率持续提升。</p>
+        <span class="tag">Template Parser · AI Learning</span>
+      </div>
+    </div>
+
+    <div class="gallery-item reverse">
+      <div class="gallery-img" onclick="openLightbox(3)">
+        <img src="https://images.unsplash.com/photo-1553877522-43269d4ea984?w=780&q=80" alt="一键生成" style="min-height:300px;object-fit:cover;background:#0f1011">
+      </div>
+      <div class="gallery-text">
+        <h3>一键文档生成</h3>
+        <p>勾选需要生成的文档，系统自动从知识库提取对应字段填充，生成完整 .docx 文件并附带填充率报告。支持批量并行生成。</p>
+        <span class="tag">Document Generation · Batch</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- Flywheel -->
+<div class="section" id="flywheel">
+<div class="section-inner flywheel">
+  <div style="text-align:center">
+    <div class="section-tag" style="text-align:center">Data Flywheel</div>
+    <h2 style="text-align:center">做得越多，<span>系统越聪明。</span></h2>
+    <p class="section-desc">这是 Crogo 最核心的竞争壁垒。每生成一篇文档，知识库就多一分数据。下次抽取更精准、填充率更高——切换成本指数级上升。</p>
+  </div>
+  <div class="flywheel-vis">
+    <div class="flywheel-node">
+      <div class="icon">📥</div>
+      <h4>批量入库</h4>
+      <p>历史方案PDF → RAG/向量知识库</p>
+    </div>
+    <div class="flywheel-arrow">→</div>
+    <div class="flywheel-node" style="border-top:3px solid var(--accent)">
+      <div class="icon">🔍</div>
+      <h4>辅助提取</h4>
+      <p>新方案 → 自动查询 → AI提取字段</p>
+    </div>
+    <div class="flywheel-arrow">→</div>
+    <div class="flywheel-node">
+      <div class="icon">⚡</div>
+      <h4>生成文档</h4>
+      <p>选模板+方案 → 一键填充 → 交付</p>
+    </div>
+    <div class="flywheel-arrow">→</div>
+    <div class="flywheel-node">
+      <div class="icon">🔄</div>
+      <h4>提炼入库</h4>
+      <p>AI提取新知识 → 用户确认 → 入库</p>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section" id="demo">
+  <h2>准备好提升 CRO 文档效率了吗？</h2>
+  <p>省下填模板的时间，专注于方案设计和数据分析——这才是 CRO 团队真正的价值所在。</p>
+  <a href="#" class="cta-btn">预约产品演示 →</a>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  Crogo · 医药CRO文档智能平台 · Built for Clinical Research
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lightbox-nav lightbox-prev" onclick="event.stopPropagation();navigateLightbox(-1)">←</button>
+  <img id="lightbox-img" src="" alt="">
+  <div class="lightbox-caption" id="lightbox-caption"></div>
+  <button class="lightbox-nav lightbox-next" onclick="event.stopPropagation();navigateLightbox(1)">→</button>
+</div>
+
+<script>
+const screenshots = [
+  { src: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1440&q=80', caption: '工作台总览 · 项目仪表盘' },
+  { src: 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=1440&q=80', caption: '知识库管理 · RAG 向量知识库' },
+  { src: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1440&q=80', caption: '模板智能解析 · 章节结构自动识别' },
+  { src: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=1440&q=80', caption: '一键文档生成 · 批量填充' }
+];
+let currentIdx = 0;
+
+function openLightbox(idx) {
+  currentIdx = idx;
+  const lb = document.getElementById('lightbox');
+  const img = document.getElementById('lightbox-img');
+  const cap = document.getElementById('lightbox-caption');
+  img.src = screenshots[idx].src;
+  cap.textContent = screenshots[idx].caption;
+  document.addEventListener('keydown', onKeyDown);
+  lb.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox(e) {
+  if(e && e.target !== e.currentTarget) return;
+  document.getElementById('lightbox').classList.remove('active');
+  document.removeEventListener('keydown', onKeyDown);
+  document.body.style.overflow = '';
+}
+
+function navigateLightbox(dir) {
+  currentIdx = (currentIdx + dir + screenshots.length) % screenshots.length;
+  const img = document.getElementById('lightbox-img');
+  const cap = document.getElementById('lightbox-caption');
+  img.src = screenshots[currentIdx].src;
+  cap.textContent = screenshots[currentIdx].caption;
+}
+
+function onKeyDown(e) {
+  if(e.key === 'Escape') closeLightbox(e);
+  if(e.key === 'ArrowLeft') navigateLightbox(-1);
+  if(e.key === 'ArrowRight') navigateLightbox(1);
+}
+</script>
 </body>
 </html>
