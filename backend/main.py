@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from pydantic import BaseModel
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import BackgroundTasks, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -24,12 +24,17 @@ from models.schemas import (
     IngestJobResponse,
     IngestJobStatus,
     KBStats,
+    MappingStatsOut,
     MappingSuggestionOut,
     MappingUpdate,
     ProjectCreateResponse,
+    ProjectPreviewOut,
     ProjectDetail,
     ProjectGenerationOut,
     ProjectOut,
+    ProjectReviewOut,
+    ReviewSummaryOut,
+    FieldReviewItem,
     SearchResult,
     TemplateDetailOut,
     TemplateOut,
@@ -38,11 +43,19 @@ from services.docx_generate import generate_docx
 from services.docx_parser import parse_docx
 from services.mapping_suggest import (
     auto_apply_mappings,
+    compute_mapping_stats,
+    enrich_mapping_suggestions,
     mappings_complete as check_mappings_complete,
     suggest_mappings,
 )
 from services.quality_check import check_generated_docx, format_quality_message
-from services.extract import extract_fields_from_pdf, fields_from_json, fields_to_json
+from services.extract import (
+    extract_fields_from_pdf,
+    fields_from_json,
+    fields_to_json,
+    preview_project_from_pdf,
+)
+from services.field_review import build_project_review, classify_review_status
 from services.ingest import run_ingest
 from services.pdf_loader import PDFLoadError, extract_text_from_pdf
 from services.vector_store import count_chunks, search
@@ -145,13 +158,15 @@ def _template_out(row: dict) -> TemplateOut:
     )
 
 
-def _template_detail_out(row: dict) -> TemplateDetailOut:
+async def _template_detail_out(row: dict) -> TemplateDetailOut:
     placeholders = json.loads(row.get("placeholders_json") or "[]")
     mappings = json.loads(row.get("mappings_json") or "{}")
     suggestions_raw = suggest_mappings(placeholders)
+    suggestions_raw = await enrich_mapping_suggestions(placeholders, suggestions_raw)
     suggestions = {
         k: MappingSuggestionOut(**v) for k, v in suggestions_raw.items()
     }
+    stats = compute_mapping_stats(placeholders, mappings, suggestions_raw)
     base = _template_out(row)
     return TemplateDetailOut(
         **base.model_dump(),
@@ -159,6 +174,7 @@ def _template_detail_out(row: dict) -> TemplateDetailOut:
         placeholders_list=placeholders,
         mappings=mappings,
         mapping_suggestions=suggestions,
+        mapping_stats=MappingStatsOut(**stats),
     )
 
 
@@ -198,11 +214,11 @@ async def upload_template(
 
 
 @app.get("/api/templates/{tpl_id}", response_model=TemplateDetailOut)
-def get_template(tpl_id: int):
+async def get_template(tpl_id: int):
     row = db.get_template(tpl_id)
     if not row:
         raise HTTPException(404, "模板不存在")
-    return _template_detail_out(row)
+    return await _template_detail_out(row)
 
 
 @app.patch("/api/templates/{tpl_id}/mappings")
@@ -280,6 +296,18 @@ def _parse_template_ids_form(raw: str) -> List[int]:
     return dedup
 
 
+@app.post("/api/projects/preview", response_model=ProjectPreviewOut)
+async def preview_project(file: UploadFile = File(...)):
+    if not file.filename or not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(400, "请上传 PDF 方案文件")
+    data = await file.read()
+    try:
+        meta = await preview_project_from_pdf(data, file.filename or "protocol.pdf")
+    except PDFLoadError as e:
+        raise HTTPException(400, str(e)) from e
+    return ProjectPreviewOut(**meta)
+
+
 @app.post("/api/projects", response_model=ProjectCreateResponse)
 async def create_project(
     name: str = Form(...),
@@ -326,22 +354,43 @@ async def create_project(
     return ProjectCreateResponse(id=proj_id, name=name, status="draft")
 
 
-def _parse_generation_message(raw: str) -> tuple[str, str, float, int]:
-    """Return display_message, grade, fill_rate, requires_review."""
+PHASE_LABELS = {
+    "preparing": "准备模板与字段",
+    "filling": "填充占位符",
+    "quality_check": "质检文档",
+    "done": "已完成",
+    "error": "失败",
+}
+
+
+def _phase_payload(phase: str, detail: str = "") -> str:
+    return json.dumps({"phase": phase, "detail": detail}, ensure_ascii=False)
+
+
+def _parse_generation_message(raw: str, status: str = "") -> tuple[str, str, str, float, int]:
+    """Return display_message, phase, grade, fill_rate, requires_review."""
     if not raw:
-        return "", "", 0.0, 0
+        return "", "", "", 0.0, 0
     try:
         meta = json.loads(raw)
-        if isinstance(meta, dict) and "grade" in meta:
-            return (
-                meta.get("summary") or format_quality_message(meta),
-                meta.get("grade") or "",
-                float(meta.get("fill_rate") or 0),
-                int(meta.get("requires_review") or 0),
-            )
+        if isinstance(meta, dict):
+            if meta.get("phase"):
+                phase = str(meta["phase"])
+                detail = str(meta.get("detail") or PHASE_LABELS.get(phase, phase))
+                return detail, phase, "", 0.0, 0
+            if "grade" in meta:
+                return (
+                    meta.get("summary") or format_quality_message(meta),
+                    "done",
+                    meta.get("grade") or "",
+                    float(meta.get("fill_rate") or 0),
+                    int(meta.get("requires_review") or 0),
+                )
     except (json.JSONDecodeError, TypeError, ValueError):
         pass
-    return raw, "", 0.0, 0
+    if status in ("running", "pending") and raw:
+        return raw, raw, "", 0.0, 0
+    return raw, "", "", 0.0, 0
 
 
 def _generation_out(proj_id: int, template_ids: List[int]) -> List[ProjectGenerationOut]:
@@ -353,8 +402,9 @@ def _generation_out(proj_id: int, template_ids: List[int]) -> List[ProjectGenera
             continue
         g = gens.get(tid) or {}
         status = g.get("status") or "pending"
-        display_msg, grade, fill_rate, review = _parse_generation_message(
-            g.get("message") or ""
+        display_msg, phase, grade, fill_rate, review = _parse_generation_message(
+            g.get("message") or "",
+            status,
         )
         out.append(
             ProjectGenerationOut(
@@ -362,6 +412,7 @@ def _generation_out(proj_id: int, template_ids: List[int]) -> List[ProjectGenera
                 template_name=tpl["name"],
                 template_type=tpl["type"],
                 status=status,
+                phase=phase,
                 message=display_msg,
                 download_url=(
                     f"/api/projects/{proj_id}/download?template_id={tid}"
@@ -388,7 +439,50 @@ def get_project(proj_id: int):
         **base.model_dump(),
         fields=fields,
         pdf_filename=row.get("pdf_filename") or "",
+        fields_confirmed=bool(row.get("fields_confirmed_at")),
         generations=_generation_out(proj_id, template_ids),
+    )
+
+
+def _unlink_file(path_str: str) -> None:
+    if not path_str:
+        return
+    try:
+        p = Path(path_str)
+        if p.exists():
+            p.unlink()
+    except Exception:
+        pass
+
+
+@app.delete("/api/projects/{proj_id}")
+def delete_project(proj_id: int):
+    row = db.get_project(proj_id)
+    if not row:
+        raise HTTPException(404, "项目不存在")
+    if row.get("status") == "generating":
+        raise HTTPException(409, "文档正在生成中，请稍候再删除")
+
+    _unlink_file(row.get("pdf_path") or "")
+    _unlink_file(row.get("output_path") or "")
+    for gen in db.list_project_generations(proj_id):
+        _unlink_file(gen.get("output_path") or "")
+
+    db.delete_project(proj_id)
+    return {"ok": True}
+
+
+@app.get("/api/projects/{proj_id}/review", response_model=ProjectReviewOut)
+async def get_project_review(proj_id: int):
+    row = db.get_project(proj_id)
+    if not row:
+        raise HTTPException(404, "项目不存在")
+    fields = fields_from_json(row.get("fields_json") or "[]")
+    pdf_path = Path(row["pdf_path"]) if row.get("pdf_path") else None
+    data = await build_project_review(fields, pdf_path)
+    return ProjectReviewOut(
+        summary=ReviewSummaryOut(**data["summary"]),
+        fields=[FieldReviewItem(**f) for f in data["fields"]],
     )
 
 
@@ -405,6 +499,7 @@ async def extract_project(proj_id: int):
             proj_id,
             status="validating",
             fields_json=fields_to_json(fields),
+            clear_fields_confirmed=True,
         )
         return {"ok": True, "fields": [f.model_dump() for f in fields]}
     except Exception as e:
@@ -414,6 +509,7 @@ async def extract_project(proj_id: int):
 
 class FieldsUpdateBody(BaseModel):
     fields: List[FieldValue]
+    confirmed: bool = False
 
 
 @app.patch("/api/projects/{proj_id}/fields")
@@ -421,32 +517,36 @@ def save_fields(proj_id: int, body: FieldsUpdateBody):
     row = db.get_project(proj_id)
     if not row:
         raise HTTPException(404, "项目不存在")
-    db.update_project(
-        proj_id,
-        status="validating",
-        fields_json=fields_to_json(body.fields),
-    )
+
+    if body.confirmed:
+        for f in body.fields:
+            if classify_review_status(f) == "missing":
+                raise HTTPException(
+                    400,
+                    f"字段「{f.label or f.key}」为必填且为空，无法确认",
+                )
+        db.update_project(
+            proj_id,
+            status="validating",
+            fields_json=fields_to_json(body.fields),
+            fields_confirmed_at=datetime.now().isoformat(timespec="seconds"),
+        )
+    else:
+        db.update_project(
+            proj_id,
+            status="validating",
+            fields_json=fields_to_json(body.fields),
+            clear_fields_confirmed=True,
+        )
     return {"ok": True}
 
 
-@app.post("/api/projects/{proj_id}/generate", response_model=GenerateResponse)
-def generate_project(proj_id: int):
+def _run_generate_job(proj_id: int) -> None:
     row = db.get_project(proj_id)
     if not row:
-        raise HTTPException(404, "项目不存在")
-
+        return
     template_ids = _parse_template_ids(row)
-    if not template_ids:
-        raise HTTPException(400, "请先为项目选择模板")
-
     fields = fields_from_json(row.get("fields_json") or "[]")
-    if not fields:
-        raise HTTPException(400, "请先完成字段提取与校验")
-
-    if not db.list_project_generations(proj_id):
-        db.reset_project_generations(proj_id, template_ids)
-
-    db.update_project(proj_id, status="generating")
     success_count = 0
     primary_output = ""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -454,20 +554,46 @@ def generate_project(proj_id: int):
     for tid in template_ids:
         tpl = db.get_template(tid)
         if not tpl:
-            db.update_generation(proj_id, tid, status="error", message="模板不存在")
+            db.update_generation(
+                proj_id,
+                tid,
+                status="error",
+                message=_phase_payload("error", "模板不存在"),
+            )
             continue
         mappings = json.loads(tpl.get("mappings_json") or "{}")
         placeholders = json.loads(tpl.get("placeholders_json") or "[]")
         if not check_mappings_complete(placeholders, mappings):
             db.update_generation(
-                proj_id, tid, status="error", message="模板未完成全部占位符映射"
+                proj_id,
+                tid,
+                status="error",
+                message=_phase_payload("error", "模板未完成全部占位符映射"),
             )
             continue
 
-        out_name = f"project_{proj_id}_tpl{tid}_{timestamp}.docx"
-        out_path = settings.outputs_dir / out_name
         try:
+            db.update_generation(
+                proj_id,
+                tid,
+                status="running",
+                message=_phase_payload("preparing", f"准备 {tpl['type']} 文档"),
+            )
+            out_name = f"project_{proj_id}_tpl{tid}_{timestamp}.docx"
+            out_path = settings.outputs_dir / out_name
+            db.update_generation(
+                proj_id,
+                tid,
+                status="running",
+                message=_phase_payload("filling", "正在填充占位符…"),
+            )
             generate_docx(Path(tpl["file_path"]), out_path, fields, mappings)
+            db.update_generation(
+                proj_id,
+                tid,
+                status="running",
+                message=_phase_payload("quality_check", "正在质检文档…"),
+            )
             report = check_generated_docx(
                 out_path,
                 expected_placeholders=placeholders,
@@ -486,25 +612,58 @@ def generate_project(proj_id: int):
                 primary_output = str(out_path)
         except Exception as e:
             db.update_generation(
-                proj_id, tid, status="error", message=str(e)
+                proj_id,
+                tid,
+                status="error",
+                message=_phase_payload("error", str(e)),
             )
 
     if success_count == 0:
         db.update_project(proj_id, status="validating")
-        raise HTTPException(500, "所有模板生成均失败")
+        return
 
     final_status = "done" if success_count == len(template_ids) else "partial"
     db.update_project(proj_id, status=final_status, output_path=primary_output)
+
+
+@app.post("/api/projects/{proj_id}/generate", response_model=GenerateResponse)
+def generate_project(proj_id: int, background_tasks: BackgroundTasks):
+    row = db.get_project(proj_id)
+    if not row:
+        raise HTTPException(404, "项目不存在")
+
+    if row.get("status") == "generating":
+        raise HTTPException(409, "文档正在生成中，请稍候")
+
+    template_ids = _parse_template_ids(row)
+    if not template_ids:
+        raise HTTPException(400, "请先为项目选择模板")
+
+    fields = fields_from_json(row.get("fields_json") or "[]")
+    if not fields:
+        raise HTTPException(400, "请先完成字段提取与校验")
+
+    if not row.get("fields_confirmed_at"):
+        raise HTTPException(400, "请先在字段审核步骤确认全部必填项")
+
+    db.reset_project_generations(proj_id, template_ids)
+    db.update_project(proj_id, status="generating")
+
+    for tid in template_ids:
+        db.update_generation(
+            proj_id,
+            tid,
+            status="running",
+            message=_phase_payload("preparing", "排队中…"),
+        )
+
+    background_tasks.add_task(_run_generate_job, proj_id)
+
     gens = _generation_out(proj_id, template_ids)
-    first_done = next((g for g in gens if g.status == "done"), None)
     return GenerateResponse(
         success=True,
-        message=(
-            f"已生成 {success_count} / {len(template_ids)} 份文档"
-            if success_count < len(template_ids)
-            else "文档生成成功"
-        ),
-        download_url=first_done.download_url if first_done else "",
+        message="已开始生成，请稍候",
+        download_url="",
         generations=gens,
     )
 
@@ -568,3 +727,7 @@ if (FRONTEND_DIR / "css").is_dir():
     app.mount("/css", StaticFiles(directory=FRONTEND_DIR / "css"), name="css")
 if (FRONTEND_DIR / "js").is_dir():
     app.mount("/js", StaticFiles(directory=FRONTEND_DIR / "js"), name="js")
+if (FRONTEND_DIR / "app").is_dir():
+    app.mount("/app", StaticFiles(directory=FRONTEND_DIR / "app", html=True), name="app")
+if (FRONTEND_DIR / "screenshots").is_dir():
+    app.mount("/screenshots", StaticFiles(directory=FRONTEND_DIR / "screenshots"), name="screenshots")

@@ -3,625 +3,771 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Crogo · 医药CRO文档智能平台</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Crogo — AI 驱动的临床文档平台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --navy:#0a1628;
-  --navy-light:#132339;
-  --navy-mid:#1a2d45;
-  --surf:#fff;
-  --surf-alt:#f8fafb;
-  --text:#0f172a;
-  --text-sec:#475569;
-  --text-ter:#94a3b8;
-  --accent:#0078a8;
-  --accent-hover:#008fc9;
-  --accent-soft:#e6f4f9;
-  --accent-dark:#005c82;
-  --teal:#0d9488;
-  --teal-soft:#eef9f8;
-  --green:#16a34a;
-  --green-soft:#dcfce7;
-  --amber:#d97706;
-  --amber-soft:#fef3c7;
-  --border:#e2e8f0;
-  --border-soft:rgba(255,255,255,.08);
+/* ═══════════════════════════════
+   Crogo Design System v2
+   ═══════════════════════════════ */
+:root {
+  --bg:#0a0c12;
+  --bg-alt:#0e111a;
+  --bg-card:#12151f;
+  --bg-elevated:#181c2a;
+  --bg-hover:#1e2335;
+  --surface:#1a1d2f;
+  --text:#ecedee;
+  --text-sec:#969ba8;
+  --text-ter:#5f6578;
+  --accent:#0ea5e9;
+  --accent-dark:#0284c7;
+  --accent-glow:rgba(14,165,233,.25);
+  --accent-soft:rgba(14,165,233,.1);
+  --teal:#14b8a6;
+  --teal-dark:#0d9488;
+  --teal-soft:rgba(20,184,166,.1);
+  --green:#22c55e;
+  --amber:#f59e0b;
+  --red:#ef4444;
+  --border:rgba(255,255,255,.05);
+  --border-light:rgba(255,255,255,.08);
   --radius:12px;
   --radius-sm:8px;
+  --radius-lg:16px;
+  --shadow:0 1px 3px rgba(0,0,0,.4),0 1px 2px rgba(0,0,0,.5);
+  --shadow-lg:0 20px 60px rgba(0,0,0,.6);
+  --shadow-glow:0 0 40px rgba(14,165,233,.12);
+  --max-w:1200px;
+  --nav-h:64px;
+  --ease: cubic-bezier(.4,0,.2,1);
 }
-body{font-family:'Inter','Noto Sans SC',-apple-system,sans-serif;background:var(--surf-alt);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter','Noto Sans SC',-apple-system,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--accent-soft);color:var(--accent)}
+img{max-width:100%;display:block}
 a{text-decoration:none;color:inherit}
-img{max-width:100%;height:auto}
+
+/* ── Nav ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:var(--nav-h);
+  display:flex;align-items:center;
+  justify-content:space-between;
+  padding:0 28px;
+  background:rgba(10,12,18,.7);
+  backdrop-filter:blur(20px) saturate(1.4);
+  -webkit-backdrop-filter:blur(20px) saturate(1.4);
+  border-bottom:1px solid var(--border);
+}
+.nav-brand{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:700}
+.nav-brand svg{width:20px;height:20px}
+.nav-links{display:flex;align-items:center;gap:4px}
+.nav-links a{
+  padding:8px 14px;border-radius:var(--radius-sm);
+  font-size:13px;font-weight:500;color:var(--text-sec);
+  transition:.2s var(--ease);
+}
+.nav-links a:hover{color:var(--text);background:var(--bg-hover)}
+.nav-cta{
+  padding:8px 20px;border-radius:var(--radius-sm);
+  background:var(--accent);color:#fff;font-size:13px;font-weight:600;
+  transition:.2s var(--ease);
+}
+.nav-cta:hover{background:var(--accent-dark);box-shadow:0 0 20px var(--accent-glow)}
+
+.container{max-width:var(--max-w);margin:0 auto;padding:0 28px}
 
 /* ── Hero ── */
-.hero{background:var(--navy);color:#f1f5f9;padding:0;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-40%;right:-10%;width:700px;height:700px;background:radial-gradient(circle,rgba(0,120,168,.08),transparent 65%);pointer-events:none}
-.hero::after{content:'';position:absolute;bottom:-20%;left:-5%;width:500px;height:500px;background:radial-gradient(circle,rgba(13,148,136,.06),transparent 60%);pointer-events:none}
-.hero-inner{max-width:1200px;margin:0 auto;padding:100px 48px 80px;position:relative;z-index:1}
-.hero-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:80px}
-.hero-logo{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:600;color:#f1f5f9}
-.hero-logo svg{width:24px;height:24px}
-.hero-nav-links{display:flex;align-items:center;gap:32px}
-.hero-nav-links a{font-size:14px;color:var(--text-ter);transition:.2s}
-.hero-nav-links a:hover{color:#f1f5f9}
-.hero-nav-cta{background:var(--accent);color:#fff;padding:8px 20px;border-radius:6px;font-size:14px;font-weight:500;transition:.2s}
-.hero-nav-cta:hover{background:var(--accent-hover)}
-.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
-.hero-text{max-width:540px}
-.hero-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px 4px 8px;border-radius:9999px;border:1px solid rgba(255,255,255,.08);font-size:12px;color:var(--text-ter);margin-bottom:24px;background:rgba(255,255,255,.02)}
-.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--teal)}
-.hero h1{font-size:52px;font-weight:600;line-height:1.08;letter-spacing:-1.2px;color:#f1f5f9;margin-bottom:20px}
-.hero h1 span{color:var(--accent)}
-.hero p{font-size:16px;line-height:1.7;color:var(--text-ter);margin-bottom:36px;max-width:480px}
-.hero-actions{display:flex;gap:12px}
-.hero-actions .primary{background:var(--accent);color:#fff;padding:12px 28px;border-radius:6px;font-size:15px;font-weight:500;transition:.2s}
-.hero-actions .primary:hover{background:var(--accent-hover)}
-.hero-actions .ghost{padding:12px 28px;border-radius:6px;font-size:15px;color:var(--text-ter);border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.02);transition:.2s}
-.hero-actions .ghost:hover{color:#f1f5f9;border-color:rgba(255,255,255,.15)}
-.hero-visual{position:relative}
-.hero-screenshot{width:100%;border-radius:var(--radius);border:1px solid rgba(255,255,255,.1);box-shadow:0 24px 48px -12px rgba(0,0,0,.6);background:var(--navy);overflow:hidden}
-.hero-screenshot img{width:100%;display:block}
+.hero{
+  min-height:90vh;
+  display:flex;align-items:center;
+  position:relative;
+  overflow:hidden;
+  padding-top:var(--nav-h);
+}
+.hero::before{
+  content:'';
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 15% 40%, rgba(14,165,233,.08) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 50% at 80% 60%, rgba(20,184,166,.06) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 50% 80%, rgba(14,165,233,.04) 0%, transparent 60%);
+  pointer-events:none;
+}
+.hero-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:60px;
+  align-items:center;
+  position:relative;
+  z-index:1;
+  padding:60px 0;
+}
+.hero-content h1{
+  font-size:clamp(32px,4vw,52px);
+  font-weight:800;
+  line-height:1.15;
+  letter-spacing:-1px;
+  margin-bottom:20px;
+}
+.hero-content h1 .highlight{
+  background:linear-gradient(135deg,var(--accent),var(--teal));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero-content p{
+  font-size:16px;
+  color:var(--text-sec);
+  max-width:460px;
+  margin-bottom:32px;
+  line-height:1.7;
+}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 28px;
+  background:var(--accent);color:#fff;
+  border:none;border-radius:var(--radius-sm);
+  font-size:14px;font-weight:600;
+  transition:.2s var(--ease);
+  cursor:pointer;
+}
+.btn-primary:hover{
+  background:var(--accent-dark);
+  transform:translateY(-1px);
+  box-shadow:0 8px 30px var(--accent-glow);
+}
+.btn-secondary{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:12px 28px;
+  background:var(--bg-hover);color:var(--text);
+  border:1px solid var(--border-light);
+  border-radius:var(--radius-sm);
+  font-size:14px;font-weight:500;
+  transition:.2s var(--ease);
+}
+.btn-secondary:hover{
+  border-color:var(--accent);
+  background:var(--accent-soft);
+  color:var(--accent);
+}
+
+/* Hero Screenshot */
+.hero-screenshot{
+  position:relative;
+}
+.hero-screenshot img{
+  width:100%;
+  border-radius:var(--radius-lg);
+  border:1px solid var(--border-light);
+  box-shadow:var(--shadow-lg);
+}
+.hero-screenshot::after{
+  content:'';
+  position:absolute;
+  inset:-40px;
+  background:radial-gradient(ellipse at center, var(--accent-glow) 0%, transparent 60%);
+  z-index:-1;
+  opacity:.6;
+}
+
+/* ── Section Shared ── */
+section{padding:100px 0;position:relative}
+.section-label{
+  display:inline-block;
+  font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:2px;
+  background:var(--accent-soft);color:var(--accent);
+  padding:4px 12px;border-radius:999px;
+  margin-bottom:16px;
+}
+.section-title{
+  font-size:clamp(26px,3vw,38px);
+  font-weight:700;
+  line-height:1.25;
+  letter-spacing:-.5px;
+  margin-bottom:16px;
+}
+.section-subtitle{
+  font-size:15px;
+  color:var(--text-sec);
+  max-width:600px;
+  line-height:1.7;
+}
 
 /* ── Stats ── */
-.stats{background:var(--surf);border-bottom:1px solid var(--border)}
-.stats-inner{max-width:1200px;margin:0 auto;padding:48px;display:grid;grid-template-columns:repeat(4,1fr);gap:32px}
-.stat-item{text-align:center}
-.stat-num{font-size:36px;font-weight:700;color:var(--accent);margin-bottom:4px}
-.stat-label{font-size:14px;color:var(--text-sec);margin-bottom:2px}
-.stat-source{font-size:11px;color:var(--text-ter)}
-
-/* ── Sections ── */
-.section{padding:100px 48px}
-.section-inner{max-width:1200px;margin:0 auto}
-.section-tag{font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:12px}
-.section h2{font-size:34px;font-weight:600;line-height:1.15;letter-spacing:-.4px;margin-bottom:14px}
-.section h2 span{color:var(--accent)}
-.section-desc{font-size:15px;color:var(--text-sec);line-height:1.65;max-width:600px}
-.section-alt{background:var(--surf)}
-.section-dark{background:var(--navy);color:#f1f5f9;padding:100px 48px}
-.section-dark .section-tag{color:var(--accent)}
-.section-dark h2{color:#f1f5f9}
-.section-dark .section-desc{color:var(--text-ter)}
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:2px;
+  border-radius:var(--radius);
+  overflow:hidden;
+}
+.stat-box{
+  background:var(--bg-alt);
+  padding:40px 24px;
+  text-align:center;
+  border:1px solid var(--border);
+}
+.stat-box .num{
+  font-size:32px;
+  font-weight:800;
+  letter-spacing:-1px;
+  margin-bottom:4px;
+}
+.stat-box .num.accent{color:var(--accent)}
+.stat-box .num.teal{color:var(--teal)}
+.stat-box .num.green{color:var(--green)}
+.stat-box .num.amber{color:var(--amber)}
+.stat-box .label{font-size:13px;color:var(--text-ter)}
+.stats-tagline{text-align:center;margin-top:20px;font-size:13px;color:var(--text-sec)}
 
 /* ── Workflow ── */
-.workflow-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
-.workflow-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--radius);padding:32px;transition:.3s}
-.workflow-card:hover{border-color:var(--accent);box-shadow:0 8px 32px rgba(0,120,168,.08)}
-.workflow-step{width:32px;height:32px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;margin-bottom:16px}
-.workflow-icon{width:40px;height:40px;margin-bottom:16px;color:var(--accent)}
-.workflow-card h3{font-size:16px;font-weight:600;margin-bottom:8px}
-.workflow-card p{font-size:14px;color:var(--text-sec);line-height:1.6}
+.workflow-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:24px;
+  margin-top:48px;
+}
+.workflow-step{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:32px;
+  position:relative;
+  transition:.3s var(--ease);
+}
+.workflow-step:hover{
+  border-color:var(--accent);
+  transform:translateY(-3px);
+  box-shadow:var(--shadow-glow);
+}
+.step-num{
+  font-size:48px;
+  font-weight:800;
+  background:linear-gradient(135deg,var(--accent),transparent);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  opacity:.15;
+  line-height:1;
+  margin-bottom:8px;
+}
+.step-icon{
+  width:44px;height:44px;
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:16px;
+}
+.step-title{font-size:17px;font-weight:600;margin-bottom:8px}
+.step-desc{font-size:13px;color:var(--text-sec);line-height:1.7}
 
 /* ── Features ── */
-.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
-.feature-card{padding:32px;border-radius:var(--radius);border:1px solid var(--border);transition:.3s;background:var(--surf)}
-.feature-card:hover{border-color:var(--accent);box-shadow:0 8px 32px rgba(0,120,168,.08)}
-.feature-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:var(--accent);background:var(--accent-soft)}
-.feature-card h3{font-size:16px;font-weight:600;margin-bottom:6px}
-.feature-card p{font-size:14px;color:var(--text-sec);line-height:1.6;margin-bottom:12px}
-.feature-tags{display:flex;flex-wrap:wrap;gap:6px}
-.feature-tag{padding:2px 10px;border-radius:9999px;font-size:11px;font-weight:500;border:1px solid var(--border);color:var(--text-sec)}
+.features-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:20px;
+  margin-top:48px;
+}
+.feature-card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  overflow:hidden;
+  transition:.3s var(--ease);
+}
+.feature-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.feature-body{padding:28px 28px 24px}
+.feature-icon{
+  width:40px;height:40px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:16px;
+}
+.feature-title{font-size:16px;font-weight:600;margin-bottom:6px}
+.feature-desc{font-size:13px;color:var(--text-sec);line-height:1.7}
+.feature-image img{
+  width:100%;
+  display:block;
+  border-top:1px solid var(--border);
+}
+.feature-image{
+  position:relative;
+  overflow:hidden;
+  max-height:300px;
+}
+.feature-image::after{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(to top, var(--bg-card), transparent);
+  pointer-events:none;
+}
 
-/* ── Compliance ── */
-.compliance-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;margin-top:48px}
-.compliance-card{padding:32px;border:1px solid rgba(255,255,255,.08);border-radius:var(--radius);background:rgba(255,255,255,.02);transition:.3s}
-.compliance-card:hover{border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.04)}
-.compliance-icon{width:40px;height:40px;margin-bottom:14px;color:var(--accent)}
-.compliance-card h3{font-size:15px;font-weight:600;margin-bottom:6px;color:#f1f5f9}
-.compliance-card p{font-size:13px;color:var(--text-ter);line-height:1.6}
+/* ── Centered section ── */
+.section-centered{
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+.section-centered .section-subtitle{max-width:520px}
 
-/* ── Screenshots ── */
-.screenshots{padding:100px 48px;background:var(--surf)}
-.screenshots-inner{max-width:1200px;margin:0 auto}
-.screenshots h2{font-size:34px;font-weight:600;letter-spacing:-.4px;margin-bottom:48px;text-align:center}
-.screenshots h2 span{color:var(--accent)}
-.gallery{display:flex;flex-direction:column;gap:64px}
-.gallery-item{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
-.gallery-item.reverse{gap:48px}
-.gallery-item.reverse>div{direction:ltr}
-.gallery-img{border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;background:var(--surf-alt);cursor:pointer;transition:.3s;position:relative}
-.gallery-img:hover{transform:scale(1.01);box-shadow:0 12px 40px rgba(0,0,0,.1)}
-.gallery-img img{width:100%;display:block;min-height:280px;object-fit:cover}
-.gallery-text h3{font-size:20px;font-weight:600;margin-bottom:10px}
-.gallery-text p{font-size:14px;color:var(--text-sec);line-height:1.65}
-.gallery-text .tag{display:inline-block;padding:2px 10px;border-radius:9999px;font-size:11px;border:1px solid var(--border);color:var(--text-ter);margin-top:12px}
+/* ── Advantage Grid ── */
+.adv-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:20px;
+  margin-top:48px;
+}
+.adv-card{
+  background:var(--bg-card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:28px 24px;
+  text-align:center;
+  transition:.3s var(--ease);
+}
+.adv-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.adv-card .adv-icon{
+  width:48px;height:48px;margin:0 auto 16px;
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+}
+.adv-card .adv-title{font-size:16px;font-weight:600;margin-bottom:6px}
+.adv-card .adv-desc{font-size:13px;color:var(--text-sec);line-height:1.7}
 
-/* ── Flywheel ── */
-.flywheel{background:var(--surf);border-top:1px solid var(--border)}
-.flywheel .section-desc{max-width:700px;text-align:center;margin:14px auto 0}
-.flywheel-vis{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:56px;padding:0 48px;flex-wrap:wrap}
-.flywheel-node{text-align:center;padding:28px 20px;border-radius:var(--radius);background:var(--surf-alt);border:1px solid var(--border);flex:1;min-width:180px;max-width:240px;transition:.3s}
-.flywheel-node:hover{border-color:var(--accent);box-shadow:0 4px 20px rgba(0,120,168,.06)}
-.flywheel-node .icon{width:32px;height:32px;margin:0 auto 10px;color:var(--accent)}
-.flywheel-node h4{font-size:13px;font-weight:600;margin-bottom:4px}
-.flywheel-node p{font-size:11px;color:var(--text-ter);line-height:1.5}
-.flywheel-arrow{color:var(--accent);flex-shrink:0;font-size:20px;font-weight:300}
+/* ── Screenshots Gallery ── */
+.gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:20px;
+  margin-top:48px;
+}
+.gallery-item{
+  border-radius:var(--radius);
+  overflow:hidden;
+  border:1px solid var(--border);
+  transition:.3s var(--ease);
+  cursor:pointer;
+  position:relative;
+}
+.gallery-item:hover{
+  border-color:var(--accent);
+  transform:scale(1.01);
+  box-shadow:var(--shadow-glow);
+}
+.gallery-item img{
+  width:100%;
+  display:block;
+}
+.gallery-caption{
+  position:absolute;
+  bottom:0;left:0;right:0;
+  padding:16px 20px;
+  background:linear-gradient(transparent, rgba(10,12,18,.9));
+}
+.gallery-caption .g-title{font-size:14px;font-weight:600}
+.gallery-caption .g-sub{font-size:12px;color:var(--text-sec);margin-top:2px}
 
 /* ── CTA ── */
-.cta-section{background:linear-gradient(135deg,var(--navy) 0%,var(--navy-light) 100%);color:#fff;text-align:center;padding:100px 48px}
-.cta-section h2{font-size:34px;font-weight:600;letter-spacing:-.4px;margin-bottom:14px}
-.cta-section p{font-size:15px;color:var(--text-ter);margin-bottom:32px;max-width:520px;margin-left:auto;margin-right:auto}
-.cta-btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;padding:14px 36px;border-radius:6px;font-size:15px;font-weight:500;transition:.2s}
-.cta-btn:hover{background:var(--accent-hover);transform:translateY(-1px)}
+.cta-section{
+  text-align:center;
+  padding:100px 0;
+  position:relative;
+}
+.cta-section::before{
+  content:'';
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 50% 60% at 50% 50%, var(--accent-glow) 0%, transparent 70%);
+  pointer-events:none;
+}
+.cta-title{font-size:clamp(28px,3.5vw,42px);font-weight:700;margin-bottom:16px}
+.cta-desc{font-size:15px;color:var(--text-sec);max-width:480px;margin:0 auto 32px}
+.cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 
 /* ── Footer ── */
-.footer{background:var(--navy);color:var(--text-ter);padding:48px 48px 32px;border-top:1px solid rgba(255,255,255,.05)}
-.footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px}
-.footer-brand .hero-logo{margin-bottom:12px}
-.footer-brand p{font-size:13px;line-height:1.6;max-width:300px}
-.footer-col h4{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;margin-bottom:16px}
-.footer-col a{display:block;font-size:13px;color:var(--text-ter);margin-bottom:10px;transition:.2s}
-.footer-col a:hover{color:#f1f5f9}
-.footer-badges{display:flex;gap:16px;margin-top:24px;flex-wrap:wrap}
-.footer-badge{display:flex;align-items:center;gap:6px;padding:4px 12px;border-radius:4px;border:1px solid rgba(255,255,255,.08);font-size:11px;color:#94a3b8}
-.footer-badge svg{width:14px;height:14px}
-.footer-divider{border:none;border-top:1px solid rgba(255,255,255,.05);margin:32px 0 20px}
-.footer-bottom{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--text-ter)}
+footer{
+  border-top:1px solid var(--border);
+  padding:48px 0 32px;
+}
+.footer-grid{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr 1fr;
+  gap:40px;
+  margin-bottom:40px;
+}
+.footer-brand .brand{font-size:16px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.footer-brand .brand svg{width:18px;height:18px}
+.footer-brand p{font-size:13px;color:var(--text-ter);max-width:260px;line-height:1.7}
+.footer-col h4{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-ter);margin-bottom:16px}
+.footer-col a{display:block;font-size:13px;color:var(--text-sec);margin-bottom:10px;transition:.15s}
+.footer-col a:hover{color:var(--accent)}
+.footer-bottom{
+  border-top:1px solid var(--border);
+  padding-top:24px;
+  display:flex;justify-content:space-between;
+  font-size:12px;color:var(--text-ter);
+}
 
 /* ── Lightbox ── */
-.lightbox{display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.92);align-items:center;justify-content:center;cursor:zoom-out;padding:48px}
-.lightbox.active{display:flex}
-.lightbox img{max-width:90vw;max-height:85vh;border-radius:8px;box-shadow:0 24px 64px rgba(0,0,0,.6)}
-.lightbox-caption{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);color:#94a3b8;font-size:14px;background:rgba(0,0,0,.6);padding:8px 16px;border-radius:6px}
-.lightbox-nav{position:fixed;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;background:rgba(255,255,255,.1);border:none;color:#fff;font-size:20px;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center}
-.lightbox-nav:hover{background:rgba(255,255,255,.2)}
-.lightbox-prev{left:24px}
-.lightbox-next{right:24px}
+.lightbox{
+  display:none;
+  position:fixed;inset:0;z-index:999;
+  background:rgba(0,0,0,.92);
+  backdrop-filter:blur(10px);
+  align-items:center;justify-content:center;
+  cursor:pointer;
+}
+.lightbox.show{display:flex}
+.lightbox img{
+  max-width:90vw;
+  max-height:90vh;
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-lg);
+}
 
 /* ── Responsive ── */
 @media(max-width:900px){
-  .hero-grid,.gallery-item,.gallery-item.reverse{grid-template-columns:1fr;direction:ltr}
-  .gallery-item.reverse>*{direction:ltr}
-  .hero-inner{padding:48px 24px 48px}
-  .hero-nav-links{display:none}
-  .hero h1{font-size:32px;letter-spacing:-.7px}
-  .workflow-grid,.features-grid,.compliance-grid{grid-template-columns:1fr}
-  .stats-inner{grid-template-columns:repeat(2,1fr);padding:32px 24px}
-  .section{padding:60px 24px}
-  .section-dark{padding:60px 24px}
-  .screenshots{padding:60px 24px}
-  .flywheel-vis{flex-direction:column;align-items:center}
-  .flywheel-arrow{transform:rotate(90deg)}
-  .cta-section{padding:60px 24px}
-  .footer-inner{grid-template-columns:1fr;gap:32px}
-  .footer-bottom{flex-direction:column;gap:8px;text-align:center}
+  .hero-grid{grid-template-columns:1fr;gap:40px}
+  .hero-content{text-align:center}
+  .hero-content p{margin:0 auto 32px}
+  .hero-btns{justify-content:center}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .workflow-grid{grid-template-columns:1fr}
+  .features-grid{grid-template-columns:1fr}
+  .gallery-grid{grid-template-columns:1fr}
+  .adv-grid{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:24px}
+  .nav-links{display:none}
 }
+@media(max-width:600px){
+  .stats-grid{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr}
+  section{padding:60px 0}
+}
+
+/* ── Animations ── */
+.fade-up{opacity:0;transform:translateY(24px);transition:.6s var(--ease)}
+.fade-up.show{opacity:1;transform:translateY(0)}
+.delay-1{transition-delay:.1s}
+.delay-2{transition-delay:.2s}
+.delay-3{transition-delay:.3s}
+.delay-4{transition-delay:.4s}
 </style>
 </head>
 <body>
 
-<!-- Hero -->
-<div class="hero">
-<div class="hero-inner">
-  <div class="hero-nav">
-    <div class="hero-logo">
-      <svg viewBox="0 0 24 24" fill="none">
-        <rect x="1" y="1" width="22" height="22" rx="5" fill="#0078a8"/>
-        <path d="M7 12h10M12 7v10" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
-        <path d="M7 7h10v10H7z" stroke="rgba(255,255,255,.3)" stroke-width="1" stroke-dasharray="2 2" rx="2"/>
-      </svg>
-      Crogo
-    </div>
-    <div class="hero-nav-links">
-      <a href="#workflow">工作流</a>
-      <a href="#features">功能</a>
-      <a href="#compliance">合规</a>
-      <a href="#screenshots">界面</a>
-      <a href="#flywheel">数据飞轮</a>
-      <a href="#demo" class="hero-nav-cta">预约演示</a>
-      <a href="app/" class="hero-nav-cta" style="background:transparent;border:1px solid rgba(255,255,255,.15)">进入应用 →</a>
-    </div>
-  </div>
-  <div class="hero-grid">
-    <div class="hero-text">
-      <div class="hero-badge">
-        <span class="hero-badge-dot"></span>
-        医药CRO专属 · 文档智能平台
-      </div>
-      <h1>从方案到文档，<br>一步到位。<span></span></h1>
-      <p>DMP、SAP、DMC Charter — 一套平台覆盖所有 CRO 模板文档。上传模板、构建知识库、一键生成，越用越精准。</p>
-      <div class="hero-actions">
-        <a href="#demo" class="primary">预约演示 →</a>
-        <a href="#workflow" class="ghost">了解工作流</a>
-      </div>
-    </div>
-    <div class="hero-visual">
-      <div class="hero-screenshot" onclick="openLightbox(0)">
-        <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=780&q=80" alt="Crogo 临床文档工作台" style="background:var(--navy);min-height:320px;object-fit:cover">
-      </div>
-    </div>
-  </div>
-</div>
-</div>
-
-<!-- Stats -->
-<div class="stats">
-<div class="stats-inner">
-  <div class="stat-item"><div class="stat-num">3</div><div class="stat-label">步完成文档生成</div><div class="stat-source">模板上传 → 知识库构建 → 一键生成</div></div>
-  <div class="stat-item"><div class="stat-num">47</div><div class="stat-label">知识库条目</div><div class="stat-source">基于真实临床项目测试</div></div>
-  <div class="stat-item"><div class="stat-num">93%</div><div class="stat-label">字段填充准确率</div><div class="stat-source">内部数据集验证</div></div>
-  <div class="stat-item"><div class="stat-num">+15%</div><div class="stat-label">每轮知识库增长</div><div class="stat-source">随项目持续递进</div></div>
-</div>
-</div>
-
-<!-- Workflow -->
-<div class="section" id="workflow">
-<div class="section-inner">
-  <div class="section-tag">Workflow</div>
-  <h2>三步完成一篇文档。<br>越做越简单。</h2>
-  <p class="section-desc">从模板上传到文档生成，整套流程压缩到三个清晰步骤。每一环节都有 AI 辅助与人工确认，可审计、可追溯。</p>
-  <div class="workflow-grid">
-    <div class="workflow-card">
-      <div class="workflow-icon">
-        <svg viewBox="0 0 40 40" fill="none" width="40" height="40">
-          <rect x="6" y="4" width="28" height="34" rx="3" stroke="currentColor" stroke-width="2"/>
-          <path d="M12 14h16M12 20h16M12 26h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <div class="workflow-step">1</div>
-      <h3>上传模板</h3>
-      <p>拖入 .docx 模板 → 自动解析章节结构和占位符 → 确认映射 → 系统自动学习规则，下次直接匹配。</p>
-    </div>
-    <div class="workflow-card" style="border-top:3px solid var(--accent)">
-      <div class="workflow-icon">
-        <svg viewBox="0 0 40 40" fill="none" width="40" height="40">
-          <circle cx="20" cy="18" r="10" stroke="currentColor" stroke-width="2"/>
-          <path d="M10 32c0-5.5 4.5-10 10-10s10 4.5 10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <circle cx="20" cy="14" r="3" fill="currentColor" fill-opacity=".3" stroke="currentColor" stroke-width="1.5"/>
-        </svg>
-      </div>
-      <div class="workflow-step">2</div>
-      <h3>构建知识库</h3>
-      <p>批量上传历史方案 PDF，自动构建 RAG 向量知识库。新方案查询辅助提取，知识提炼闭环持续生长。</p>
-    </div>
-    <div class="workflow-card">
-      <div class="workflow-icon">
-        <svg viewBox="0 0 40 40" fill="none" width="40" height="40">
-          <path d="M20 4v32M8 16l12-12 12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M14 24l6-6 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".5"/>
-        </svg>
-      </div>
-      <div class="workflow-step">3</div>
-      <h3>一键生成</h3>
-      <p>选择模板 + 上传方案 → 生成完整 .docx 文档。DMP、SAP、DMC Charter — 所有模板类文档全覆盖，附带填充率报告。</p>
-    </div>
-  </div>
-</div>
-</div>
-
-<!-- Features -->
-<div class="section section-alt" id="features">
-<div class="section-inner">
-  <div class="section-tag">Core Features</div>
-  <h2>不只填模板。<br><span>更聪明的工作方式。</span></h2>
-  <p class="section-desc">围绕 CRO 文档真实工作流设计，三个核心模块无缝衔接，形成从知识沉淀到文档交付的完整闭环。</p>
-  <div class="features-grid">
-    <div class="feature-card">
-      <div class="feature-icon">
-        <svg viewBox="0 0 24 24" fill="none" width="24" height="24">
-          <rect x="3" y="2" width="18" height="22" rx="2" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M8 8h8M8 13h8M8 18h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <h3>模板管理</h3>
-      <p>上传 .docx 自动解析结构。支持 DMP、SAP、DMC Charter、CSR、ICF 等多种模板类型。按类别管理，修正后自动学习。</p>
-      <div class="feature-tags">
-        <span class="feature-tag">自动解析</span>
-        <span class="feature-tag">映射确认</span>
-        <span class="feature-tag">自动学习</span>
-      </div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">
-        <svg viewBox="0 0 24 24" fill="none" width="24" height="24">
-          <ellipse cx="12" cy="6" rx="8" ry="4" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M4 6v6c0 2.2 3.6 4 8 4s8-1.8 8-4V6" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M4 12v6c0 2.2 3.6 4 8 4s8-1.8 8-4v-6" stroke="currentColor" stroke-width="1.5"/>
-        </svg>
-      </div>
-      <h3>智能知识库</h3>
-      <p>核心差异化功能。历史方案批量入库 → 构建 RAG 向量知识库。新方案上传自动查询，字段提取准确率 93%。</p>
-      <div class="feature-tags">
-        <span class="feature-tag">RAG 向量库</span>
-        <span class="feature-tag">批量入库</span>
-        <span class="feature-tag">智能查询</span>
-      </div>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon">
-        <svg viewBox="0 0 24 24" fill="none" width="24" height="24">
-          <path d="M12 2L2 12h4v8h12v-8h4L12 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-          <path d="M12 10v4M12 16.5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <h3>文档生成</h3>
-      <p>选模板 + 选方案 → 一键生成完整 .docx。打通知识库自动填充，生成后 AI 提炼可入库的新知识，推送确认后入库。</p>
-      <div class="feature-tags">
-        <span class="feature-tag">一键生成</span>
-        <span class="feature-tag">填充率报告</span>
-        <span class="feature-tag">知识提炼</span>
-      </div>
-    </div>
-  </div>
-</div>
-</div>
-
-<!-- Compliance -->
-<div class="section-dark" id="compliance">
-<div class="section-inner">
-  <div class="section-tag">Compliance & Security</div>
-  <h2>满足医药行业<br><span>合规与安全要求</span></h2>
-  <p class="section-desc">文档即证据。Crogo 从架构层面遵循临床研究领域的监管标准，让每一份文档都有据可查。</p>
-  <div class="compliance-grid">
-    <div class="compliance-card">
-      <div class="compliance-icon">
-        <svg viewBox="0 0 40 40" fill="none" width="40" height="40">
-          <path d="M20 4l4 8 9 1-6.5 6.5L28 29l-8-4.5-8 4.5 1.5-9.5L7 13l9-1 4-8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <h3>GCP 合规</h3>
-      <p>文档生成流程遵循 ICH GCP 指南，模板结构满足临床试验方案、统计分析计划等监管文件的标准要求。</p>
-    </div>
-    <div class="compliance-card">
-      <div class="compliance-icon">
-        <svg viewBox="0 0 40 40" fill="none" width="40" height="40">
-          <rect x="6" y="4" width="28" height="32" rx="3" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M12 12h16M12 18h16M12 24h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M12 30h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <h3>21 CFR Part 11</h3>
-      <p>支持电子签名、审计追踪与版本控制。所有文档操作记录可追溯，满足 FDA 对电子记录和电子签名的监管要求。</p>
-    </div>
-    <div class="compliance-card">
-      <div class="compliance-icon">
-        <svg viewBox="0 0 40 40" fill="none" width="40" height="40">
-          <rect x="6" y="10" width="28" height="22" rx="4" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M14 10V8a6 6 0 0112 0v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          <circle cx="20" cy="22" r="4" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M20 20v2l1.5 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <h3>数据安全加密</h3>
-      <p>全程 TLS 加密传输，静态数据 AES-256 加密。支持私有化部署，可选 SOC 2 Type II 认证数据中心。</p>
-    </div>
-    <div class="compliance-card">
-      <div class="compliance-icon">
-        <svg viewBox="0 0 40 40" fill="none" width="40" height="40">
-          <circle cx="20" cy="16" r="8" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M8 34c0-6.6 5.4-12 12-12s12 5.4 12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M20 8V4M20 28v4M32 16h4M8 16H4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".5"/>
-        </svg>
-      </div>
-      <h3>审计追踪</h3>
-      <p>全链路操作日志记录：谁在什么时间修改了什么字段，版本回退一键操作。文档生命周期全程可追溯。</p>
-    </div>
-  </div>
-</div>
-</div>
-
-<!-- Screenshots -->
-<div class="screenshots" id="screenshots">
-<div class="screenshots-inner">
-  <h2>产品界面 <span>预览</span></h2>
-  <div class="gallery" id="gallery">
-    
-    <div class="gallery-item">
-      <div class="gallery-img" onclick="openLightbox(0)">
-        <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=780&q=80" alt="工作台总览" style="min-height:300px;object-fit:cover;background:var(--surf-alt)">
-      </div>
-      <div class="gallery-text">
-        <h3>工作台总览</h3>
-        <p>项目仪表盘一目了然——模板数量、知识库状态、待生成文档。所有核心操作集中在一个页面完成，进度条清晰指引当前阶段。</p>
-        <span class="tag">Dashboard · 项目管理</span>
-      </div>
-    </div>
-
-    <div class="gallery-item reverse">
-      <div class="gallery-img" onclick="openLightbox(1)">
-        <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=780&q=80" alt="知识库管理" style="min-height:300px;object-fit:cover;background:var(--surf-alt)">
-      </div>
-      <div class="gallery-text">
-        <h3>知识库管理</h3>
-        <p>以项目为颗粒度管理知识条目。支持批量上传 PDF、自动提取字段、AI 辅助校验。每条知识都有来源追溯和版本记录。</p>
-        <span class="tag">Knowledge Base · RAG</span>
-      </div>
-    </div>
-
-    <div class="gallery-item">
-      <div class="gallery-img" onclick="openLightbox(2)">
-        <img src="https://images.unsplash.com/photo-1559757175-5700dde675bc?w=780&q=80" alt="模板解析" style="min-height:300px;object-fit:cover;background:var(--surf-alt)">
-      </div>
-      <div class="gallery-text">
-        <h3>模板智能解析</h3>
-        <p>拖入 .docx 模板文件，系统自动识别章节结构和占位符字段。支持手动修正映射关系，系统自动学习优化，后续解析准确率持续提升。</p>
-        <span class="tag">Template Parser · AI Learning</span>
-      </div>
-    </div>
-
-    <div class="gallery-item reverse">
-      <div class="gallery-img" onclick="openLightbox(3)">
-        <img src="https://images.unsplash.com/photo-1576086213369-97a306d36557?w=780&q=80" alt="一键生成" style="min-height:300px;object-fit:cover;background:var(--surf-alt)">
-      </div>
-      <div class="gallery-text">
-        <h3>一键文档生成</h3>
-        <p>勾选需要生成的文档，系统自动从知识库提取对应字段填充，生成完整 .docx 文件并附带填充率报告。支持批量并行生成。</p>
-        <span class="tag">Document Generation · Batch</span>
-      </div>
-    </div>
-
-  </div>
-</div>
-</div>
-
-<!-- Flywheel -->
-<div class="section" id="flywheel">
-<div class="section-inner flywheel">
-  <div style="text-align:center">
-    <div class="section-tag" style="text-align:center">Data Flywheel</div>
-    <h2 style="text-align:center">做得越多，<span>系统越聪明。</span></h2>
-    <p class="section-desc">这是 Crogo 最核心的竞争壁垒。每生成一篇文档，知识库就多一分数据。下次抽取更精准、填充率更高——切换成本指数级上升。</p>
-  </div>
-  <div class="flywheel-vis">
-    <div class="flywheel-node">
-      <div class="icon">
-        <svg viewBox="0 0 32 32" fill="none" width="32" height="32">
-          <path d="M4 20L16 8l12 12M4 22l12 12 12-12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M4 24l12 12 12-12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity=".4"/>
-        </svg>
-      </div>
-      <h4>批量入库</h4>
-      <p>历史方案 PDF → RAG 向量知识库</p>
-    </div>
-    <div class="flywheel-arrow">→</div>
-    <div class="flywheel-node" style="border-top:3px solid var(--accent)">
-      <div class="icon">
-        <svg viewBox="0 0 32 32" fill="none" width="32" height="32">
-          <circle cx="14" cy="14" r="9" stroke="currentColor" stroke-width="2"/>
-          <path d="M21 21l7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <h4>辅助提取</h4>
-      <p>新方案 → 自动查询 → AI 提取字段</p>
-    </div>
-    <div class="flywheel-arrow">→</div>
-    <div class="flywheel-node">
-      <div class="icon">
-        <svg viewBox="0 0 32 32" fill="none" width="32" height="32">
-          <path d="M16 4v24M6 12l10-8 10 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <h4>生成文档</h4>
-      <p>选模板+方案 → 一键填充 → 交付</p>
-    </div>
-    <div class="flywheel-arrow">→</div>
-    <div class="flywheel-node">
-      <div class="icon">
-        <svg viewBox="0 0 32 32" fill="none" width="32" height="32">
-          <path d="M24 8l4 4-4 4M8 24l-4-4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M4 20l8 8h16M28 12L20 4H8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <h4>提炼入库</h4>
-      <p>AI 提取新知识 → 用户确认 → 入库</p>
-    </div>
-  </div>
-</div>
-</div>
-
-<!-- CTA -->
-<div class="cta-section" id="demo">
-  <h2>准备好提升 CRO 文档效率了吗？</h2>
-  <p>省下填模板的时间，专注于方案设计和数据分析——这才是 CRO 团队真正的价值所在。</p>
-  <a href="#" class="cta-btn">预约产品演示 →</a>
-</div>
-
-<!-- Footer -->
-<div class="footer">
-<div class="footer-inner">
-  <div class="footer-brand">
-    <div class="hero-logo">
-      <svg viewBox="0 0 24 24" fill="none">
-        <rect x="1" y="1" width="22" height="22" rx="5" fill="#0078a8"/>
-        <path d="M7 12h10M12 7v10" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
-      </svg>
-      Crogo
-    </div>
-    <p>医药 CRO 文档智能平台。为临床研究团队打造的一站式文档生成与管理工具。</p>
-    <div class="footer-badges">
-      <span class="footer-badge">
-        <svg viewBox="0 0 14 14" fill="none"><path d="M7 1l2 5 5 .5-3.5 3.5L11 13l-4-2.5L3 13l1.5-5L1 6.5 6 6l1-5z" fill="currentColor" opacity=".6"/></svg>
-        GCP Compliant
-      </span>
-      <span class="footer-badge">
-        <svg viewBox="0 0 14 14" fill="none"><rect x="2" y="4" width="10" height="8" rx="1.5" stroke="currentColor" stroke-width="1.2"/><path d="M5 4V3a2 2 0 014 0v1" stroke="currentColor" stroke-width="1.2"/></svg>
-        AES-256
-      </span>
-      <span class="footer-badge">
-        <svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.2"/><path d="M7 4v3.5l2 2" stroke="currentColor" stroke-width="1.2"/></svg>
-        Audit Trail
-      </span>
-    </div>
-  </div>
-  <div class="footer-col">
-    <h4>产品</h4>
-    <a href="#features">功能介绍</a>
+<!-- ═══ Nav ═══ -->
+<nav>
+  <a class="nav-brand">
+    <svg viewBox="0 0 24 24" fill="none">
+      <rect x="1" y="1" width="22" height="22" rx="5" fill="#0ea5e9"/>
+      <path d="M7 12h10M12 7v10" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+    Crogo
+  </a>
+  <div class="nav-links">
+    <a href="#features">功能</a>
     <a href="#workflow">工作流</a>
-    <a href="#compliance">合规安全</a>
-    <a href="#flywheel">数据飞轮</a>
+    <a href="#screenshots">预览</a>
+    <a href="#advantages">优势</a>
+    <span style="width:8px"></span>
+    <a href="/app" class="nav-cta">进入应用 →</a>
   </div>
-  <div class="footer-col">
-    <h4>支持</h4>
-    <a href="#">文档中心</a>
-    <a href="#">API 文档</a>
-    <a href="#">隐私政策</a>
-    <a href="#">服务协议</a>
+</nav>
+
+<!-- ═══ Hero ═══ -->
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="hero-content fade-up show">
+      <h1>
+        用 AI 驱动<br>
+        临床文档<span class="highlight">智能生成</span>
+      </h1>
+      <p>
+        Crogo 理解 DMP、SAP、DMC Charter 等医药文档结构，
+        将方案 PDF 智能解析为结构化知识，一键生成符合规范的临床研究文档。
+      </p>
+      <div class="hero-btns">
+        <a href="/app" class="btn-primary">
+          免费使用 →
+        </a>
+        <a href="#features" class="btn-secondary">
+          了解更多
+        </a>
+      </div>
+    </div>
+    <div class="hero-screenshot fade-up show delay-2">
+      <img src="screenshots/crogo-dashboard.png" alt="Crogo 工作台总览 — AI 驱动的临床文档平台">
+    </div>
   </div>
-  <div class="footer-col">
-    <h4>联系我们</h4>
-    <a href="mailto:contact@crogo.com">contact@crogo.com</a>
-    <a href="#">演示预约</a>
-    <a href="#">反馈建议</a>
+</section>
+
+<!-- ═══ Stats ═══ -->
+<section style="padding-top:0">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-box"><div class="num accent">6+</div><div class="label">预置模板类型</div></div>
+      <div class="stat-box"><div class="num green">93%</div><div class="label">平均填充率</div></div>
+      <div class="stat-box"><div class="num teal">10x</div><div class="label">文档生成速度提升</div></div>
+      <div class="stat-box"><div class="num amber">0</div><div class="label">模板编写门槛</div></div>
+    </div>
+    <div class="stats-tagline">覆盖 DMP · SAP · DMC Charter · CSR 等主流临床文档类型</div>
   </div>
-</div>
-<hr class="footer-divider">
-<div class="footer-bottom">
-  <span>© 2026 Crogo · Built for Clinical Research</span>
-  <span>沪ICP备XXXXXXXX号</span>
-</div>
+</section>
+
+<!-- ═══ Workflow ═══ -->
+<section id="workflow">
+  <div class="container section-centered">
+    <div class="section-label">三步工作流</div>
+    <h2 class="section-title">从 PDF 到结构化文档</h2>
+    <p class="section-subtitle">上传方案文件 → AI 自动解析 → 一键生成目标文档，全程无需手动映射字段</p>
+  </div>
+  <div class="container workflow-grid">
+    <div class="workflow-step fade-up">
+      <div class="step-num">01</div>
+      <div class="step-icon" style="background:var(--accent-soft);color:var(--accent)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </div>
+      <div class="step-title">上传方案 PDF</div>
+      <div class="step-desc">拖入试验方案 PDF，AI 自动解析全文、提取结构化信息并构建 RAG 知识索引</div>
+    </div>
+    <div class="workflow-step fade-up delay-1">
+      <div class="step-num">02</div>
+      <div class="step-icon" style="background:var(--teal-soft);color:var(--teal)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      </div>
+      <div class="step-title">AI 智能解析</div>
+      <div class="step-desc">大模型引擎自动识别字段、锚定占位符匹配，AI 建议映射方案供人工确认</div>
+    </div>
+    <div class="workflow-step fade-up delay-2">
+      <div class="step-num">03</div>
+      <div class="step-icon" style="background:var(--green-soft);color:var(--green)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="step-title">一键生成文档</div>
+      <div class="step-desc">选择目标模板组合，一键生成 .docx 格式文档，支持批量生成与版本管理</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Features ═══ -->
+<section id="features">
+  <div class="container section-centered">
+    <div class="section-label">核心功能</div>
+    <h2 class="section-title">AI 原生体验，重塑文档工作流</h2>
+    <p class="section-subtitle">四大模块覆盖临床文档全生命周期</p>
+  </div>
+  <div class="container features-grid">
+    <div class="feature-card fade-up">
+      <div class="feature-body">
+        <div class="feature-icon" style="background:var(--accent-soft);color:var(--accent)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18"/></svg>
+        </div>
+        <div class="feature-title">模板智能解析引擎</div>
+        <div class="feature-desc">上传已有 DMP/SAP/DMC Charter 模板文档，AI 自动解析章节结构、识别占位符字段，构建可复用的模板库。支持字段映射确认、遮蔽规则配置。</div>
+      </div>
+      <div class="feature-image">
+        <img src="screenshots/crogo-templates.png" alt="Crogo 模板智能解析">
+      </div>
+    </div>
+    <div class="feature-card fade-up delay-1">
+      <div class="feature-body">
+        <div class="feature-icon" style="background:var(--teal-soft);color:var(--teal)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div class="feature-title">RAG 知识库管理</div>
+        <div class="feature-desc">历史方案 PDF 构建向量知识库，支持语义搜索与知识溯源。AI 从入库文档中自动提炼关键信息，作为文档生成的上下文参考，提升填充质量。</div>
+      </div>
+      <div class="feature-image">
+        <img src="screenshots/crogo-knowledge.png" alt="Crogo 知识库管理">
+      </div>
+    </div>
+    <div class="feature-card fade-up delay-2">
+      <div class="feature-body">
+        <div class="feature-icon" style="background:var(--green-soft);color:var(--green)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="feature-title">一键文档生成</div>
+        <div class="feature-desc">选择模板、确认映射后一键生成 .docx 文档。支持项目分组管理、多模板并行生成、字段填充率实时预览与 AI 提炼知识采纳。</div>
+      </div>
+      <div class="feature-image">
+        <img src="screenshots/crogo-generator.png" alt="Crogo 一键文档生成">
+      </div>
+    </div>
+    <div class="feature-card fade-up delay-3">
+      <div class="feature-body">
+        <div class="feature-icon" style="background:var(--amber-soft);color:var(--amber)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        </div>
+        <div class="feature-title">质量校验与字段审核</div>
+        <div class="feature-desc">生成前后双阶段校验：字段映射智能审查确保关键信息完整，AI 知识提炼辅助。支持导出 PDF 预览与标注修订。</div>
+      </div>
+      <div class="feature-image">
+        <img src="screenshots/crogo-dashboard.png" alt="Crogo 质量校验">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Screenshots Gallery ═══ -->
+<section id="screenshots" style="background:var(--bg-alt)">
+  <div class="container section-centered">
+    <div class="section-label">产品预览</div>
+    <h2 class="section-title">所见即所得</h2>
+    <p class="section-subtitle">点击截图查看全尺寸预览</p>
+  </div>
+  <div class="container gallery-grid">
+    <div class="gallery-item fade-up" onclick="openLightbox('screenshots/crogo-dashboard.png')">
+      <img src="screenshots/crogo-dashboard.png" alt="工作台总览 — 项目统计与待办事项">
+      <div class="gallery-caption">
+        <div class="g-title">工作台总览</div>
+        <div class="g-sub">项目看板 · 模板进度 · 待办事项</div>
+      </div>
+    </div>
+    <div class="gallery-item fade-up delay-1" onclick="openLightbox('screenshots/crogo-knowledge.png')">
+      <img src="screenshots/crogo-knowledge.png" alt="知识库管理 — RAG 向量检索">
+      <div class="gallery-caption">
+        <div class="g-title">知识库管理</div>
+        <div class="g-sub">文件上传 · 智能检索 · 知识溯源</div>
+      </div>
+    </div>
+    <div class="gallery-item fade-up delay-2" onclick="openLightbox('screenshots/crogo-templates.png')">
+      <img src="screenshots/crogo-templates.png" alt="模板库 — 智能解析与映射">
+      <div class="gallery-caption">
+        <div class="g-title">模板智能解析</div>
+        <div class="g-sub">占位符识别 · 字段映射 · AI 建议</div>
+      </div>
+    </div>
+    <div class="gallery-item fade-up delay-3" onclick="openLightbox('screenshots/crogo-generator.png')">
+      <img src="screenshots/crogo-generator.png" alt="文档生成 — 一键批量生成">
+      <div class="gallery-caption">
+        <div class="g-title">一键文档生成</div>
+        <div class="g-sub">多模板并行 · 字段填充 · .docx 下载</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ Advantages ═══ -->
+<section id="advantages">
+  <div class="container section-centered">
+    <div class="section-label">为什么选择 Crogo</div>
+    <h2 class="section-title">专注临床文档，不止是模板工具</h2>
+    <p class="section-subtitle">区别于通用文档工具，Crogo 深度理解医药行业规范与文档结构</p>
+  </div>
+  <div class="container adv-grid">
+    <div class="adv-card fade-up">
+      <div class="adv-icon" style="background:var(--accent-soft);color:var(--accent)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      </div>
+      <div class="adv-title">领域知识驱动</div>
+      <div class="adv-desc">内置 DMP、SAP、DMC Charter 等行业模板，AI 理解临床研究文档的专用词汇与结构规范</div>
+    </div>
+    <div class="adv-card fade-up delay-1">
+      <div class="adv-icon" style="background:var(--teal-soft);color:var(--teal)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      </div>
+      <div class="adv-title">数据本地安全</div>
+      <div class="adv-desc">支持私有化部署，文档与知识库存储于本地数据库，AI 推理可选本地模型确保数据不出域</div>
+    </div>
+    <div class="adv-card fade-up delay-2">
+      <div class="adv-icon" style="background:var(--green-soft);color:var(--green)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      </div>
+      <div class="adv-title">高效迭代</div>
+      <div class="adv-desc">模板映射确认后仅需一次点击即可生成完整文档，AI 持续从历史项目中学习，不断提升填充质量</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CTA ═══ -->
+<div class="cta-section">
+  <div class="container" style="position:relative;z-index:1">
+    <h2 class="cta-title">让 AI 替你写临床文档</h2>
+    <p class="cta-desc">上传一份方案 PDF，看看 AI 能帮你生成什么。免费使用，无需注册。</p>
+    <div class="cta-btns">
+      <a href="/app" class="btn-primary" style="padding:14px 36px;font-size:15px">
+        立即体验 →
+      </a>
+      <a href="https://github.com/jacobatxa/crogo" target="_blank" rel="noopener" class="btn-secondary" style="padding:14px 36px;font-size:15px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.4.6.1.82-.26.82-.58v-2.17c-3.34.73-4.04-1.42-4.04-1.42-.54-1.38-1.33-1.75-1.33-1.75-1.09-.75.08-.73.08-.73 1.2.08 1.83 1.23 1.83 1.23 1.07 1.83 2.8 1.3 3.48 1 .1-.78.42-1.3.76-1.6-2.66-.3-5.46-1.33-5.46-5.93 0-1.32.47-2.39 1.23-3.23-.12-.3-.54-1.52.12-3.16 0 0 1.01-.32 3.3 1.23.96-.27 1.98-.4 3-.4s2.04.13 3 .4c2.3-1.55 3.3-1.23 3.3-1.23.66 1.64.24 2.86.12 3.16.76.84 1.23 1.91 1.23 3.23 0 4.6-2.8 5.63-5.48 5.93.43.37.82 1.1.82 2.22v3.29c0 .32.22.7.83.58C20.56 21.8 24 17.3 24 12 24 5.37 18.63 0 12 0z"/></svg>
+        GitHub
+      </a>
+    </div>
+  </div>
 </div>
 
-<!-- Lightbox -->
-<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
-  <button class="lightbox-nav lightbox-prev" onclick="event.stopPropagation();navigateLightbox(-1)">←</button>
-  <img id="lightbox-img" src="" alt="">
-  <div class="lightbox-caption" id="lightbox-caption"></div>
-  <button class="lightbox-nav lightbox-next" onclick="event.stopPropagation();navigateLightbox(1)">→</button>
+<!-- ═══ Footer ═══ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="brand">
+          <svg viewBox="0 0 24 24" fill="none">
+            <rect x="1" y="1" width="22" height="22" rx="5" fill="#0ea5e9"/>
+            <path d="M7 12h10M12 7v10" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+          Crogo
+        </div>
+        <p>AI 驱动的临床文档生成平台。专注于 CRO 行业，让文档编写效率提升 10 倍。</p>
+      </div>
+      <div class="footer-col">
+        <h4>产品</h4>
+        <a href="#features">功能</a>
+        <a href="#workflow">工作流</a>
+        <a href="#screenshots">预览</a>
+        <a href="/app">应用</a>
+      </div>
+      <div class="footer-col">
+        <h4>资源</h4>
+        <a href="https://github.com/jacobatxa/crogo" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/jacobatxa/crogo/issues" target="_blank" rel="noopener">问题反馈</a>
+        <a href="https://github.com/jacobatxa/crogo#readme" target="_blank" rel="noopener">文档</a>
+      </div>
+      <div class="footer-col">
+        <h4>关于</h4>
+        <a href="#">团队</a>
+        <a href="#">隐私政策</a>
+        <a href="#">服务条款</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Crogo</span>
+      <span>Built with AI · Made for CRO</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══ Lightbox ═══ -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <img id="lightboxImg" src="" alt="预览">
 </div>
 
 <script>
-const screenshots = [
-  { src: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=1440&q=80', caption: '工作台总览 · 项目管理仪表盘' },
-  { src: 'https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=1440&q=80', caption: '知识库管理 · RAG 向量知识库' },
-  { src: 'https://images.unsplash.com/photo-1559757175-5700dde675bc?w=1440&q=80', caption: '模板智能解析 · 章节结构自动识别' },
-  { src: 'https://images.unsplash.com/photo-1576086213369-97a306d36557?w=1440&q=80', caption: '一键文档生成 · 批量填充' }
-];
-let currentIdx = 0;
-
-function openLightbox(idx) {
-  currentIdx = idx;
-  const lb = document.getElementById('lightbox');
-  const img = document.getElementById('lightbox-img');
-  const cap = document.getElementById('lightbox-caption');
-  img.src = screenshots[idx].src;
-  cap.textContent = screenshots[idx].caption;
-  document.addEventListener('keydown', onKeyDown);
-  lb.classList.add('active');
+function openLightbox(src){
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').classList.add('show');
   document.body.style.overflow = 'hidden';
 }
-
-function closeLightbox(e) {
-  if(e && e.target !== e.currentTarget) return;
-  document.getElementById('lightbox').classList.remove('active');
-  document.removeEventListener('keydown', onKeyDown);
+function closeLightbox(){
+  document.getElementById('lightbox').classList.remove('show');
   document.body.style.overflow = '';
 }
 
-function navigateLightbox(dir) {
-  currentIdx = (currentIdx + dir + screenshots.length) % screenshots.length;
-  const img = document.getElementById('lightbox-img');
-  const cap = document.getElementById('lightbox-caption');
-  img.src = screenshots[currentIdx].src;
-  cap.textContent = screenshots[currentIdx].caption;
-}
-
-function onKeyDown(e) {
-  if(e.key === 'Escape') closeLightbox(e);
-  if(e.key === 'ArrowLeft') navigateLightbox(-1);
-  if(e.key === 'ArrowRight') navigateLightbox(1);
-}
+// Scroll animations
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting){entry.target.classList.add('show')}
+  });
+}, {threshold:.1, rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 </script>
 </body>
 </html>
