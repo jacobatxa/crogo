@@ -19,4 +19,4 @@ echo "  API 文档:        http://127.0.0.1:8000/docs"
 echo "  按 Ctrl+C 停止"
 echo ""
 
-exec .venv/bin/uvicorn main:app --host 127.0.0.1 --port 8000 --reload
+exec env PYTHONPATH="$ROOT/backend${PYTHONPATH:+:$PYTHONPATH}" .venv/bin/uvicorn main:app --host 127.0.0.1 --port 8000 --reload

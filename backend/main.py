@@ -717,7 +717,8 @@ def download_project(proj_id: int, template_id: Optional[int] = None):
 
 # ── 申请试用 ──
 
-FEISHU_DOC_ID = "GLz6dC56WomWfGx3nGAc17pKnPd"
+SHEET_TOKEN = "PGzHsxgkPhLLghtjJkOcvj16nbh"
+SHEET_ID = "823cc4"
 _COUNTER_FILE = Path(__file__).resolve().parent / "data" / ".apply_seq"
 
 
@@ -749,29 +750,21 @@ def apply(req: ApplyRequest):
     ts = datetime.now().strftime("%Y-%m-%d %H:%M")
     phone = req.phone or "—"
     email = req.email or "—"
-    block = f"""
-
-## 申请 #{seq}
-
-- **时间**: {ts}
-- **手机**: {phone}
-- **邮箱**: {email}
-
----"""
+    row = seq + 1  # row 1 = header, data starts at row 2
+    values = [[str(seq), ts, phone, email]]
     try:
+        r = json.dumps(values)
         subprocess.run(
             [
-                "lark-cli", "docs", "+update",
-                "--doc", FEISHU_DOC_ID,
-                "--mode", "append",
-                "--markdown", block,
-                "--as", "bot",
+                "lark-cli", "sheets", "+write",
+                "--spreadsheet-token", SHEET_TOKEN,
+                "--range", f"{SHEET_ID}!A{row}:D{row}",
+                "--values", r,
             ],
             capture_output=True, text=True, timeout=15,
-            cwd="/tmp",
         )
     except Exception as e:
-        print(f"[apply] feishu write failed: {e}")
+        print(f"[apply] sheet write failed: {e}")
     return {"ok": True, "seq": seq}
 
 
