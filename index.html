@@ -889,10 +889,25 @@ function submitApply(){
   const phone = document.getElementById('applyPhone').value.trim();
   const email = document.getElementById('applyEmail').value.trim();
   if(!phone && !email){alert('请至少填写手机号或邮箱');return}
-  // In production: POST to /api/apply
-  document.getElementById('applyForm').style.display = 'none';
-  document.getElementById('applySuccess').classList.add('show');
-  setTimeout(closeApplyModal, 3000);
+  const btn = document.querySelector('.modal .btn-submit');
+  btn.disabled = true; btn.textContent = '提交中…';
+  fetch('/api/apply', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({phone, email})
+  }).then(r=>r.json()).then(data=>{
+    if(data.ok){
+      document.getElementById('applyForm').style.display = 'none';
+      document.getElementById('applySuccess').classList.add('show');
+      setTimeout(closeApplyModal, 3000);
+    } else {
+      alert('提交失败，请稍后重试');
+    }
+  }).catch(()=>{
+    alert('网络错误，请稍后重试');
+  }).finally(()=>{
+    btn.disabled = false; btn.textContent = '提交申请';
+  });
 }
 </script>
 </body>

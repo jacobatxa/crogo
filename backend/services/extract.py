@@ -167,3 +167,13 @@ def fields_from_json(raw: str) -> list[FieldValue]:
         return []
     data = json.loads(raw)
     return [FieldValue(**item) for item in data]
+
+
+def preview_project_from_pdf(pdf_path: Path) -> dict:
+    """Generate a preview dict for project creation from a PDF."""
+    pdf_text = extract_text_from_pdf(pdf_path)
+    fields = rule_based_extract(pdf_text, "")
+    return {
+        "name": pdf_path.stem,
+        "fields": fields_to_json(fields),
+    }

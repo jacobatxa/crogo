@@ -39,6 +39,8 @@ from models.schemas import (
     TemplateDetailOut,
     TemplateOut,
 )
+import subprocess
+
 from services.docx_generate import generate_docx
 from services.docx_parser import parse_docx
 from services.mapping_suggest import (
@@ -711,6 +713,66 @@ def download_project(proj_id: int, template_id: Optional[int] = None):
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         filename=filename,
     )
+
+
+# ── 申请试用 ──
+
+FEISHU_DOC_ID = "GLz6dC56WomWfGx3nGAc17pKnPd"
+_COUNTER_FILE = Path(__file__).resolve().parent / "data" / ".apply_seq"
+
+
+def _next_seq() -> int:
+    """Atomically increment the apply sequence counter."""
+    _COUNTER_FILE.parent.mkdir(parents=True, exist_ok=True)
+    if _COUNTER_FILE.exists():
+        try:
+            cur = int(_COUNTER_FILE.read_text().strip())
+        except (ValueError, OSError):
+            cur = 0
+    else:
+        cur = 0
+    nxt = cur + 1
+    _COUNTER_FILE.write_text(str(nxt))
+    return nxt
+
+
+class ApplyRequest(BaseModel):
+    phone: str = ""
+    email: str = ""
+
+
+@app.post("/api/apply")
+def apply(req: ApplyRequest):
+    if not req.phone and not req.email:
+        raise HTTPException(400, "手机号和邮箱至少填一个")
+    seq = _next_seq()
+    ts = datetime.now().strftime("%Y-%m-%d %H:%M")
+    phone = req.phone or "—"
+    email = req.email or "—"
+    block = f"""
+
+## 申请 #{seq}
+
+- **时间**: {ts}
+- **手机**: {phone}
+- **邮箱**: {email}
+
+---"""
+    try:
+        subprocess.run(
+            [
+                "lark-cli", "docs", "+update",
+                "--doc", FEISHU_DOC_ID,
+                "--mode", "append",
+                "--markdown", block,
+                "--as", "bot",
+            ],
+            capture_output=True, text=True, timeout=15,
+            cwd="/tmp",
+        )
+    except Exception as e:
+        print(f"[apply] feishu write failed: {e}")
+    return {"ok": True, "seq": seq}
 
 
 # ── 前端静态资源（与 API 同端口，一条命令即可访问完整应用）──

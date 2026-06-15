@@ -70,6 +70,13 @@ class MappingSuggestionOut(BaseModel):
     strategy: str = "unknown"
 
 
+class MappingStatsOut(BaseModel):
+    total_placeholders: int = 0
+    auto_mapped: int = 0
+    pending_review: int = 0
+    fill_rate: float = 0.0
+
+
 class ProjectDetail(ProjectOut):
     fields: List[FieldValue] = Field(default_factory=list)
     pdf_filename: str = ""
@@ -120,3 +127,34 @@ class GenerateResponse(BaseModel):
     message: str = ""
     download_url: str = ""
     generations: List[ProjectGenerationOut] = Field(default_factory=list)
+
+
+class FieldReviewItem(BaseModel):
+    field_key: str = ""
+    field_label: str = ""
+    extracted_value: str = ""
+    source_snippet: str = ""
+    confidence: float = 0.0
+    status: str = "pending"
+
+
+class ProjectPreviewOut(BaseModel):
+    id: int
+    name: str
+    status: str
+    fields: List[FieldValue] = Field(default_factory=list)
+    pdf_filename: str = ""
+
+
+class ReviewSummaryOut(BaseModel):
+    total_fields: int = 0
+    approved: int = 0
+    needs_review: int = 0
+    rejected: int = 0
+
+
+class ProjectReviewOut(BaseModel):
+    project: ProjectPreviewOut
+    fields: List[FieldReviewItem] = Field(default_factory=list)
+    summary: ReviewSummaryOut
+    can_generate: bool = False

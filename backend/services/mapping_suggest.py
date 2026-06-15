@@ -162,3 +162,34 @@ def mappings_complete(placeholders: list[dict], mappings: dict[str, str]) -> boo
         if name and not mappings.get(name):
             return False
     return True
+
+
+def compute_mapping_stats(
+    placeholders: list[dict],
+    mappings: dict[str, str],
+    suggestions: dict[str, dict],
+) -> dict:
+    """Compute mapping statistics from placeholders and current mappings."""
+    total = len(placeholders)
+    auto = sum(1 for v in suggestions.values() if v.get("strategy") == "auto")
+    pending = total - auto
+    fill_rate = (auto / total * 100) if total > 0 else 0.0
+    return {
+        "total_placeholders": total,
+        "auto_mapped": auto,
+        "pending_review": pending,
+        "fill_rate": round(fill_rate, 1),
+    }
+
+
+def enrich_mapping_suggestions(
+    suggestions: dict[str, dict],
+    mappings: dict[str, str],
+) -> dict[str, dict]:
+    """Enrich suggestions with applied mapping status."""
+    out = {}
+    for name, sug in suggestions.items():
+        s = {**sug}
+        s["applied"] = mappings.get(name) == s.get("field_key")
+        out[name] = s
+    return out
