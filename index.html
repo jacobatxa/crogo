@@ -459,6 +459,85 @@ footer{
 .delay-2{transition-delay:.2s}
 .delay-3{transition-delay:.3s}
 .delay-4{transition-delay:.4s}
+
+/* ── Apply Modal ── */
+.modal-overlay{
+  display:none;
+  position:fixed;inset:0;z-index:999;
+  background:rgba(0,0,0,.75);
+  backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;
+  padding:20px;
+}
+.modal-overlay.show{display:flex}
+.modal{
+  background:var(--bg-card);
+  border:1px solid var(--border-light);
+  border-radius:var(--radius-lg);
+  padding:40px 36px 32px;
+  width:100%;max-width:420px;
+  position:relative;
+  animation:modalIn .3s var(--ease);
+}
+@keyframes modalIn{
+  from{opacity:0;transform:scale(.95) translateY(10px)}
+  to{opacity:1;transform:scale(1) translateY(0)}
+}
+.modal-close{
+  position:absolute;top:16px;right:16px;
+  width:32px;height:32px;
+  border-radius:8px;
+  border:none;background:transparent;
+  color:var(--text-ter);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:.15s;
+}
+.modal-close:hover{background:var(--bg-hover);color:var(--text)}
+.modal-icon{
+  width:48px;height:48px;
+  border-radius:12px;
+  background:var(--accent-soft);
+  color:var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:16px;
+}
+.modal h3{font-size:20px;font-weight:700;margin-bottom:6px}
+.modal .modal-desc{font-size:14px;color:var(--text-sec);margin-bottom:28px;line-height:1.6}
+.form-group{margin-bottom:18px}
+.form-group label{
+  display:block;font-size:13px;font-weight:500;
+  color:var(--text);margin-bottom:6px;
+}
+.form-group input{
+  width:100%;padding:10px 14px;
+  background:var(--bg);border:1px solid var(--border-light);
+  border-radius:var(--radius-sm);color:var(--text);
+  font-size:14px;font-family:inherit;
+  transition:.2s;
+  outline:none;
+}
+.form-group input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.form-group input::placeholder{color:var(--text-ter)}
+.modal .btn-submit{
+  width:100%;padding:12px;
+  background:var(--accent);color:#fff;
+  border:none;border-radius:var(--radius-sm);
+  font-size:14px;font-weight:600;
+  cursor:pointer;transition:.2s;
+  margin-top:4px;
+}
+.modal .btn-submit:hover{background:var(--accent-dark);box-shadow:0 0 20px var(--accent-glow)}
+.modal .btn-submit:disabled{opacity:.5;cursor:not-allowed}
+.modal-success{display:none;text-align:center;padding:20px 0}
+.modal-success.show{display:block}
+.modal-success .check{
+  width:56px;height:56px;border-radius:50%;
+  background:var(--teal-soft);color:var(--teal);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 16px;
+}
+.modal-success h4{font-size:18px;font-weight:700;margin-bottom:6px}
+.modal-success p{font-size:13px;color:var(--text-sec);line-height:1.6}
 </style>
 </head>
 <body>
@@ -478,7 +557,7 @@ footer{
     <a href="#screenshots">预览</a>
     <a href="#advantages">优势</a>
     <span style="width:8px"></span>
-    <a href="/app" class="nav-cta">进入应用 →</a>
+    <a href="javascript:void(0)" onclick="openApplyModal()" class="nav-cta">申请使用 →</a>
   </div>
 </nav>
 
@@ -495,8 +574,8 @@ footer{
         将方案 PDF 智能解析为结构化知识，一键生成符合规范的临床研究文档。
       </p>
       <div class="hero-btns">
-        <a href="/app" class="btn-primary">
-          免费使用 →
+        <a href="javascript:void(0)" onclick="openApplyModal()" class="btn-primary">
+          申请使用 →
         </a>
         <a href="#features" class="btn-secondary">
           了解更多
@@ -691,10 +770,10 @@ footer{
 <div class="cta-section">
   <div class="container" style="position:relative;z-index:1">
     <h2 class="cta-title">让 AI 替你写临床文档</h2>
-    <p class="cta-desc">上传一份方案 PDF，看看 AI 能帮你生成什么。免费使用，无需注册。</p>
+    <p class="cta-desc">上传一份方案 PDF，看看 AI 能帮你生成什么。提交申请即可开通账号。</p>
     <div class="cta-btns">
-      <a href="/app" class="btn-primary" style="padding:14px 36px;font-size:15px">
-        立即体验 →
+      <a href="javascript:void(0)" onclick="openApplyModal()" class="btn-primary" style="padding:14px 36px;font-size:15px">
+        申请使用 →
       </a>
       <a href="https://github.com/jacobatxa/crogo" target="_blank" rel="noopener" class="btn-secondary" style="padding:14px 36px;font-size:15px">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.2 11.4.6.1.82-.26.82-.58v-2.17c-3.34.73-4.04-1.42-4.04-1.42-.54-1.38-1.33-1.75-1.33-1.75-1.09-.75.08-.73.08-.73 1.2.08 1.83 1.23 1.83 1.23 1.07 1.83 2.8 1.3 3.48 1 .1-.78.42-1.3.76-1.6-2.66-.3-5.46-1.33-5.46-5.93 0-1.32.47-2.39 1.23-3.23-.12-.3-.54-1.52.12-3.16 0 0 1.01-.32 3.3 1.23.96-.27 1.98-.4 3-.4s2.04.13 3 .4c2.3-1.55 3.3-1.23 3.3-1.23.66 1.64.24 2.86.12 3.16.76.84 1.23 1.91 1.23 3.23 0 4.6-2.8 5.63-5.48 5.93.43.37.82 1.1.82 2.22v3.29c0 .32.22.7.83.58C20.56 21.8 24 17.3 24 12 24 5.37 18.63 0 12 0z"/></svg>
@@ -723,7 +802,7 @@ footer{
         <a href="#features">功能</a>
         <a href="#workflow">工作流</a>
         <a href="#screenshots">预览</a>
-        <a href="/app">应用</a>
+        <a href="javascript:void(0)" onclick="openApplyModal()">申请使用</a>
       </div>
       <div class="footer-col">
         <h4>资源</h4>
@@ -750,6 +829,38 @@ footer{
   <img id="lightboxImg" src="" alt="预览">
 </div>
 
+<!-- ═══ Apply Modal ═══ -->
+<div class="modal-overlay" id="applyModal" onclick="if(event.target===this)closeApplyModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeApplyModal()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="modal-icon">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    </div>
+    <h3>申请使用 Crogo</h3>
+    <p class="modal-desc">填写联系方式，我们将在 24 小时内为您开通账号。</p>
+    <div id="applyForm">
+      <div class="form-group">
+        <label>手机号码</label>
+        <input type="tel" id="applyPhone" placeholder="请输入手机号" autocomplete="tel">
+      </div>
+      <div class="form-group">
+        <label>邮箱地址</label>
+        <input type="email" id="applyEmail" placeholder="请输入邮箱" autocomplete="email">
+      </div>
+      <button class="btn-submit" onclick="submitApply()">提交申请</button>
+    </div>
+    <div class="modal-success" id="applySuccess">
+      <div class="check">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h4>申请已提交</h4>
+      <p>我们会尽快联系您，开通账号后将以邮件和短信通知。</p>
+    </div>
+  </div>
+</div>
+
 <script>
 function openLightbox(src){
   document.getElementById('lightboxImg').src = src;
@@ -768,6 +879,29 @@ const observer = new IntersectionObserver(entries => {
   });
 }, {threshold:.1, rootMargin:'0px 0px -40px 0px'});
 document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+// Apply Modal
+function openApplyModal(){
+  document.getElementById('applyModal').classList.add('show');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('applyForm').style.display = '';
+  document.getElementById('applySuccess').classList.remove('show');
+  document.getElementById('applyPhone').value = '';
+  document.getElementById('applyEmail').value = '';
+}
+function closeApplyModal(){
+  document.getElementById('applyModal').classList.remove('show');
+  document.body.style.overflow = '';
+}
+function submitApply(){
+  const phone = document.getElementById('applyPhone').value.trim();
+  const email = document.getElementById('applyEmail').value.trim();
+  if(!phone && !email){alert('请至少填写手机号或邮箱');return}
+  // In production: POST to /api/apply
+  document.getElementById('applyForm').style.display = 'none';
+  document.getElementById('applySuccess').classList.add('show');
+  setTimeout(closeApplyModal, 3000);
+}
 </script>
 </body>
 </html>
